@@ -1,0 +1,144 @@
+# Acceptance spec for the demo part. The rules engine - not the LLM - decides
+# severity and the verdict from these numbers. Replace them with your real
+# drawing/QA limits; the values here are placeholders for the demo.
+
+part:
+  name: Flat aluminium plate 100 x 100 x 3 mm
+  material: aluminium (mill / brushed finish)
+  size_mm: [100, 100]
+
+min_confidence: 0.6   # below this the part is held for a QA person
+
+# First match wins. rect_mm = [x, y, width, height] from the plate's top-left corner.
+zones:
+  - name: sealing_face
+    rect_mm: [0, 0, 100, 15]
+  - name: general
+    rect_mm: [0, 0, 100, 100]
+
+defects:
+  scratch:
+    measure: length_mm
+    limits: {minor: 1.0, major: 5.0, critical: 15.0}
+    zone_limits:
+      sealing_face: {minor: 0.5, major: 2.0, critical: 5.0}
+    reworkable: true
+    action: Polish the scratch out along the grain with 400-grit paper, wipe with IPA, re-inspect.
+    likely_causes:
+      - parts sliding against each other when stacked
+      - a burr or hard edge on a fixture, conveyor guide or tray
+      - tools or rings touching the face during handling
+    prevention: Use separator sheets between plates and check guides and trays for burrs.
+
+  crack:
+    measure: length_mm
+    limits: {minor: 0.0, major: 0.0, critical: 0.0}   # any crack is critical
+    reworkable: false
+    action: Do not rework. Quarantine the part with a red tag and inform QA - cracks can grow in service.
+    likely_causes:
+      - over-bending or forming strain
+      - quench or welding stress
+      - a material flaw such as an inclusion
+    prevention: QA should check the forming settings and the raw-material batch.
+
+  dent:
+    measure: diameter_mm
+    limits: {minor: 1.0, major: 3.0, critical: 6.0}
+    reworkable: false
+    action: Do not try to hammer it flat on the line. Set it aside for QA to decide on scrap or straightening.
+    likely_causes:
+      - the plate dropped or struck by a tool
+      - a chip or particle trapped under the plate in a press or clamp
+    prevention: Clean clamp and press faces every shift; use padded bins.
+
+  bump:
+    measure: diameter_mm
+    limits: {minor: 0.5, major: 2.0, critical: 5.0}
+    reworkable: true
+    action: Remove the raised point with a fine flat file or deburring tool, keep the face flat, re-inspect.
+    likely_causes:
+      - an impact from the back side
+      - weld spatter or a burr
+    prevention: Shield plates from spatter; deburr after cutting.
+
+  pit:
+    measure: diameter_mm
+    limits: {minor: 0.2, major: 0.5, critical: 1.5}
+    zone_limits:
+      sealing_face: {minor: 0.1, major: 0.3, critical: 0.5}
+    reworkable: false
+    action: Pits cannot be polished out without thinning the plate. Set aside for QA.
+    likely_causes:
+      - corrosion pitting
+      - porosity in the raw material
+      - spark or arc strike
+    prevention: Store plates dry; keep welding earth clamps away from finished faces.
+
+  stain:
+    measure: area_mm2
+    limits: {minor: 2.0, major: 10.0, critical: 100.0}
+    reworkable: true
+    action: Clean with IPA. If it is corrosion, remove it with a non-scratch pad, dry fully, re-inspect.
+    likely_causes:
+      - moisture or bare-hand contact leading to corrosion
+      - coolant or oil residue
+      - marker or label adhesive
+    prevention: Wear gloves; dry parts fully after washing; store away from moisture.
+
+  dust:
+    measure: diameter_mm
+    limits: {minor: 0.0, major: 1000.0, critical: 1000.0}
+    disposition: CLEAN_AND_REINSPECT
+    reworkable: true
+    action: Blow off with filtered air or wipe with a lint-free cloth, then inspect again.
+    likely_causes:
+      - airborne dust or metal chips settling on the part
+      - a dirty glove or cloth
+    prevention: Keep parts covered between operations; clean the jig every hour.
+
+  unknown:
+    disposition: HOLD_FOR_QA
+    reworkable: false
+    action: The system could not identify this mark. Set the part aside and call the QA supervisor.
+    likely_causes: []
+    prevention: QA should label this case so the classifier can learn it.
+
+# ---- Red-dye penetrant (visible, solvent-removable) -----------------------------------
+# Indications are graded the way industry grades penetrant indications. No code covers
+# plain aluminium plate, so these profiles are templates: choose the one your customer
+# or drawing specifies and replace the numbers with your own acceptance limits.
+penetrant:
+  profile: asme_app8          # default; override with `trinetra penetrant --profile ...`
+  relevant_mm: 1.6            # 1/16 in: smaller indications are non-relevant (logged only)
+  profiles:
+    asme_app8:
+      source: ASME BPVC Sec. VIII Div. 1 Mandatory Appendix 8 (as commonly summarised; check your edition)
+      linear_max_mm: 0.0      # any relevant linear indication rejects
+      rounded_max_mm: 4.8     # 3/16 in
+      aligned: {count: 4, gap_mm: 1.6}   # 4+ rounded in a line, <= 1/16 in edge to edge
+    iso23277_al1:
+      source: ISO 23277 acceptance level 1 (Table 1)
+      merge: true             # neighbours closer than the smaller one's major dimension = one indication
+      linear_max_mm: 2.0
+      rounded_max_mm: 4.0
+    iso23277_al2:
+      source: ISO 23277 acceptance level 2 (Table 1)
+      merge: true
+      linear_max_mm: 4.0
+      rounded_max_mm: 6.0
+    iso23277_al3:
+      source: ISO 23277 acceptance level 3 (Table 1)
+      merge: true
+      linear_max_mm: 8.0
+      rounded_max_mm: 8.0
+  actions:
+    linear: Reject. Quarantine the plate with a red tag; a linear indication is crack-like. If in doubt, do a wipe-off check (swab, re-develop, look again after 10 min) and inform QA.
+    rounded: Reject. Rounded indication above the size limit - likely porosity or a pit. Set aside for QA.
+    aligned: Reject. Several pores in a line usually trace a hidden flaw. Set aside for QA.
+    accept: No action needed; logged for trend tracking. Post-clean the plate (penetrant residue causes corrosion).
+  likely_causes:
+    linear: [over-bending or forming strain, fatigue from vibration or cyclic load, quench or welding stress]
+    rounded: [gas porosity in the casting or weld, corrosion pitting, inclusions pulled out during machining]
+  prevention:
+    linear: QA should check the forming radius, heat treatment and the raw-material batch.
+    rounded: QA should check the casting or welding parameters and storage conditions.
