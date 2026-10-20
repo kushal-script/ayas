@@ -1,0 +1,79 @@
+# Simulated rig: same pipeline as the Pi, with synthetic plates instead of cameras.
+paths:
+  data_dir: data/sim
+  spec: configs/spec.yaml
+  classifier: models/classifier.sim.joblib
+
+grid:
+  plate_w_mm: 80          # kept smaller than the real 100 mm plate so the simulator runs fast
+  plate_h_mm: 80
+  border_mm: 5
+  mm_per_px: 0.1
+  edge_margin_mm: 2
+
+# White LEDs. Azimuth in grid coordinates (x right, y down): 90 = front, where the arch stands.
+# Each camera has a "pair" light next to it on the arch. P210/P330 are two extra lights at
+# 45 deg elevation round the plate; with L45 they give a full 3D shape map. Remove them and
+# the 3D map falls back to slope along the arch only (all remaining lights in one plane).
+lights:
+  active_high: true
+  leds:
+    L90:  {elevation_deg: 90, azimuth_deg: 90, pair: top}
+    L45:  {elevation_deg: 45, azimuth_deg: 90, pair: oblique45, shape: true}
+    L15:  {elevation_deg: 15, azimuth_deg: 90, pair: grazing}
+    P210: {elevation_deg: 45, azimuth_deg: 210, shape: true}
+    P330: {elevation_deg: 45, azimuth_deg: 330, shape: true}
+
+detection:
+  z_threshold: 6.0
+  sigma_floor: 0.008
+  shape_sigma_floor: 0.01
+  smooth_px: 1.0
+  close_mm: 1.5
+  group_mm: 2.5
+  min_area_mm2: 0.05
+  min_confidence: 0.6
+
+capture:
+  settle_s: 0.0
+
+penetrant:
+  redness_high: 0.45
+  redness_low: 0.22
+
+cameras:
+  top:
+    backend: sim
+    elevation_deg: 90
+    sim:
+      image_size: [960, 720]
+      plate_corners_px: [[140, 20], [820, 20], [820, 700], [140, 700]]
+      view_gain: 1.0
+      scatter_gain: 0.3
+  oblique45:
+    backend: sim
+    elevation_deg: 45
+    sim:
+      image_size: [960, 720]
+      plate_corners_px: [[180, 120], [780, 120], [860, 600], [100, 600]]
+      view_gain: 0.85
+      scatter_gain: 1.0
+  grazing:
+    backend: sim
+    elevation_deg: 15
+    sim:
+      image_size: [960, 720]
+      plate_corners_px: [[200, 250], [760, 250], [930, 480], [30, 480]]
+      view_gain: 0.7
+      scatter_gain: 2.5
+
+sim:
+  seed: 7
+  jitter_mm: 0.15
+  jitter_deg: 0.1
+  light_drift: 0.004
+  ambient_max: 0.15       # room light, random per part (level, colour, gradient)
+  flicker: 0.01           # room-light change between captures (mains flicker residue)
+
+llm:
+  backend: mock

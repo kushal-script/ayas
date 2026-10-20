@@ -1,0 +1,100 @@
+# Real rig on the Raspberry Pi 5. Values marked TUNE are starting points - set them
+# on the rig (see docs/TriNetra_plan.md, "Bring-up").
+paths:
+  data_dir: data/rig
+  spec: configs/spec.yaml
+  classifier: models/classifier.joblib
+
+grid:
+  plate_w_mm: 100         # aluminium plate 100 x 100 x 3 mm
+  plate_h_mm: 100
+  border_mm: 5
+  mm_per_px: 0.1          # 0.05 once everything works (4x the pixels, finer scratches)
+  edge_margin_mm: 2
+
+# One white 3 W LED per GPIO pin, through a logic-level MOSFET (resistor per LED).
+# Azimuth in grid coordinates (x right, y down, as the top camera sees the plate):
+# 90 = the front edge, where the 0-90 deg arch stands. "pair" = the camera it sits next to.
+# P210/P330: two extra LEDs on short posts at 45 deg elevation, 120 deg either side of the
+# arch. With L45 they give the full 3D shape map. Delete them for the 3-light-only build;
+# 3D then falls back to slope along the arch (dents/bumps still told apart by shading).
+lights:
+  active_high: true
+  leds:
+    L90:  {pin: 17, elevation_deg: 90, azimuth_deg: 90, pair: top}
+    L45:  {pin: 27, elevation_deg: 45, azimuth_deg: 90, pair: oblique45, shape: true}
+    L15:  {pin: 22, elevation_deg: 15, azimuth_deg: 90, pair: grazing}
+    P210: {pin: 23, elevation_deg: 45, azimuth_deg: 210, shape: true}
+    P330: {pin: 24, elevation_deg: 45, azimuth_deg: 330, shape: true}
+
+detection:
+  z_threshold: 6.0        # TUNE: lowest value with zero flags on 10 good parts
+  sigma_floor: 0.008
+  shape_sigma_floor: 0.01
+  smooth_px: 1.0
+  close_mm: 1.5
+  group_mm: 2.5
+  min_area_mm2: 0.05
+  min_confidence: 0.6
+
+capture:
+  settle_s: 0.05          # LED rise time + margin
+
+penetrant:
+  redness_high: 0.45      # TUNE on a developed plate with a known crack
+  redness_low: 0.22
+
+cameras:
+  top:                    # AI Camera (IMX500) on CAM/DISP 0, used as a plain camera.
+    backend: picamera2    # Its lens focuses from 20 cm, so mount it 20-25 cm above the plate
+    elevation_deg: 90     # and use full resolution (~0.065 mm/px over the plate at 20 cm).
+    corner_order: [0, 1, 2, 3]
+    driver:
+      index: 0            # check order with: python3 -c "from picamera2 import Picamera2; print(Picamera2.global_camera_info())"
+      size: [4056, 3040]
+      exposure_us: 20000  # TUNE (multiple of 10 ms for 50 Hz mains): plate 40-60 % under L90, LED + room light never clipped
+      analogue_gain: 1.0
+      colour_gains: [1.0, 1.0]   # TUNE once on a grey card, then keep fixed
+      flush_frames: 2
+  grazing:                # HQ Camera (IMX477) + 16 mm C-mount lens at ~15 deg, f/11, focused mid-plate,
+                          # ~45 cm from the plate so the whole plate stays in focus.
+                          # Arducam HQ is not auto-detected: in /boot/firmware/config.txt set
+                          # camera_auto_detect=0, dtoverlay=imx500,cam0 and dtoverlay=imx477 (CAM1).
+    backend: picamera2
+    elevation_deg: 15
+    corner_order: [0, 1, 2, 3]   # TUNE if the camera sees the plate rotated
+    # corners_px: [[x, y], [x, y], [x, y], [x, y]]  # manual fallback: TL, TR, BR, BL in the image
+    driver:
+      index: 1
+      size: [2028, 1520]
+      exposure_us: 40000
+      analogue_gain: 1.0
+      colour_gains: [1.0, 1.0]
+      flush_frames: 2
+  oblique45:              # USB camera (Waveshare IMX335 5MP (B), or a C920-class webcam).
+    backend: usb          # It MUST allow manual exposure + white balance: check with
+    elevation_deg: 45     # `v4l2-ctl -d <device> --list-ctrls`. The IMX335 (B) has a 175 deg
+    corner_order: [0, 1, 2, 3]   # fisheye lens: mount it ~15 cm from the plate.
+    driver:
+      # Use the stable by-id path; on a Pi 5 the CSI pipeline owns /dev/video0..N.
+      device: /dev/v4l/by-id/REPLACE-with-your-camera-video-index0
+      size: [1920, 1080]
+      flush_frames: 4
+      v4l2_controls:      # names from `v4l2-ctl --list-ctrls` (these are C920-style; rename for your camera)
+        auto_exposure: 1
+        exposure_time_absolute: 300
+        exposure_dynamic_framerate: 0
+        white_balance_automatic: 0
+        white_balance_temperature: 4500
+        power_line_frequency: 1   # 50 Hz mains
+
+llm:
+  backend: executorch
+  runner: /home/pi/executorch-pi/llama_main   # from the ExecuTorch Raspberry Pi tutorial; may need its env/loader wrapper
+  model_path: models/llama3_2_1b_instruct.pte
+  tokenizer_path: models/tokenizer.model
+  seq_len: 2048            # prompt + answer; the .pte must be exported with a context at least this long
+  temperature: 0.2
+  cpu_threads: 4
+  timeout_s: 180
+  history_turns: 3
