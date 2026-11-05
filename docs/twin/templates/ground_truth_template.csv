@@ -1,0 +1,47 @@
+defect_id,plate,face,cls,kind,u_mm,v_mm,length_mm,width_mm,diameter_mm,angle_deg,poly_mm,eval_class,notes
+D1,P2,A,crack,slit,20.0,17.55,1.0,0.3,,90.0,,crack,planned; jeweller's saw 1 mm; visible beyond heads 0.00 mm; crack-like notch; hidden under the 8 mm rivet head (realistic)
+D2,P2,A,crack,slit,40.0,18.05,2.0,0.3,,90.0,,crack,planned; jeweller's saw 2 mm; visible beyond heads 0.05 mm; crack-like notch; only its tip reaches the head edge
+D3,P2,A,crack,slit,84.05,15.0,4.0,0.3,,0.0,,crack,planned; jeweller's saw 4 mm; visible beyond heads 2.05 mm; crack-like notch along the rivet row
+D4,P2,A,crack,slit,20.0,79.95,6.0,0.3,,90.0,,crack,planned; jeweller's saw 6 mm; visible beyond heads 4.05 mm; crack-like notch
+D5,P2,A,corrosion,fretting,60.0,77.0,8.0,2.0,,90.0,,corrosion,"planned; graphite smear 8 x 2; SIMULATED smoking-rivet streak (graphite/oxide smear), not real fretting"
+D1,P3,A,dent,punch,20.0,21.8,,,0.6,,,dent,planned; punch low x1; depth 0.25 mm
+D2,P3,A,dent,punch,43.96,21.86,,,0.85,,,dent,planned; punch mid x2; depth 0.37 mm
+D3,P3,A,dent,punch,55.48,22.84,,,1.1,,,dent,planned; punch high x3; depth 0.5 mm
+D4,P3,A,dent,punch,12.0,48.0,,,0.7,,,dent,planned; punch low x3; depth 0.3 mm
+D5,P3,A,dent,punch,50.0,72.0,,,0.8,,,dent,planned; punch mid x1; depth 0.35 mm
+D6,P3,A,dent,punch,88.0,40.0,,,1.05,,,dent,planned; punch high x2; depth 0.47 mm
+D7,P3,A,dent,ball,22.0,80.0,,,5.5,,,dent,planned; ball + light blow; depth 0.3 mm
+D8,P3,A,dent,ball,82.0,82.0,,,7.5,,,dent,planned; ball + firm blow; depth 0.6 mm
+D9,P3,A,scratch,scriber,46.0,35.5,40.31,0.08,,7.1,,scratch,planned; scriber 1 light pass; depth 0.01 mm; light
+D10,P3,A,scratch,scriber,40.0,53.0,24.41,0.2,,35.0,,scratch,planned; scriber 3 passes; depth 0.03 mm; medium
+D11,P3,A,scratch,scriber,76.0,59.0,29.73,0.35,,160.3,,scratch,planned; scriber 5 firm passes; depth 0.06 mm; heavy
+D12,P3,A,scratch,gouge,14.0,60.5,16.76,1.0,,17.4,,scratch,planned; file corner 3 passes; depth 0.25 mm
+D13,P3,A,scratch,abrasion,50.0,86.0,10.0,10.0,,0.0,,scratch,planned; 220 grit 30 strokes along u; depth 0.01 mm
+D14,P3,A,dent,nick,0.0,30.0,,,2.0,,,dent,planned; triangular file; depth 0.6 mm
+D15,P3,A,dent,nick,100.0,66.0,,,2.5,,,dent,planned; triangular file; depth 0.8 mm
+D1,P4,A,corrosion,galvanic,25.0,28.0,,,12.0,,,corrosion,planned; salt+vinegar 48-72 h; ring outside the fastener head at H1
+D2,P4,A,corrosion,galvanic,75.0,28.0,,,14.0,,,corrosion,planned; salt+vinegar 48-72 h; ring outside the fastener head at H2
+D3,P4,A,corrosion,pitting,50.0,14.0,,,8.0,,,corrosion,planned; salt+vinegar 48-72 h
+D4,P4,A,corrosion,pitting,50.0,42.0,,,10.0,,,corrosion,planned; salt+vinegar 48-72 h
+D5,P4,A,crack,slit,88.0,1.5,3.0,0.6,,90.0,,crack,planned; hacksaw 3 mm; visible beyond heads 3.00 mm; crack-like edge notch; record the measured kerf
+D6,P4,A,crack,slit,3.0,40.0,6.0,0.6,,0.0,,crack,planned; hacksaw 6 mm; visible beyond heads 6.00 mm; crack-like edge notch; record the measured kerf
+D1,S1,A,crack,slit,50.0,12.55,1.0,0.3,,90.0,,crack,planned; jeweller's saw 1 mm; visible beyond heads 1.00 mm; starter notch
+D2,S1,A,crack,fatigue,50.05,14.55,3.09,0.02,,88.1,"[[49.99, 13.052], [50.14, 13.8], [49.94, 14.6], [50.19, 15.301], [50.09, 16.049], [50.11, 16.051], [50.21, 15.299], [49.96, 14.6], [50.16, 13.8], [50.01, 13.048]]",crack,"planned; reverse bending; visible beyond heads 3.09 mm; notch-initiated fatigue crack, planned 3 mm from the notch tip; replace pts_mm with the measured path"
+D1,S2,A,dent,punch,10.0,10.0,,,0.6,,,dent,planned; punch low x1; depth 0.25 mm
+D2,S2,A,dent,punch,20.0,10.0,,,0.65,,,dent,planned; punch low x2; depth 0.28 mm
+D3,S2,A,dent,punch,30.0,10.0,,,0.7,,,dent,planned; punch low x3; depth 0.3 mm
+D4,S2,A,dent,punch,40.0,10.0,,,0.8,,,dent,planned; punch mid x1; depth 0.35 mm
+D5,S2,A,dent,punch,50.0,10.0,,,0.85,,,dent,planned; punch mid x2; depth 0.37 mm
+D6,S2,A,dent,punch,60.0,10.0,,,0.9,,,dent,planned; punch mid x3; depth 0.4 mm
+D7,S2,A,dent,punch,70.0,10.0,,,1.0,,,dent,planned; punch high x1; depth 0.45 mm
+D8,S2,A,dent,punch,80.0,10.0,,,1.05,,,dent,planned; punch high x2; depth 0.47 mm
+D9,S2,A,dent,punch,90.0,10.0,,,1.1,,,dent,planned; punch high x3; depth 0.5 mm
+D1,P5,A,dent,punch,20.0,73.05,,,0.9,,,dent,planned; punch mid x3; depth 0.4 mm
+D2,P5,A,dent,punch,69.99,73.99,,,1.0,,,dent,planned; punch high x1; depth 0.45 mm
+D3,P5,A,dent,punch,30.0,35.0,,,0.65,,,dent,planned; punch low x2; depth 0.28 mm
+D4,P5,A,dent,ball,70.0,30.0,,,6.5,,,dent,planned; ball + medium blow; depth 0.45 mm
+D5,P5,A,scratch,scriber,28.5,18.5,33.73,0.2,,12.0,,scratch,planned; scriber 3 passes; depth 0.03 mm
+D6,P5,A,scratch,gouge,49.0,54.0,19.7,0.9,,24.0,,scratch,planned; file corner 3 passes; depth 0.2 mm
+D7,P5,A,crack,slit,52.05,80.0,4.0,0.3,,0.0,,crack,planned; jeweller's saw 4 mm; visible beyond heads 2.05 mm; crack-like notch along the row
+D8,P5,A,corrosion,pitting,25.0,55.0,,,7.0,,,corrosion,planned; salt+vinegar 48-72 h
+D9,P5,A,dent,nick,88.0,0.0,,,2.0,,,dent,planned; triangular file; depth 0.6 mm

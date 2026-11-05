@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="140mm" height="108.2mm" viewBox="0 0 140 108.2" font-family="Helvetica, Arial, sans-serif">
+<title>S1A Fatigue crack (penetrant demo) - TriNetra coupon template (1:1)</title>
+<defs><pattern id="hatch-corrosion" patternUnits="userSpaceOnUse" width="0.8" height="0.8" patternTransform="rotate(45)"><path d="M0 0.4H0.8" stroke="#b35a00" stroke-width="0.15"/></pattern><pattern id="hatch-scratch" patternUnits="userSpaceOnUse" width="0.8" height="0.8" patternTransform="rotate(0)"><path d="M0 0.4H0.8" stroke="#1f5fbf" stroke-width="0.15"/></pattern><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="1.4" markerHeight="1.4" orient="auto"><path d="M0 0L10 5L0 10z" fill="#8e24aa"/></marker></defs>
+<rect x="0" y="0" width="140" height="108.2" fill="#ffffff"/>
+<text x="20" y="7.5" font-size="4.2" fill="#000" text-anchor="start" font-weight="bold">S1A  Fatigue crack (penetrant demo)</text>
+<text x="20" y="12" font-size="2" fill="#000" text-anchor="start" font-weight="normal">role: calib  |  plate 100 x 20 x 3 mm  |  drill Ø4.1 for Ø4 fasteners  |  TriNetra aircraft-representative coupon (commercial alloy)</text>
+<g transform="translate(20 22)">
+<line x1="0" y1="-0.6" x2="0" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="0" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">0</text>
+<line x1="5" y1="-0.6" x2="5" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="10" y1="-0.6" x2="10" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="10" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">10</text>
+<line x1="15" y1="-0.6" x2="15" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="20" y1="-0.6" x2="20" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="20" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">20</text>
+<line x1="25" y1="-0.6" x2="25" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="30" y1="-0.6" x2="30" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="30" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">30</text>
+<line x1="35" y1="-0.6" x2="35" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="40" y1="-0.6" x2="40" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="40" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">40</text>
+<line x1="45" y1="-0.6" x2="45" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="50" y1="-0.6" x2="50" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="50" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">50</text>
+<line x1="55" y1="-0.6" x2="55" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="60" y1="-0.6" x2="60" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="60" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">60</text>
+<line x1="65" y1="-0.6" x2="65" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="70" y1="-0.6" x2="70" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="70" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">70</text>
+<line x1="75" y1="-0.6" x2="75" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="80" y1="-0.6" x2="80" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="80" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">80</text>
+<line x1="85" y1="-0.6" x2="85" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="90" y1="-0.6" x2="90" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="90" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">90</text>
+<line x1="95" y1="-0.6" x2="95" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="100" y1="-0.6" x2="100" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="100" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">100</text>
+<line x1="-0.6" y1="0" x2="-2.6" y2="0" stroke="#999999" stroke-width="0.12"/>
+<text x="-3.4" y="0.55" font-size="1.6" fill="#999999" text-anchor="end" font-weight="normal">0</text>
+<line x1="-0.6" y1="5" x2="-1.6" y2="5" stroke="#999999" stroke-width="0.12"/>
+<line x1="-0.6" y1="10" x2="-2.6" y2="10" stroke="#999999" stroke-width="0.12"/>
+<text x="-3.4" y="10.55" font-size="1.6" fill="#999999" text-anchor="end" font-weight="normal">10</text>
+<line x1="-0.6" y1="15" x2="-1.6" y2="15" stroke="#999999" stroke-width="0.12"/>
+<line x1="-0.6" y1="20" x2="-2.6" y2="20" stroke="#999999" stroke-width="0.12"/>
+<text x="-3.4" y="20.55" font-size="1.6" fill="#999999" text-anchor="end" font-weight="normal">20</text>
+<text x="101.5" y="-3.6" font-size="1.6" fill="#999999" text-anchor="start" font-weight="normal">u (mm)</text>
+<text x="-3.4" y="24" font-size="1.6" fill="#999999" text-anchor="end" font-weight="normal">v (mm)</text>
+<rect x="0" y="0" width="100" height="20" fill="none" stroke="#000" stroke-width="0.35"/>
+<rect x="2.5" y="2.5" width="3" height="3" fill="none" stroke="#000" stroke-width="0.1" stroke-dasharray="0.4 0.3"/>
+<text x="4" y="5.1" font-size="3" fill="#000" text-anchor="middle" font-weight="bold">A</text>
+<g><title>H1 Ø4.1 open</title>
+<path d="M45.95 10H54.05M50 5.95V14.05" stroke="#000000" stroke-width="0.12" fill="none"/>
+<ellipse cx="50" cy="10" rx="2.05" ry="2.05" transform="rotate(0 50 10)" fill="none" stroke="#000000" stroke-width="0.2"/>
+</g>
+<g><title>D1 crack.slit: jeweller&#x27;s saw 1 mm; starter notch</title>
+<line x1="50" y1="12.05" x2="50" y2="13.05" stroke="#8e24aa" stroke-width="0.3" marker-end="url(#arrow)"/>
+</g>
+<g><title>D2 crack.fatigue: reverse bending; notch-initiated fatigue crack, planned 3 mm from the notch tip; replace pts_mm with the measured path</title>
+<polyline points="50,13.05 50.15,13.8 49.95,14.6 50.2,15.3 50.1,16.05" fill="none" stroke="#8e24aa" stroke-width="0.25" stroke-dasharray="0.6 0.4"/>
+</g>
+<text x="52.85" y="6.7" font-size="1.8" fill="#000" text-anchor="start" font-weight="normal">H1 Ø4.1 open</text>
+<text x="51.6" y="13.5" font-size="1.8" fill="#8e24aa" text-anchor="start" font-weight="normal">D1 slit 1</text>
+<text x="51.7" y="16.5" font-size="1.8" fill="#8e24aa" text-anchor="start" font-weight="normal">D2 crack ~3</text>
+<path d="M0 27H50" stroke="#000" stroke-width="0.4"/>
+<line x1="0" y1="25.8" x2="0" y2="28.2" stroke="#000" stroke-width="0.2"/>
+<text x="0" y="30.6" font-size="1.8" fill="#000" text-anchor="middle" font-weight="normal">0</text>
+<line x1="10" y1="25.8" x2="10" y2="28.2" stroke="#000" stroke-width="0.2"/>
+<text x="10" y="30.6" font-size="1.8" fill="#000" text-anchor="middle" font-weight="normal">10</text>
+<line x1="20" y1="25.8" x2="20" y2="28.2" stroke="#000" stroke-width="0.2"/>
+<text x="20" y="30.6" font-size="1.8" fill="#000" text-anchor="middle" font-weight="normal">20</text>
+<line x1="30" y1="25.8" x2="30" y2="28.2" stroke="#000" stroke-width="0.2"/>
+<text x="30" y="30.6" font-size="1.8" fill="#000" text-anchor="middle" font-weight="normal">30</text>
+<line x1="40" y1="25.8" x2="40" y2="28.2" stroke="#000" stroke-width="0.2"/>
+<text x="40" y="30.6" font-size="1.8" fill="#000" text-anchor="middle" font-weight="normal">40</text>
+<line x1="50" y1="25.8" x2="50" y2="28.2" stroke="#000" stroke-width="0.2"/>
+<text x="50" y="30.6" font-size="1.8" fill="#000" text-anchor="middle" font-weight="normal">50</text>
+<text x="53" y="27.6" font-size="2.2" fill="#000" text-anchor="start" font-weight="normal">Print at 100 % (actual size, no &#x27;fit to page&#x27;).</text>
+<text x="53" y="30.6" font-size="2.2" fill="#000" text-anchor="start" font-weight="bold">Check: this bar must measure 50.0 mm.</text>
+</g>
+<text x="8" y="59" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">Datum corner A = top-left of face A: punch a small &#x27;A&#x27; at the marked spot. Coordinates in mm from A: u</text>
+<text x="8" y="62.3" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">right, v down.</text>
+<text x="8" y="65.6" font-size="2.3" fill="#000" text-anchor="start" font-weight="bold">Make:</text>
+<text x="8" y="68.9" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">1. Punch the datum &quot;A&quot; (top-left of face A) on the strip; photograph faces A and B bare.</text>
+<text x="8" y="72.2" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">2. Tape the S1A template; centre-punch and drill H1 4.1 mm at mid-length; deburr both sides.</text>
+<text x="8" y="75.5" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">3. Starter notch D1 - jeweller&#x27;s saw through H1, 1 mm from the hole edge towards the bottom long edge (+v).</text>
+<text x="8" y="78.8" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">4. Clamp S1 upright in the vise (soft jaws) by one end, with the hole centre 2-3 mm above the jaw tops.</text>
+<text x="8" y="82.1" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">    Reverse-bend the free end through the face (towards face A, then face B) about +-15-20 deg by hand,</text>
+<text x="8" y="85.4" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">    counting cycles; check with a 10x loupe every 10 cycles.</text>
+<text x="8" y="88.7" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">5. Stop when a hairline runs 2-5 mm past the notch tip towards the edge; return the strip to flat; record</text>
+<text x="8" y="92" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">    cycles and the crack length.</text>
+<text x="8" y="95.3" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">6. Photograph the surface (no penetrant) first; only then do the penetrant demonstration (guide section 7).</text>
+<text x="8" y="98.6" font-size="2.3" fill="#000" text-anchor="start" font-weight="bold">Designed findings:</text>
+<text x="8" y="101.9" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">crack_indication D1, crack_indication D2</text>
+</svg>

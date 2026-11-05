@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="140mm" height="118.1mm" viewBox="0 0 140 118.1" font-family="Helvetica, Arial, sans-serif">
+<title>S2A Punch calibration - TriNetra coupon template (1:1)</title>
+<defs><pattern id="hatch-corrosion" patternUnits="userSpaceOnUse" width="0.8" height="0.8" patternTransform="rotate(45)"><path d="M0 0.4H0.8" stroke="#b35a00" stroke-width="0.15"/></pattern><pattern id="hatch-scratch" patternUnits="userSpaceOnUse" width="0.8" height="0.8" patternTransform="rotate(0)"><path d="M0 0.4H0.8" stroke="#1f5fbf" stroke-width="0.15"/></pattern><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="1.4" markerHeight="1.4" orient="auto"><path d="M0 0L10 5L0 10z" fill="#8e24aa"/></marker></defs>
+<rect x="0" y="0" width="140" height="118.1" fill="#ffffff"/>
+<text x="20" y="7.5" font-size="4.2" fill="#000" text-anchor="start" font-weight="bold">S2A  Punch calibration</text>
+<text x="20" y="12" font-size="2" fill="#000" text-anchor="start" font-weight="normal">role: calib  |  plate 100 x 20 x 3 mm  |  TriNetra aircraft-representative coupon (commercial alloy)</text>
+<g transform="translate(20 22)">
+<line x1="0" y1="-0.6" x2="0" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="0" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">0</text>
+<line x1="5" y1="-0.6" x2="5" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="10" y1="-0.6" x2="10" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="10" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">10</text>
+<line x1="15" y1="-0.6" x2="15" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="20" y1="-0.6" x2="20" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="20" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">20</text>
+<line x1="25" y1="-0.6" x2="25" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="30" y1="-0.6" x2="30" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="30" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">30</text>
+<line x1="35" y1="-0.6" x2="35" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="40" y1="-0.6" x2="40" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="40" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">40</text>
+<line x1="45" y1="-0.6" x2="45" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="50" y1="-0.6" x2="50" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="50" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">50</text>
+<line x1="55" y1="-0.6" x2="55" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="60" y1="-0.6" x2="60" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="60" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">60</text>
+<line x1="65" y1="-0.6" x2="65" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="70" y1="-0.6" x2="70" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="70" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">70</text>
+<line x1="75" y1="-0.6" x2="75" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="80" y1="-0.6" x2="80" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="80" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">80</text>
+<line x1="85" y1="-0.6" x2="85" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="90" y1="-0.6" x2="90" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="90" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">90</text>
+<line x1="95" y1="-0.6" x2="95" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="100" y1="-0.6" x2="100" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="100" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">100</text>
+<line x1="-0.6" y1="0" x2="-2.6" y2="0" stroke="#999999" stroke-width="0.12"/>
+<text x="-3.4" y="0.55" font-size="1.6" fill="#999999" text-anchor="end" font-weight="normal">0</text>
+<line x1="-0.6" y1="5" x2="-1.6" y2="5" stroke="#999999" stroke-width="0.12"/>
+<line x1="-0.6" y1="10" x2="-2.6" y2="10" stroke="#999999" stroke-width="0.12"/>
+<text x="-3.4" y="10.55" font-size="1.6" fill="#999999" text-anchor="end" font-weight="normal">10</text>
+<line x1="-0.6" y1="15" x2="-1.6" y2="15" stroke="#999999" stroke-width="0.12"/>
+<line x1="-0.6" y1="20" x2="-2.6" y2="20" stroke="#999999" stroke-width="0.12"/>
+<text x="-3.4" y="20.55" font-size="1.6" fill="#999999" text-anchor="end" font-weight="normal">20</text>
+<text x="101.5" y="-3.6" font-size="1.6" fill="#999999" text-anchor="start" font-weight="normal">u (mm)</text>
+<text x="-3.4" y="24" font-size="1.6" fill="#999999" text-anchor="end" font-weight="normal">v (mm)</text>
+<rect x="0" y="0" width="100" height="20" fill="none" stroke="#000" stroke-width="0.35"/>
+<rect x="2.5" y="2.5" width="3" height="3" fill="none" stroke="#000" stroke-width="0.1" stroke-dasharray="0.4 0.3"/>
+<text x="4" y="5.1" font-size="3" fill="#000" text-anchor="middle" font-weight="bold">A</text>
+<g><title>D1 dent.punch: punch low x1</title>
+<ellipse cx="10" cy="10" rx="0.3" ry="0.3" transform="rotate(0 10 10)" fill="none" stroke="#c0392b" stroke-width="0.2"/>
+<path d="M8.7 10H11.3M10 8.7V11.3" stroke="#c0392b" stroke-width="0.1" fill="none"/>
+</g>
+<g><title>D2 dent.punch: punch low x2</title>
+<ellipse cx="20" cy="10" rx="0.325" ry="0.325" transform="rotate(0 20 10)" fill="none" stroke="#c0392b" stroke-width="0.2"/>
+<path d="M18.675 10H21.325M20 8.675V11.325" stroke="#c0392b" stroke-width="0.1" fill="none"/>
+</g>
+<g><title>D3 dent.punch: punch low x3</title>
+<ellipse cx="30" cy="10" rx="0.35" ry="0.35" transform="rotate(0 30 10)" fill="none" stroke="#c0392b" stroke-width="0.2"/>
+<path d="M28.65 10H31.35M30 8.65V11.35" stroke="#c0392b" stroke-width="0.1" fill="none"/>
+</g>
+<g><title>D4 dent.punch: punch mid x1</title>
+<ellipse cx="40" cy="10" rx="0.4" ry="0.4" transform="rotate(0 40 10)" fill="none" stroke="#c0392b" stroke-width="0.2"/>
+<path d="M38.6 10H41.4M40 8.6V11.4" stroke="#c0392b" stroke-width="0.1" fill="none"/>
+</g>
+<g><title>D5 dent.punch: punch mid x2</title>
+<ellipse cx="50" cy="10" rx="0.425" ry="0.425" transform="rotate(0 50 10)" fill="none" stroke="#c0392b" stroke-width="0.2"/>
+<path d="M48.575 10H51.425M50 8.575V11.425" stroke="#c0392b" stroke-width="0.1" fill="none"/>
+</g>
+<g><title>D6 dent.punch: punch mid x3</title>
+<ellipse cx="60" cy="10" rx="0.45" ry="0.45" transform="rotate(0 60 10)" fill="none" stroke="#c0392b" stroke-width="0.2"/>
+<path d="M58.55 10H61.45M60 8.55V11.45" stroke="#c0392b" stroke-width="0.1" fill="none"/>
+</g>
+<g><title>D7 dent.punch: punch high x1</title>
+<ellipse cx="70" cy="10" rx="0.5" ry="0.5" transform="rotate(0 70 10)" fill="none" stroke="#c0392b" stroke-width="0.2"/>
+<path d="M68.5 10H71.5M70 8.5V11.5" stroke="#c0392b" stroke-width="0.1" fill="none"/>
+</g>
+<g><title>D8 dent.punch: punch high x2</title>
+<ellipse cx="80" cy="10" rx="0.525" ry="0.525" transform="rotate(0 80 10)" fill="none" stroke="#c0392b" stroke-width="0.2"/>
+<path d="M78.475 10H81.525M80 8.475V11.525" stroke="#c0392b" stroke-width="0.1" fill="none"/>
+</g>
+<g><title>D9 dent.punch: punch high x3</title>
+<ellipse cx="90" cy="10" rx="0.55" ry="0.55" transform="rotate(0 90 10)" fill="none" stroke="#c0392b" stroke-width="0.2"/>
+<path d="M88.45 10H91.55M90 8.45V11.55" stroke="#c0392b" stroke-width="0.1" fill="none"/>
+</g>
+<text x="5.466" y="7.451" font-size="1.8" fill="#c0392b" text-anchor="start" font-weight="normal">D1 low x1</text>
+<text x="15.464" y="7.429" font-size="1.8" fill="#c0392b" text-anchor="start" font-weight="normal">D2 low x2</text>
+<text x="25.466" y="7.401" font-size="1.8" fill="#c0392b" text-anchor="start" font-weight="normal">D3 low x3</text>
+<text x="35.464" y="7.35" font-size="1.8" fill="#c0392b" text-anchor="start" font-weight="normal">D4 mid x1</text>
+<text x="45.466" y="7.326" font-size="1.8" fill="#c0392b" text-anchor="start" font-weight="normal">D5 mid x2</text>
+<text x="55.464" y="7.303" font-size="1.8" fill="#c0392b" text-anchor="start" font-weight="normal">D6 mid x3</text>
+<text x="64.96" y="13.65" font-size="1.8" fill="#c0392b" text-anchor="start" font-weight="normal">D7 high x1</text>
+<text x="74.96" y="7.225" font-size="1.8" fill="#c0392b" text-anchor="start" font-weight="normal">D8 high x2</text>
+<text x="84.962" y="13.699" font-size="1.8" fill="#c0392b" text-anchor="start" font-weight="normal">D9 high x3</text>
+<path d="M0 27H50" stroke="#000" stroke-width="0.4"/>
+<line x1="0" y1="25.8" x2="0" y2="28.2" stroke="#000" stroke-width="0.2"/>
+<text x="0" y="30.6" font-size="1.8" fill="#000" text-anchor="middle" font-weight="normal">0</text>
+<line x1="10" y1="25.8" x2="10" y2="28.2" stroke="#000" stroke-width="0.2"/>
+<text x="10" y="30.6" font-size="1.8" fill="#000" text-anchor="middle" font-weight="normal">10</text>
+<line x1="20" y1="25.8" x2="20" y2="28.2" stroke="#000" stroke-width="0.2"/>
+<text x="20" y="30.6" font-size="1.8" fill="#000" text-anchor="middle" font-weight="normal">20</text>
+<line x1="30" y1="25.8" x2="30" y2="28.2" stroke="#000" stroke-width="0.2"/>
+<text x="30" y="30.6" font-size="1.8" fill="#000" text-anchor="middle" font-weight="normal">30</text>
+<line x1="40" y1="25.8" x2="40" y2="28.2" stroke="#000" stroke-width="0.2"/>
+<text x="40" y="30.6" font-size="1.8" fill="#000" text-anchor="middle" font-weight="normal">40</text>
+<line x1="50" y1="25.8" x2="50" y2="28.2" stroke="#000" stroke-width="0.2"/>
+<text x="50" y="30.6" font-size="1.8" fill="#000" text-anchor="middle" font-weight="normal">50</text>
+<text x="53" y="27.6" font-size="2.2" fill="#000" text-anchor="start" font-weight="normal">Print at 100 % (actual size, no &#x27;fit to page&#x27;).</text>
+<text x="53" y="30.6" font-size="2.2" fill="#000" text-anchor="start" font-weight="bold">Check: this bar must measure 50.0 mm.</text>
+</g>
+<text x="8" y="59" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">Datum corner A = top-left of face A: punch a small &#x27;A&#x27; at the marked spot. Coordinates in mm from A: u</text>
+<text x="8" y="62.3" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">right, v down.</text>
+<text x="8" y="65.6" font-size="2.3" fill="#000" text-anchor="start" font-weight="bold">Make:</text>
+<text x="8" y="68.9" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">1. Punch the datum &quot;A&quot; (top-left of face A) on the strip; photograph faces A and B bare.</text>
+<text x="8" y="72.2" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">2. Mark the punch cap at three positions (low = cap fully out, mid, high = fully in) with a marker so the</text>
+<text x="8" y="75.5" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">    settings repeat on P3 and P5.</text>
+<text x="8" y="78.8" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">3. Strip flat on the steel block, template taped on - punch D1-D9 along v = 10 - low x1, x2, x3, mid x1,</text>
+<text x="8" y="82.1" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">    x2, x3, high x1, x2, x3 (re-strike the same mark for x2 and x3).</text>
+<text x="8" y="85.4" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">4. Photograph face A; measure each mark&#x27;s diameter (loupe and 0.5 mm scale).</text>
+<text x="8" y="88.7" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">5. Section - hacksaw along the strip about 2 mm below the mark line (v = 12), then file and sand the cut</text>
+<text x="8" y="92" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">    face up to v = 10 until each notch in the cut face is as wide as its mark. Finish with 400 grit.</text>
+<text x="8" y="95.3" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">6. Macro-photograph the cut face beside a 0.5 mm scale; read each true depth; update depth_mm in</text>
+<text x="8" y="98.6" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">    configs/coupons.yaml for S2A and the matching P3/P5 punch dents. Use the offcut sliver for the alloy</text>
+<text x="8" y="101.9" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">    bend test (guide section 3).</text>
+<text x="8" y="105.2" font-size="2.3" fill="#000" text-anchor="start" font-weight="bold">Designed findings:</text>
+<text x="8" y="108.5" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">dent_negligible D1, dent_negligible D2, dent_negligible D3, dent_negligible D4, dent_negligible D5,</text>
+<text x="8" y="111.8" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">dent_negligible D6, dent_negligible D7, dent_negligible D8, dent_negligible D9</text>
+</svg>

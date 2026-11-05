@@ -1,0 +1,205 @@
+# Aerospace-mode acceptance spec for the aircraft-representative riveted coupons.
+# The rules engine (aero.py + rules.py) - not the LLM - decides severity and disposition.
+# Read docs/research/2026-11-05_aero_qc_domain.md. Units: mm; D = part.fastener_d_mm.
+#
+# Dispositions follow Boeing Q219P: a build-to-print supplier may only REWORK or SCRAP.
+# Use-as-is and repair belong to the customer MRB, so every nonconformance the supplier
+# cannot rework to drawing is HOLD_FOR_MRB (segregate, NCR). Nothing here says use-as-is.
+# Keep the advisor's banned words (banned_phrases, reserved_words) out of every text below:
+# the advisor quotes these strings.
+
+domain: aerospace
+
+disclaimer: >-
+  DEMO acceptance table derived only from public sources (FAA AC 43.13-1B, Piper SL 1095A).
+  Real limits come from the customer drawing or specification. Decision support for a
+  qualified inspector: not an airworthiness determination and not a certification.
+
+part:
+  name: Aircraft-representative riveted aluminium coupon
+  material: commercial aluminium alloy (non-aerospace grade)
+  size_mm: [100, 100]
+  thickness_mm: 3.0
+  fastener_d_mm: 4.0          # nominal blind-rivet diameter D
+
+min_confidence: 0.6           # below this a detection goes to HOLD_FOR_QA
+zones: []                     # optional zone rectangles as in spec.yaml; none on the demo coupon
+
+# One-line paraphrases, never quotes. Rules cite these ids; the advisor may only cite these.
+references:
+  "AC 43.13-1B 4-52b": Elongated holes under installed rivets are found only by removing rivets, not by looking.
+  "AC 43.13-1B 4-57b": An enlarged or deformed hole takes the next larger fastener only if edge distance and spacing still hold; that is a repair.
+  "AC 43.13-1B 4-57c": With the original layout unknown, single-row rivets need edge distance of at least 2D and spacing of at least 3D; rows follow Fig 4-5.
+  "AC 43.13-1B 4-58": Drill holes round and straight, deburr them, do not overdrive rivets.
+  "AC 43.13-1B 4-58b": Notch-sensitive alloys - avoid machine marks, nicks, dents, burrs and scratches.
+  "AC 43.13-1B 4-59a": Stop-drilling crack ends is an in-service maintenance repair step, not a production fix.
+  "AC 43.13-1B 5-15": Visual inspection finds surface discontinuities only, generally only large ones (Table 5-1).
+  "AC 43.13-1B 5-28/5-30": Eddy current finds surface and subsurface cracks and estimates corrosion metal loss.
+  "AC 43.13-1B 5-89": Ultrasonic inspection finds internal flaws such as pores and delaminations.
+  "AC 43.13-1B 5-105": Tap testing finds only shallow delamination or debonding in thin skins.
+  "AC 43.13-1B 6-113": Corrosion beyond the manufacturer damage limits means part replacement; without limits an engineering authority decides.
+  "AC 43.13-1B 6-115": Corrosion and damage blend-outs are elliptical dish-outs with a 20:1 length-to-depth ratio.
+  "AC 43.13-1B 6-136": Final blends are finished with 400 grit and the depth is checked against the rework limits.
+  "Piper SL 1095A": Public dent classes - negligible, minor (closer than 2x fastener diameter to a fastener), major (beyond the limits).
+  "Boeing Q219P": Build-to-print suppliers may only rework or scrap; use-as-is and repair go to the customer MRB; segregate nonconforming parts.
+  "AS9100D 8.7": Rework restores full conformance; use-as-is or repair that departs from requirements needs customer authorisation.
+  "AS9102 Rev C": First-article forms; Form 3 records a result for every characteristic.
+  "NAS 410 / EN 4179": NDT personnel qualification; a Level 2 performs and interprets the inspection.
+  "ASTM E1417-21 6.9.2": Type II visible-dye penetrant is not used for final acceptance of aerospace products.
+
+defects:
+  dent:
+    measure: diameter_mm
+    limits:                         # Piper SL 1095A-derived, illustrative
+      max_diameter_mm: 50.8         # 2.0 in across
+      max_depth_t_div: 1.666        # depth <= t / 1.666
+      min_fastener_gap_D: 2.0       # dent edge to the nearest visible fastener edge >= 2 x D
+      clear_x_diameter: 2.0         # no crack or abrasion within 2 x the dent diameter (edge to edge)
+      edge_nick_mm: 0.5             # a dent this close to a plate edge is an edge nick, not a skin dent
+    clear_of: [crack, scratch]      # Piper: no cracks, abrasions or creases nearby
+    classes:
+      negligible: {severity: negligible, disposition: PASS}
+      minor: {severity: minor, disposition: HOLD_FOR_MRB}
+      major: {severity: major, disposition: HOLD_FOR_MRB}
+      edge_nick: {severity: minor, disposition: HOLD_FOR_MRB}
+    reworkable: false
+    note: Within the demo table and logged. Confirm against the drawing; depth not measured by the camera, verify with a depth gauge.
+    action: Segregate the part and raise an NCR. A dent cannot be reworked to drawing on the line; the supplier may scrap, otherwise the customer MRB decides.
+    edge_nick_action: Segregate the part and raise an NCR. An edge nick is a notch (AC 43.13-1B 4-58b); dress-out to the drawing edge profile is rework only if the drawing allows it, otherwise scrap or customer MRB.
+    reference: [Piper SL 1095A, Boeing Q219P]
+    likely_causes:
+      - parts knocked together or dropped during handling
+      - a tool or the riveter nose striking the face
+      - a chip or burr trapped under the part in a clamp or fixture
+    prevention: Use padded racks and separators; clean fixture and clamp faces every shift; keep the bench free of loose objects.
+
+  scratch:
+    measure: length_mm
+    limits: {length_mm: 25.0, width_mm: 0.5}   # illustrative blend limits
+    within: {severity: minor, disposition: REWORK}
+    beyond: {severity: major, disposition: HOLD_FOR_MRB}
+    reworkable: true
+    action: Blend out to a 20:1 length-to-depth dish (AC 43.13-1B 6-115), finish with 400 grit (AC 43.13-1B 6-136), clean and re-inspect; rework restores conformance only inside the drawing thickness tolerance (AS9100D 8.7). Depth is not measured by the camera.
+    beyond_action: Segregate the part and raise an NCR. The scratch is beyond the demo blend limits; supplier options are rework to drawing or scrap, otherwise the customer MRB decides.
+    reference: [AC 43.13-1B 6-115, AC 43.13-1B 6-136, AS9100D 8.7]
+    likely_causes:
+      - parts sliding against each other or on a dirty bench
+      - burrs on fixtures, racks or tools
+      - swarf dragged under a drill template
+    prevention: Keep the protective film on until assembly; use separator sheets; deburr fixtures, racks and benches.
+
+  crack:
+    measure: length_mm
+    limits: {}                      # any crack-like indication
+    severity: critical
+    disposition: REJECT
+    reworkable: false
+    action: Scrap recommended; raise an NCR. Confirm the indication by eddy current by a qualified NAS 410 / EN 4179 Level 2 (AC 43.13-1B 5-28/5-30). Never stop-drill a production part (AC 43.13-1B 4-59a is an in-service repair).
+    reference: [AC 43.13-1B 5-28/5-30, AC 43.13-1B 4-59a, NAS 410 / EN 4179, Boeing Q219P]
+    likely_causes:
+      - a notch or tool mark at a hole edge acting as a stress raiser
+      - drilling damage or an over-driven rivet
+      - forming strain or a material flaw
+    prevention: QA to review drilling and riveting (deburr, no tool marks) and the material batch.
+
+  corrosion:
+    measure: area_mm2
+    limits: {}                      # any active corrosion on a production part
+    severity: major
+    disposition: HOLD_FOR_MRB
+    reworkable: false
+    action: Segregate the part and raise an NCR. Active corrosion on a production part goes to the customer MRB; in-service practice is a 20:1 blend to manufacturer limits (AC 43.13-1B 6-115) and replacement beyond them (AC 43.13-1B 6-113).
+    reference: [AC 43.13-1B 6-113, AC 43.13-1B 6-115, Boeing Q219P]
+    likely_causes:
+      - moisture or salt contamination on bare aluminium
+      - dissimilar-metal contact (steel fastener) without isolation
+      - fretting at a loose fastener
+    prevention: Store parts dry and covered; isolate dissimilar metals with primer or sealant per the drawing; check fastener installation.
+
+  open_hole:
+    measure: diameter_mm
+    limits: {}                      # judged by fastener_rules, not as a surface defect
+    reworkable: true
+    action: Judged by the fastener rules (missing fastener, elongated hole, lone open hole).
+    reference: [AC 43.13-1B 4-57c]
+    likely_causes: []
+    prevention: Count fasteners against the drawing before closing the operation.
+
+  unknown:
+    disposition: HOLD_FOR_QA
+    reworkable: false
+    action: The system could not identify this mark (for example a burr at a hole). Put the part in the HOLD tray for the qualified inspector.
+    reference: [AC 43.13-1B 4-58]
+    likely_causes: []
+    prevention: QA should label this case so the detector can learn it.
+
+fastener_rules:
+  edge_distance_min_D: 2.0          # hole centre to the nearest plate edge (AC 43.13-1B 4-57c)
+  pitch_min_D: 3.0                  # centre to centre along a row (AC 43.13-1B 4-57c)
+  transverse_min_D: 2.5             # centre to centre between parallel rows (Fig 4-5; secondary sources give 2.5D)
+  ovality_max: 1.10                 # illustrative: an open hole with major/minor at or above this is elongated
+  oversize_mm: 0.3                  # illustrative: an open hole larger than D + this is oversize
+  row_tol_mm: 1.0                   # a fastener within this of a row line belongs to the row
+  pitch_tol: 0.25                   # consecutive spacings in a row agree within +-25 %
+  findings:
+    edge_distance:
+      severity: major
+      disposition: HOLD_FOR_MRB
+      action: Segregate the part and raise an NCR. A hole drilled too close to the edge cannot be reworked to drawing; supplier option is scrap, otherwise the customer MRB decides.
+      reference: [AC 43.13-1B 4-57c, Boeing Q219P]
+      likely_causes: [hole drilled off position (template shifted or not used), wrong edge datum or blank cut short]
+      prevention: Drill through a template or jig and check hole positions on the first article (AS9102 Rev C).
+    pitch:
+      severity: major
+      disposition: HOLD_FOR_MRB
+      action: Segregate the part and raise an NCR. Fastener spacing below the minimum cannot be reworked to drawing; supplier option is scrap, otherwise the customer MRB decides.
+      reference: [AC 43.13-1B 4-57c, Boeing Q219P]
+      likely_causes: [an extra or mis-positioned hole, layout from the wrong datum]
+      prevention: Drill through a template or jig and check hole positions on the first article (AS9102 Rev C).
+    missing_fastener:
+      severity: major
+      disposition: REWORK
+      action: Install the missing fastener per the drawing, then re-inspect; rework restores full conformance (AS9100D 8.7).
+      reference: [AS9100D 8.7, AC 43.13-1B 4-57c]
+      likely_causes: [rivet not installed or lost before setting, operation step skipped]
+      prevention: Count fasteners against the drawing before closing the operation.
+    elongated_hole:
+      severity: major
+      disposition: HOLD_FOR_MRB
+      action: Segregate the part and raise an NCR. An elongated or oversize hole would need the next-size fastener, which is a repair (AC 43.13-1B 4-57b); supplier option is scrap, otherwise the customer MRB decides.
+      reference: [AC 43.13-1B 4-57b, AC 43.13-1B 4-58, Boeing Q219P]
+      likely_causes: [drill wander or a worn drill, hand filing, a hole worked oval by a loose fastener]
+      prevention: Drill a pilot then final size, square to the face, with a sharp drill; deburr (AC 43.13-1B 4-58).
+    lone_open_hole:
+      severity: unclassified
+      disposition: HOLD_FOR_QA
+      action: An open hole that is not in a riveted row may be a tooling hole. Put the part in the HOLD tray; the qualified inspector checks it against the drawing.
+      reference: [AC 43.13-1B 4-57c]
+      likely_causes: [tooling or locating hole, stray drilled hole]
+      prevention: List tooling holes in the part spec so the rules can recognise them.
+
+# What the camera cannot decide: always referred to NDT by a qualified NAS 410 / EN 4179 Level 2.
+out_of_scope:
+  - {item: cracks under installed fastener heads or below the surface, method: eddy current, reference: [AC 43.13-1B 5-28/5-30, AC 43.13-1B 5-15]}
+  - {item: elongated holes under installed rivets, method: fastener removal or eddy current, reference: [AC 43.13-1B 4-52b]}
+  - {item: intergranular or exfoliation corrosion depth, method: eddy current, reference: [AC 43.13-1B 5-28/5-30]}
+  - {item: dent and scratch depth, method: depth gauge or dial indicator, reference: [Piper SL 1095A]}
+  - {item: composite delamination or porosity, method: ultrasonic or tap test, reference: [AC 43.13-1B 5-89, AC 43.13-1B 5-105]}
+  - {item: final penetrant acceptance, method: Type I fluorescent penetrant (the red-dye demo is Type II), reference: [ASTM E1417-21 6.9.2]}
+
+# Advisor guardrails (llm.check_reply). Matched case-insensitively on word boundaries;
+# spaces and hyphens are interchangeable.
+banned_phrases:
+  - airworthy
+  - airworthiness approved
+  - certified
+  - certify
+  - approve the part
+  - release the part
+  - use-as-is approved
+  - SRM compliant
+  - FPI compliant
+  - replaces the inspector
+  - guaranteed
+# Decision words reserved for the qualified inspector and the customer MRB.
+reserved_words: [accept, accepted, accepting, acceptable, release, released, releasing, approve, approved, approving]

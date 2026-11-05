@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="140mm" height="177.9mm" viewBox="0 0 140 177.9" font-family="Helvetica, Arial, sans-serif">
+<title>P4A Corrosion - TriNetra coupon template (1:1)</title>
+<defs><pattern id="hatch-corrosion" patternUnits="userSpaceOnUse" width="0.8" height="0.8" patternTransform="rotate(45)"><path d="M0 0.4H0.8" stroke="#b35a00" stroke-width="0.15"/></pattern><pattern id="hatch-scratch" patternUnits="userSpaceOnUse" width="0.8" height="0.8" patternTransform="rotate(0)"><path d="M0 0.4H0.8" stroke="#1f5fbf" stroke-width="0.15"/></pattern><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="1.4" markerHeight="1.4" orient="auto"><path d="M0 0L10 5L0 10z" fill="#8e24aa"/></marker></defs>
+<rect x="0" y="0" width="140" height="177.9" fill="#ffffff"/>
+<text x="20" y="7.5" font-size="4.2" fill="#000" text-anchor="start" font-weight="bold">P4A  Corrosion</text>
+<text x="20" y="12" font-size="2" fill="#000" text-anchor="start" font-weight="normal">role: train  |  plate 100 x 60 x 3 mm  |  drill Ø4.1 for Ø4 fasteners  |  TriNetra aircraft-representative coupon (commercial alloy)</text>
+<g transform="translate(20 22)">
+<line x1="0" y1="-0.6" x2="0" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="0" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">0</text>
+<line x1="5" y1="-0.6" x2="5" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="10" y1="-0.6" x2="10" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="10" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">10</text>
+<line x1="15" y1="-0.6" x2="15" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="20" y1="-0.6" x2="20" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="20" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">20</text>
+<line x1="25" y1="-0.6" x2="25" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="30" y1="-0.6" x2="30" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="30" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">30</text>
+<line x1="35" y1="-0.6" x2="35" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="40" y1="-0.6" x2="40" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="40" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">40</text>
+<line x1="45" y1="-0.6" x2="45" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="50" y1="-0.6" x2="50" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="50" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">50</text>
+<line x1="55" y1="-0.6" x2="55" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="60" y1="-0.6" x2="60" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="60" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">60</text>
+<line x1="65" y1="-0.6" x2="65" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="70" y1="-0.6" x2="70" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="70" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">70</text>
+<line x1="75" y1="-0.6" x2="75" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="80" y1="-0.6" x2="80" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="80" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">80</text>
+<line x1="85" y1="-0.6" x2="85" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="90" y1="-0.6" x2="90" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="90" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">90</text>
+<line x1="95" y1="-0.6" x2="95" y2="-1.6" stroke="#999999" stroke-width="0.12"/>
+<line x1="100" y1="-0.6" x2="100" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
+<text x="100" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">100</text>
+<line x1="-0.6" y1="0" x2="-2.6" y2="0" stroke="#999999" stroke-width="0.12"/>
+<text x="-3.4" y="0.55" font-size="1.6" fill="#999999" text-anchor="end" font-weight="normal">0</text>
+<line x1="-0.6" y1="5" x2="-1.6" y2="5" stroke="#999999" stroke-width="0.12"/>
+<line x1="-0.6" y1="10" x2="-2.6" y2="10" stroke="#999999" stroke-width="0.12"/>
+<text x="-3.4" y="10.55" font-size="1.6" fill="#999999" text-anchor="end" font-weight="normal">10</text>
+<line x1="-0.6" y1="15" x2="-1.6" y2="15" stroke="#999999" stroke-width="0.12"/>
+<line x1="-0.6" y1="20" x2="-2.6" y2="20" stroke="#999999" stroke-width="0.12"/>
+<text x="-3.4" y="20.55" font-size="1.6" fill="#999999" text-anchor="end" font-weight="normal">20</text>
+<line x1="-0.6" y1="25" x2="-1.6" y2="25" stroke="#999999" stroke-width="0.12"/>
+<line x1="-0.6" y1="30" x2="-2.6" y2="30" stroke="#999999" stroke-width="0.12"/>
+<text x="-3.4" y="30.55" font-size="1.6" fill="#999999" text-anchor="end" font-weight="normal">30</text>
+<line x1="-0.6" y1="35" x2="-1.6" y2="35" stroke="#999999" stroke-width="0.12"/>
+<line x1="-0.6" y1="40" x2="-2.6" y2="40" stroke="#999999" stroke-width="0.12"/>
+<text x="-3.4" y="40.55" font-size="1.6" fill="#999999" text-anchor="end" font-weight="normal">40</text>
+<line x1="-0.6" y1="45" x2="-1.6" y2="45" stroke="#999999" stroke-width="0.12"/>
+<line x1="-0.6" y1="50" x2="-2.6" y2="50" stroke="#999999" stroke-width="0.12"/>
+<text x="-3.4" y="50.55" font-size="1.6" fill="#999999" text-anchor="end" font-weight="normal">50</text>
+<line x1="-0.6" y1="55" x2="-1.6" y2="55" stroke="#999999" stroke-width="0.12"/>
+<line x1="-0.6" y1="60" x2="-2.6" y2="60" stroke="#999999" stroke-width="0.12"/>
+<text x="-3.4" y="60.55" font-size="1.6" fill="#999999" text-anchor="end" font-weight="normal">60</text>
+<text x="101.5" y="-3.6" font-size="1.6" fill="#999999" text-anchor="start" font-weight="normal">u (mm)</text>
+<text x="-3.4" y="64" font-size="1.6" fill="#999999" text-anchor="end" font-weight="normal">v (mm)</text>
+<rect x="0" y="0" width="100" height="60" fill="none" stroke="#000" stroke-width="0.35"/>
+<rect x="2.5" y="2.5" width="3" height="3" fill="none" stroke="#000" stroke-width="0.1" stroke-dasharray="0.4 0.3"/>
+<text x="4" y="5.1" font-size="3" fill="#000" text-anchor="middle" font-weight="bold">A</text>
+<g><title>H1 Ø4.1 M4</title>
+<path d="M20.95 28H29.05M25 23.95V32.05" stroke="#000000" stroke-width="0.12" fill="none"/>
+<ellipse cx="25" cy="28" rx="2.05" ry="2.05" transform="rotate(0 25 28)" fill="none" stroke="#000000" stroke-width="0.2"/>
+<ellipse cx="25" cy="28" rx="4" ry="4" transform="rotate(0 25 28)" fill="none" stroke="#666666" stroke-width="0.12" stroke-dasharray="0.8 0.5"/>
+</g>
+<g><title>H2 Ø4.1 M4</title>
+<path d="M70.95 28H79.05M75 23.95V32.05" stroke="#000000" stroke-width="0.12" fill="none"/>
+<ellipse cx="75" cy="28" rx="2.05" ry="2.05" transform="rotate(0 75 28)" fill="none" stroke="#000000" stroke-width="0.2"/>
+<ellipse cx="75" cy="28" rx="4" ry="4" transform="rotate(0 75 28)" fill="none" stroke="#666666" stroke-width="0.12" stroke-dasharray="0.8 0.5"/>
+</g>
+<g><title>D1 corrosion.galvanic: salt+vinegar 48-72 h</title>
+<path d="M31 28A6 6 0 1 0 19 28A6 6 0 1 0 31 28ZM29 28A4 4 0 1 0 21 28A4 4 0 1 0 29 28Z" fill="url(#hatch-corrosion)" fill-rule="evenodd" stroke="#b35a00" stroke-width="0.2"/>
+</g>
+<g><title>D2 corrosion.galvanic: salt+vinegar 48-72 h</title>
+<path d="M82 28A7 7 0 1 0 68 28A7 7 0 1 0 82 28ZM79 28A4 4 0 1 0 71 28A4 4 0 1 0 79 28Z" fill="url(#hatch-corrosion)" fill-rule="evenodd" stroke="#b35a00" stroke-width="0.2"/>
+</g>
+<g><title>D3 corrosion.pitting: salt+vinegar 48-72 h</title>
+<ellipse cx="50" cy="14" rx="4" ry="4" transform="rotate(0 50 14)" fill="url(#hatch-corrosion)" stroke="#b35a00" stroke-width="0.2"/>
+</g>
+<g><title>D4 corrosion.pitting: salt+vinegar 48-72 h</title>
+<ellipse cx="50" cy="42" rx="5" ry="5" transform="rotate(0 50 42)" fill="url(#hatch-corrosion)" stroke="#b35a00" stroke-width="0.2"/>
+</g>
+<g><title>D5 crack.slit: hacksaw 3 mm; crack-like edge notch; record the measured kerf</title>
+<line x1="88" y1="0" x2="88" y2="3" stroke="#8e24aa" stroke-width="0.6" marker-end="url(#arrow)"/>
+</g>
+<g><title>D6 crack.slit: hacksaw 6 mm; crack-like edge notch; record the measured kerf</title>
+<line x1="0" y1="40" x2="6" y2="40" stroke="#8e24aa" stroke-width="0.6" marker-end="url(#arrow)"/>
+</g>
+<text x="29.8" y="22.75" font-size="1.8" fill="#000" text-anchor="start" font-weight="normal">H1 Ø4.1 M4</text>
+<line x1="81.5" y1="21.5" x2="79" y2="24" stroke="#000000" stroke-width="0.08" stroke-dasharray="0.4 0.3"/>
+<text x="81.5" y="21.05" font-size="1.8" fill="#000" text-anchor="start" font-weight="normal">H2 Ø4.1 M4</text>
+<text x="31.8" y="28.45" font-size="1.8" fill="#b35a00" text-anchor="start" font-weight="normal">D1 galvanic</text>
+<text x="82.8" y="28.45" font-size="1.8" fill="#b35a00" text-anchor="start" font-weight="normal">D2 galvanic</text>
+<text x="54.8" y="14.45" font-size="1.8" fill="#b35a00" text-anchor="start" font-weight="normal">D3 pitting</text>
+<text x="55.8" y="42.45" font-size="1.8" fill="#b35a00" text-anchor="start" font-weight="normal">D4 pitting</text>
+<text x="89.6" y="3.45" font-size="1.8" fill="#8e24aa" text-anchor="start" font-weight="normal">D5 slit 3</text>
+<text x="7.6" y="40.45" font-size="1.8" fill="#8e24aa" text-anchor="start" font-weight="normal">D6 slit 6</text>
+<path d="M0 67H50" stroke="#000" stroke-width="0.4"/>
+<line x1="0" y1="65.8" x2="0" y2="68.2" stroke="#000" stroke-width="0.2"/>
+<text x="0" y="70.6" font-size="1.8" fill="#000" text-anchor="middle" font-weight="normal">0</text>
+<line x1="10" y1="65.8" x2="10" y2="68.2" stroke="#000" stroke-width="0.2"/>
+<text x="10" y="70.6" font-size="1.8" fill="#000" text-anchor="middle" font-weight="normal">10</text>
+<line x1="20" y1="65.8" x2="20" y2="68.2" stroke="#000" stroke-width="0.2"/>
+<text x="20" y="70.6" font-size="1.8" fill="#000" text-anchor="middle" font-weight="normal">20</text>
+<line x1="30" y1="65.8" x2="30" y2="68.2" stroke="#000" stroke-width="0.2"/>
+<text x="30" y="70.6" font-size="1.8" fill="#000" text-anchor="middle" font-weight="normal">30</text>
+<line x1="40" y1="65.8" x2="40" y2="68.2" stroke="#000" stroke-width="0.2"/>
+<text x="40" y="70.6" font-size="1.8" fill="#000" text-anchor="middle" font-weight="normal">40</text>
+<line x1="50" y1="65.8" x2="50" y2="68.2" stroke="#000" stroke-width="0.2"/>
+<text x="50" y="70.6" font-size="1.8" fill="#000" text-anchor="middle" font-weight="normal">50</text>
+<text x="53" y="67.6" font-size="2.2" fill="#000" text-anchor="start" font-weight="normal">Print at 100 % (actual size, no &#x27;fit to page&#x27;).</text>
+<text x="53" y="70.6" font-size="2.2" fill="#000" text-anchor="start" font-weight="bold">Check: this bar must measure 50.0 mm.</text>
+</g>
+<text x="8" y="99" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">Datum corner A = top-left of face A: punch a small &#x27;A&#x27; at the marked spot. Coordinates in mm from A: u</text>
+<text x="8" y="102.3" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">right, v down.</text>
+<text x="8" y="105.6" font-size="2.3" fill="#000" text-anchor="start" font-weight="bold">Make:</text>
+<text x="8" y="108.9" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">1. DAY 1, FIRST - on P4 face A punch the datum &quot;A&quot; top-left; photograph faces A and B bare.</text>
+<text x="8" y="112.2" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">2. Scribe cut lines across P4 at v = 60 and v = 80. Hacksaw just below each line in a vise with soft jaws;</text>
+<text x="8" y="115.5" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">    file the sawn edges straight and square; deburr with 400 grit. Strip v 60-80 is S1, strip v 80-100 is</text>
+<text x="8" y="118.8" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">    S2 (keep face A up and mark each strip&#x27;s datum &quot;A&quot;).</text>
+<text x="8" y="122.1" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">3. Measure P4A, S1 and S2 with the caliper; update their size_mm in configs/coupons.yaml (move strip</text>
+<text x="8" y="125.4" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">    features to mid-width if a strip is under 20 mm), re-run validate and templates, and print the new</text>
+<text x="8" y="128.7" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">    templates.</text>
+<text x="8" y="132" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">4. Tape the P4A template; centre-punch, drill 4.1 mm at H1 and H2; deburr.</text>
+<text x="8" y="135.3" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">5. Fit two M4 steel pan-head screws (plain or stainless steel, not zinc-plated) heads on face A, nuts on</text>
+<text x="8" y="138.6" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">    face B, finger-tight plus a quarter turn.</text>
+<text x="8" y="141.9" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">6. Start corrosion (DAY 1) - mask face A with tape except round windows for D3 (8 mm) and D4 (10 mm) and</text>
+<text x="8" y="145.2" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">    rings around the screw heads (D1 to 12 mm, D2 to 14 mm). Lay tissue soaked in 5 g salt per 100 ml white</text>
+<text x="8" y="148.5" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">    vinegar on the windows; keep wet in a closed plastic box away from electronics; re-wet morning and</text>
+<text x="8" y="151.8" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">    evening; 48-72 h.</text>
+<text x="8" y="155.1" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">7. Rinse gently with water, dab dry, keep the white powder; remove the tape.</text>
+<text x="8" y="158.4" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">8. Hacksaw edge slits with a fine (32 TPI) blade - D5 3 mm into the top edge at u = 88, D6 6 mm into the</text>
+<text x="8" y="161.7" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">    left edge at v = 40; measure length and kerf.</text>
+<text x="8" y="165" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">9. Photograph; measure.</text>
+<text x="8" y="168.3" font-size="2.3" fill="#000" text-anchor="start" font-weight="bold">Designed findings:</text>
+<text x="8" y="171.6" font-size="2.3" fill="#000" text-anchor="start" font-weight="normal">corrosion D1, corrosion D2, corrosion D3, corrosion D4, crack_indication D5, crack_indication D6</text>
+</svg>
