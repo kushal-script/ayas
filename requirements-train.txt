@@ -1,0 +1,26 @@
+# Training / export environment for the YOLOv8n surface-defect detector (training/).
+# These are the exact versions installed in .venv-train on the Mac M3 (Python 3.11, 5 Nov 2026).
+#   python3.11 -m venv .venv-train
+#   .venv-train/bin/pip install -r requirements-train.txt
+#   .venv-train/bin/pip install -e . --no-deps
+# On a CUDA box (Colab, JarvisLabs) keep the image's CUDA build of torch/torchvision if it
+# matches these versions; otherwise install them from the PyTorch CUDA index at these versions.
+ultralytics==8.4.202
+torch==2.15.0
+torchvision==0.29.2
+onnx==1.23.2
+onnxruntime==1.31.1
+onnxslim==0.1.99
+OpenEXR==3.5.3
+PyYAML==6.0.3
+numpy==2.4.6
+opencv-python==5.0.0.93
+pytest==9.2.0
+
+# Where the Pi differs (Raspberry Pi OS Trixie, aarch64): no torch or ultralytics at runtime.
+# - hailo_platform (HailoRT 5.1.1 Python bindings) comes from apt: hailo-h10-all. Never pip-install
+#   hailort, hailo-all or hailo-gen-ai-model-zoo (they pull in the Hailo-8 stack).
+# - numpy 2.2 and OpenCV 4.10 come from apt; make the venv with --system-site-packages.
+# - onnxruntime (pip, aarch64 wheel) only for the CPU fallback (trinetra.npu.OnnxDetector).
+# The HEF compiler (DFC 5.1.0 + Hailo Model Zoo v5.1.0) runs only on Colab with Python 3.12
+# (hailo/compile_hef_colab.ipynb), never in this venv.
