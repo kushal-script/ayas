@@ -1,0 +1,114 @@
+# Digital twin of the TriNetra handheld + steel and metal plates under many lighting conditions.
+# Read docs/twin/DESIGN_STEEL.md (and DESIGN.md) first. Units: mm unless a key says _m (metres) or _deg.
+
+out_dir: data/twin                  # plans, work dirs (deleted after each batch), tiles, sidecars
+
+classes: [scratch, dent, pit, corrosion, crack, stain]   # YOLO ids 0..5 (= trinetra.tiles.CLASSES); DESIGN_STEEL.md A
+capture_config: configs/capture.yaml                     # burst + gate settings shared with the Pi
+
+camera:                             # IMX500 nominal; replace K with the ChArUco calibration
+  full_res: [4056, 3040]
+  pixel_um: 1.55
+  focal_mm: 4.74
+  K: null                           # null = nominal from focal/pixel; else [[fx,0,cx],[0,fy,cy],[0,0,1]]
+  fstop: 1.79
+  focus_mm: 200.0                   # set with the lens tool; DOF is about +-10 mm here
+  roi_margin_px: 48                 # rendered window = projected plate bbox + this margin
+
+grid:                               # rectified plate grid the detector sees (same as the Pi)
+  mm_per_px: 0.08
+  border_mm: 5.0
+  tile: 640
+  min_overlap: 128
+
+rig:                                # LED geometry comes from the Fusion generator (single source of truth)
+  fusion_generator: hardware/enclosure/trinetra_handheld_fusion.py
+  # Which pod lights the image's left half depends on how the camera board is mounted.
+  # Check with one photo (left pod only) and flip this if needed.
+  model_x_is_image_left: true
+  white: {kind: spot, spot_deg: 150, blend: 0.6, radius_mm: 2.0, power_w: 0.35, color: [1.0, 0.96, 0.90]}
+  uv:    {kind: spot, spot_deg: 30,  blend: 0.3, radius_mm: 2.5, power_w: 0.08, color: [0.32, 0.0, 1.0]}
+  device_box_mm: {x: [-134, 134], y: [-54, 80], z: [-74, 0]}   # shadow caster in the camera frame
+  # Device v2 (DESIGN_STEEL C2): in hood mode the pods' 18 white LEDs are replaced by a low-angle
+  # (dark-field) ring glued to the hood's inner walls: n_leds spread evenly round the inner
+  # cross-section h_mm above the plate face, inset_mm in from the walls, each aimed at the
+  # optical-axis plate point (8-12 deg elevation with the 200 x 190 mm hood). Group L = the
+  # LEDs on the image left (camera x < 0), R = the rest (the same two GPIO channels as the
+  # pods). enabled false = hood with the pods (device v1).
+  ring: {enabled: true, n_leds: 18, inset_mm: 6.0, h_mm: 18.0}
+
+sampler:
+  n_scenes: 1500
+  splits: {train: 0.9, val: 0.1}    # by scene; real P5 is the only test set
+  modes: {surface: 1.0, penetrant: 0.0}   # penetrant kept in code; off for the steel lighting PoC
+  sources: {random: 1.0, replica: 0.0}
+  replica_coupons: []              # steel pivot: random plates only (coupons.yaml kept for reference)
+  materials: {ms_hot_rolled: 0.2, ms_cold_rolled: 0.25, ss_brushed: 0.15, ss_2b: 0.1, galvanised: 0.1, aluminium: 0.2}
+  sizes_mm: {"100x100": 0.7, "150x100": 0.15, "100x60": 0.15}
+  thickness_mm: [1.5, 6.0]
+  class_weights: {scratch: 0.22, dent: 0.18, pit: 0.15, corrosion: 0.18, crack: 0.12, stain: 0.15}
+  fastener_patterns: {none: 0.85, holes_row: 0.15}   # punched holes as unlabelled features; no rivets
+  device_modes: {open: 0.4, hood: 0.6}   # device v2: the hood head (ring) is the product configuration
+  conditions: {C0_dark: 0.12, C1_office: 0.2, C2_warm_bulb: 0.12, C3_window: 0.18, C4_side_lamp: 0.14, C5_reflected_lamp: 0.12, C6_sun: 0.12}
+  empty_scene_frac: 0.08
+  distance_mm: {sharp: [185, 215], wide: [155, 250], wide_frac: 0.2}
+  tilt_deg: 12
+  roll_jitter_deg: 20               # plus a random multiple of 90 deg
+  fastener_d_mm: {choices: [3.2, 4.0, 4.8], weights: [0.2, 0.65, 0.15]}
+
+render:
+  engine: CYCLES
+  device: METAL                     # METAL on the M3, OPTIX/CUDA on a cloud GPU, CPU fallback
+  samples: 64
+  noise_threshold: 0.02
+  max_bounces: 6
+  glossy_bounces: 4
+  texture_res_mm: 0.04              # plate texture maps: 2500 x 2500 for a 100 mm plate
+  light_groups: [L, R, UV, AMB]
+  exr_codec: ZIP
+  batch_size: 12                    # scenes per Blender process (work dirs are deleted after post)
+  clean_pass_frac: 0.0              # >0 renders a defect-free copy for visibility calibration
+
+post:                               # twin/post.py: renders -> capture arms -> grids, tiles, sidecars (DESIGN_STEEL.md E)
+  variants_per_scene: 2             # each render -> 2 variants (ambient lux sweep, burst noise, hand shake)
+  train_arm: burst                  # arm that makes the YOLO tiles: burst (new method) | naive (old single frame)
+  eval_arms: [burst, naive]         # arms written as full grids + per-grid sidecars for post.grid_splits
+  tile_splits: [train, val]         # plan splits that get YOLO tiles (train arm, gate != RETAKE)
+  grid_splits: [test, twin_test]    # plan splits that get out/grids/<arm>/<split>/<scene>_v<k>.png (+ .json)
+  grid_format: png                  # png (lossless, ~2 MB per 100 mm grid, 3 MB at 150x100) | jpg (jpeg_quality)
+  save_bursts: false                # also write out/bursts/<scene>_v<k>.npz (Pi demo TwinSource; ~30-50 MB each)
+  save_bursts_variants: 1           # ... for the first N variants of a scene only
+  amb_sweep:                        # AMB pass x (lux drawn log-uniformly in the condition's range / rendered lux)
+    enabled: true
+    keep_first: true                # variant 0 keeps the rendered lux (multiplier 1); C0_dark always 0
+    lux:                            # target lux at the plate centre, DESIGN_STEEL.md C (same ranges as twin/lighting.py)
+      C0_dark: [0, 0]
+      C1_office: [250, 700]
+      C2_warm_bulb: [300, 3000]
+      C3_window: [1500, 20000]
+      C4_side_lamp: [1000, 8000]
+      C5_reflected_lamp: [300, 1500]
+      C6_sun: [30000, 100000]
+  jpeg_quality: 95
+  empty_tile_keep: 0.15
+  # Legacy single-frame camera/ISP model (post.compose / apply_camera / render_variant): kept for
+  # tools and tests; process_scene's naive arm is burst.simulate_naive (capture.yaml) instead.
+  fusion: both_rgb
+  gains: {L: [0.75, 1.25], R: [0.75, 1.25], AMB: [0.0, 1.5], UV: [0.0, 0.0]}
+  exposure_p50: [0.12, 0.30]        # linear plate median after exposure
+  wb_jitter: 0.10
+  noise: {full_well_e: 6000, gain: [1.0, 4.0], read_e: [2.0, 4.0]}
+  unsharp: [0.3, 1.0]
+  motion_blur_px: [0.0, 3.0]
+
+visibility:                         # DESIGN 5.5; the scene sidecar's `visible` is judged on the noise-free LED
+                                    # reference image (min(L, R), like lightproc), training labels on the train-arm grid
+  diff_threshold: 3.0               # mean |I - I_clean| (8-bit) inside the mask, when a clean pass exists
+  local_threshold: 4.0              # local-contrast proxy otherwise (calibrate with clean passes)
+  min_width_px: 1.0
+  always_visible: []                # classes that skip the test (none: every steel class is judged)
+
+label:
+  min_box_px: 8                     # pad thin scratches to at least this
+  keep_frac: 0.3                    # keep a defect's piece in a tile if it holds >= 30 % of its pixels
+  keep_min_px: 24                   # ... or its in-tile box diagonal is at least this
