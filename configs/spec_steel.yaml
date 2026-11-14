@@ -1,0 +1,283 @@
+# Steel and metal surface severity spec (docs/twin/DESIGN_STEEL.md F). The rules engine
+# (rules.judge_steel), not the LLM, decides severity, tier and disposition from these numbers.
+# Rows follow docs/research/2026-11-14_steel_severity_standards.md, recommendations 1-7.
+#
+# Thresholds are ILLUSTRATIVE demo values unless a comment says "standard value". Real limits are
+# agreed with the customer (IS 1079 / IS 2062 mutual-agreement clauses).
+# Units: mm. area_pct = defect area as a percentage of the inspected plate face (raw area fraction:
+# the ISO 7788 20 mm affected-area margin would make one small pit ~18 % of a 100 mm coupon).
+# A band applies when ANY of its measures is at or above its value (or its flag is set); the worst
+# band wins; below every band the finding is minor.
+# Keep the advisor's banned phrases (end of file) out of every text below: the templates quote them.
+
+domain: steel_surface
+version: 1
+
+disclaimer: >-
+  Illustrative thresholds for a demo, to be agreed with the customer. Rule-based severity informed by
+  EN 10163-2 / ISO 7788, ISO 8501-1 / IS 9954, ISO 8501-3 and IS 2062 (Part 1):2025 cl. 7.
+  Pre-coating surface inspection, decision support only. The camera does not measure depth: the
+  operator confirms depth and cracks with a gauge or dye penetrant.
+
+part:                       # defaults; the inspected part's own material, thickness and size win
+  name: Steel plate coupon
+  material: ms_hot_rolled
+  thickness_mm: 3.0
+  size_mm: [100, 100]
+
+materials:                  # plate.material.kind -> display name and family
+  ms_hot_rolled:  {name: "mild steel, hot rolled (mill scale)", family: carbon_steel}
+  ms_cold_rolled: {name: "mild steel, cold rolled", family: carbon_steel}
+  ss_brushed:     {name: "stainless steel, brushed finish", family: stainless}
+  ss_2b:          {name: "stainless steel, 2B mill finish", family: stainless}
+  galvanised:     {name: "galvanised steel (zinc coated)", family: zinc_coated}
+  aluminium:      {name: aluminium, family: aluminium}
+
+# The standards' own words (EN 10163-2 / ISO 7788) as the UI vocabulary.
+tiers:
+  minor: Imperfection
+  major: Defect
+  critical: Critical defect
+tier_meaning:
+  minor: acceptable, logged
+  major: repair (clean, blend or grind, then inspect again)
+  critical: reject or hold for QA
+# Part verdict = the worst defect disposition: PASS < CLEAN_AND_REINSPECT < REWORK < HOLD_FOR_QA < REJECT.
+# RETAKE is set at record level when the capture gate refuses the image (no defects are judged).
+
+modifiers:
+  edge:                     # ILLUSTRATIVE; the IS 1079 5 mm edge band is only an analogy
+    within_mm: 5.0          # +levels severity when near_edge_mm (edge or hole) is at most this
+    levels: 1
+    touch_mm: 0.5           # "touches an edge or hole" for rows with the touches_edge flag
+  cluster:                  # ISO 7788 cl. 6.1: discontinuities closer than 40 mm count as one cluster
+    within_mm: 40.0         # edge-to-edge gap between detections of the same class
+    severity: major         # members of a cluster that reaches the class cluster_min_count
+    reference: "ISO 7788 cl. 6.1 (40 mm cluster)"
+  pairing_mm: 1.0           # a pit this close to a rust patch counts as pits in rust (and pitted rust)
+  depth_not_measured:       # the camera measures length, width, area and edge distance, never depth
+    classes: [scratch, dent, pit]
+    disposition: HOLD_FOR_QA   # above minor, a depth-governed row is never better than this
+    note: "depth not measured, operator check with a gauge"
+  low_confidence:           # confidence is NOT severity: it is a separate gate
+    below: 0.5
+    disposition: HOLD_FOR_QA
+    status: "uncertain, operator to confirm"
+    keep_disposition: [crack]   # a crack is never downgraded: it stays REJECT (quarantine), marked uncertain
+    confirm:                    # P1h, adopted 22 Nov 2026: one inspection = two bursts
+      within_mm: 3.0            # same class within this distance in the other burst = confirmed
+      unconfirmed_disposition: HOLD_FOR_QA   # an UNCONFIRMED low-confidence detection (cracks included) is capped here;
+                                # a crack seen in both bursts keeps REJECT. Never dropped: it stays held.
+      status: "uncertain and not seen in the second burst, operator to confirm"
+    action: "1. Uncertain detection: look at the marked spot and run a fingernail across it. 2. If the mark is real, QA applies the rule shown; if not, QA logs a false call."
+
+# EN 10163-2:2004 / ISO 7788:2021 Tables 1-3, STANDARD VALUES by nominal thickness t (lo <= t < hi).
+# imperfection_mm: Table 1 (may stay, any number). unrepaired_mm: Table 2 (may stay unrepaired if the
+# affected area is <= 5 %). grind_mm: Table 3 (class A grinding below the minimum thickness, <= 15 % area).
+device_policy:              # adopted 22 Nov 2026 (lighting test: open mode missed defects, 2 unsafe PASS)
+  open:                     # the open handheld screens only; certified verdicts come from the hood
+    no_accept: [PASS, CLEAN_AND_REINSPECT]
+    becomes: HOLD_FOR_QA
+    note: "Open mode is screening only: fit the hood and inspect again to certify."
+
+depth_targets:
+  bands:
+    - {t_mm: [3, 8], imperfection_mm: 0.2, unrepaired_mm: 0.4, grind_mm: 0.3,
+       t1: "EN 10163-2 / ISO 7788 Table 1 (3-8 mm: 0.2 mm)",
+       t2: "EN 10163-2 / ISO 7788 Table 2 (3-8 mm: 0.4 mm, <= 5 % area)",
+       t3: "EN 10163-2 / ISO 7788 Table 3 (3-8 mm: 0.3 mm grinding)"}
+    - {t_mm: [8, 15], imperfection_mm: 0.3, unrepaired_mm: 0.5, grind_mm: 0.4,
+       t1: "EN 10163-2 / ISO 7788 Table 1 (8-25 mm: 0.3 mm)",
+       t2: "EN 10163-2 / ISO 7788 Table 2 (8-25 mm: 0.5 mm, <= 5 % area)",
+       t3: "EN 10163-2 / ISO 7788 Table 3 (8-15 mm: 0.4 mm grinding)"}
+    - {t_mm: [15, 25], imperfection_mm: 0.3, unrepaired_mm: 0.5, grind_mm: 0.5,
+       t1: "EN 10163-2 / ISO 7788 Table 1 (8-25 mm: 0.3 mm)",
+       t2: "EN 10163-2 / ISO 7788 Table 2 (8-25 mm: 0.5 mm, <= 5 % area)",
+       t3: "EN 10163-2 / ISO 7788 Table 3 (15-25 mm: 0.5 mm grinding)"}
+  outside_reference: "IS 1079 / IS 2062 (limits by agreement)"   # sheet under 3 mm, or plate over 25 mm
+  is2062:                   # IS 2062 cl. 7 grinding limit, applied to hot-rolled mild steel only
+    materials: [ms_hot_rolled]
+    grind_pct: 4
+    reference: "IS 2062 (Part 1):2025 cl. 7 (4 % / 7 % / 20 %)"
+
+# Action texts: numbered operator steps. Placeholders are filled from the part thickness:
+# {depth_rule} {grind_rule} {dent_rule} {t} {third_t}. Reference entries {t1} {t2} {t3} are the
+# depth_targets references for that thickness.
+classes:
+  scratch:                  # research row 2
+    code: SCR
+    measures: [width_mm, length_mm]
+    major: {width_mm: 0.2, length_mm: 25.0}
+    critical: {width_mm: 0.5, touches_edge: true}
+    cluster_min_count: 3    # 3 or more scratches closer than 40 mm -> at least major
+    disposition: {minor: PASS, major: REWORK, critical: HOLD_FOR_QA}
+    action:
+      minor: "1. Logged as an imperfection; no repair needed. 2. Keep the part in the normal flow."
+      major: "1. Check the depth with a fingernail or a depth gauge. 2. {depth_rule} 3. If it is within the limit, blend it smooth along its length: {grind_rule}. Then inspect again."
+      critical: "1. Do not paint over it. 2. QA checks the depth with a gauge. {depth_rule} 3. If it runs into an edge or hole, QA decides on repair or scrap."
+    reference: ["{t1}", "{t2}"]
+    likely_causes:
+      - parts sliding against each other or on a dirty bench
+      - a burr on a fixture, rack or roller guide
+      - tools or lifting chains dragged across the face
+    prevention: Use separator sheets or protective film, deburr fixtures and guides, and lift parts instead of sliding them.
+
+  dent:                     # research row 3
+    code: DNT
+    measures: [diameter_mm]
+    major: {diameter_mm: 4.0}
+    critical: {diameter_mm: 6.5}
+    disposition: {minor: PASS, major: HOLD_FOR_QA, critical: REJECT}
+    action:
+      minor: "1. Logged as an imperfection; no repair needed. 2. Keep the part in the normal flow."
+      major: "1. Lay a straightedge across the dent and check the gap with a feeler gauge. 2. {dent_rule} 3. If it is deeper, send the part for straightening or rework and inspect again."
+      critical: "1. Tag the part; do not hammer it flat on the line. 2. QA checks fit and function and decides on straightening or scrap."
+    reference: ["{t2}", "ZMicro sheet-metal cosmetic spec (company example)"]
+    likely_causes:
+      - the part dropped or struck by a tool
+      - a chip or weld spatter trapped under the part in a press, clamp or roller
+      - parts stacked without separators
+    prevention: Clean clamp, press and roller faces every shift, and use padded racks.
+
+  pit:                      # research row 4
+    code: PIT
+    measures: [pit_d_mm, count, area_pct]
+    major: {pit_d_mm: 0.5, count: 6, area_pct: 0.5}
+    critical: {pit_d_mm: 2.0, area_pct: 5.0, with_rust: true}
+    cluster_min_count: 6    # pits from separate detections closer than 40 mm are counted together
+    disposition: {minor: PASS, major: REWORK, critical: HOLD_FOR_QA}
+    action:
+      minor: "1. Logged as an imperfection; no repair needed. 2. Before coating, make sure the pits are open enough for paint to enter."
+      major: "1. Check the deepest pit with a pit gauge. 2. {depth_rule} 3. Blast or grind to sound metal, or fill the pits, so no pit stays closed under the paint: {grind_rule}. 4. Inspect again."
+      critical: "1. Do not paint. 2. QA checks the pit depth and the remaining thickness: pits shallower than {third_t} mm (one third of {t} mm) may be filled; deeper pits are welded flush or the part is scrapped."
+    reference: ["{t2}", "ISO 8501-3 (P1-P3 preparation grades)", "IACS Rec. 47 cl. 6.7 (pits < 1/3 t)"]
+    likely_causes:
+      - corrosion pitting from storage in damp or salty air
+      - rolled-in scale pressed into the surface and later lost
+      - arc strikes or weld spatter
+    prevention: Store plates dry and off the floor, and keep welding earth clamps and spatter away from finished faces.
+
+  corrosion:                # research row 5
+    code: COR
+    measures: [area_pct]
+    major: {area_pct: 1.0}
+    critical: {area_pct: 8.0, pitted: true}
+    disposition: {minor: REWORK, major: REWORK, critical: HOLD_FOR_QA}
+    rust_grade:             # estimated ISO 8501-1 / IS 9954 rust grade (visual analogue), carbon steel only
+      pitted: D
+      bands: [[8.0, C], [1.0, B], [0.0, A]]   # area_pct at or above -> grade
+    action:
+      minor: "1. Clean the rust spot locally with a wire brush or power tool to St 3. 2. Inspect again before painting."
+      major: "1. Blast-clean the whole face to Sa 2½ before painting. 2. Inspect again."
+      critical: "1. Do not paint. 2. QA checks the thickness and the pit depth under the rust; the part may be scrapped."
+    reference: ["ISO 8501-1 / IS 9954 (rust grades A-D)", "ISO 4628-3 bands (1 % / 8 %)"]
+    white_families: [zinc_coated, aluminium]   # white corrosion: no rust grade, own actions
+    action_white:
+      minor: "1. Remove the white corrosion product with a non-metallic brush or pad. 2. Rinse, dry fully and inspect again."
+      major: "1. Remove the white corrosion product with a non-metallic pad, rinse and dry. 2. QA checks the zinc coating or the surface underneath before the part moves on."
+      critical: "1. Do not paint. 2. QA checks the coating and the metal underneath; the part may be scrapped."
+    reference_white: ["ISO 4628-3 bands (1 % / 8 %)"]
+    likely_causes:
+      - storage in damp air, rain or condensation
+      - salt or acid residue from handling or pickling
+      - water trapped between stacked plates
+    prevention: Store plates dry and covered with spacers between them, and coat or oil bare steel that waits more than a few days.
+
+  stain:                    # research row 6: contamination alone never rejects
+    code: STN
+    measures: [area_pct]
+    major: {area_pct: 1.0}
+    max_severity: major
+    disposition: {minor: CLEAN_AND_REINSPECT, major: CLEAN_AND_REINSPECT}
+    action:
+      minor: "1. Wipe the mark with solvent degreaser on a clean lint-free cloth. 2. Dry the part. 3. Inspect again."
+      major: "1. Degrease the area with solvent or alkaline cleaner: even small traces of oil must go before painting. 2. If it is a water mark, dry the part and keep it at least 3 °C above dew point before painting. 3. Inspect again."
+    reference: ["IS 1477-1 (degrease before painting)", "ISO 8502-4 (3 °C above dew point)"]
+    likely_causes:
+      - oil or coolant from machining or handling
+      - bare-hand fingerprints
+      - water marks from washing or condensation
+    prevention: Wear clean gloves, degrease after machining, dry parts fully and store them away from condensation.
+
+  crack:                    # research row 1: any crack is critical, never accepted, never downgraded
+    code: CRK
+    measures: [length_mm]
+    always: critical
+    disposition: {critical: REJECT}
+    action:
+      critical: "1. Stop: tag the part and put it in quarantine. 2. Do not grind, weld or paint over it. 3. QA confirms the crack with red-dye penetrant."
+    reference: ["EN 10163-2 / ISO 7788 (cracks, shells, seams)"]
+    likely_causes:
+      - forming or bending strain at a tight radius
+      - a lamination or inclusion in the plate
+      - quench, weld or flame-cut stress
+    prevention: QA checks the bend radius, the cutting and welding settings and the plate batch test report.
+
+  unknown:                  # a type the rules do not know
+    code: UNK
+    disposition: {unclassified: HOLD_FOR_QA}
+    action:
+      unclassified: "1. The system could not identify this mark. 2. Put the part in the HOLD tray and call QA."
+    reference: []
+    likely_causes: []
+    prevention: QA labels this case so the detector can learn it.
+
+# The advisor may cite ONLY these ids, written exactly (llm.check_reply). One-line paraphrases, never quotes.
+references:
+  "EN 10163-2 / ISO 7788 (cracks, shells, seams)": Cracks, shells and seams are defects whatever their size; dye penetrant can show that a defect was removed.
+  "EN 10163-2 / ISO 7788 Table 1 (3-8 mm: 0.2 mm)": On 3-8 mm plate, imperfections up to 0.2 mm deep may stay, any number of them.
+  "EN 10163-2 / ISO 7788 Table 2 (3-8 mm: 0.4 mm, <= 5 % area)": On 3-8 mm plate, discontinuities up to 0.4 mm deep may stay unrepaired if they affect 5 % of the surface or less.
+  "EN 10163-2 / ISO 7788 Table 3 (3-8 mm: 0.3 mm grinding)": On 3-8 mm plate, grinding may go 0.3 mm below the minimum thickness on up to 15 % of the surface.
+  "EN 10163-2 / ISO 7788 Table 1 (8-25 mm: 0.3 mm)": On 8-25 mm plate, imperfections up to 0.3 mm deep may stay, any number of them.
+  "EN 10163-2 / ISO 7788 Table 2 (8-25 mm: 0.5 mm, <= 5 % area)": On 8-25 mm plate, discontinuities up to 0.5 mm deep may stay unrepaired if they affect 5 % of the surface or less.
+  "EN 10163-2 / ISO 7788 Table 3 (8-15 mm: 0.4 mm grinding)": On 8-15 mm plate, grinding may go 0.4 mm below the minimum thickness on up to 15 % of the surface.
+  "EN 10163-2 / ISO 7788 Table 3 (15-25 mm: 0.5 mm grinding)": On 15-25 mm plate, grinding may go 0.5 mm below the minimum thickness on up to 15 % of the surface.
+  "ISO 7788 cl. 6.1 (40 mm cluster)": Discontinuities closer than 40 mm to each other count as one cluster.
+  "ISO 8501-1 / IS 9954 (rust grades A-D)": Rust grades A to D describe mill-scale state and visible pitting; preparation grades are St 2 / St 3 by hand or power tool and Sa 1 to Sa 3 by blasting.
+  "ISO 8501-3 (P1-P3 preparation grades)": Pits and other imperfections must be open enough for paint (P2) or removed (P3) before coating.
+  "ISO 4628-3 bands (1 % / 8 %)": Rusted-area degrees near 1 % and 8 % of the surface, borrowed as area-band edges (the scale itself is for painted steel).
+  "IS 2062 (Part 1):2025 cl. 7 (4 % / 7 % / 20 %)": Minor surface defects may be ground out if the local thickness drops at most 4 % below the minimum (4-7 % by agreement); weld repair by agreement only if the loss is 20 % or less (wording as in the 2011 edition; check the 2025 text).
+  "IS 1477-1 (degrease before painting)": Even small traces of oil and grease are removed with solvent or alkaline degreaser before any paint is applied.
+  "ISO 8502-4 (3 °C above dew point)": The steel surface should be at least 3 °C above the dew point before painting.
+  "ISO 8502-3 (dust tape test)": Dust is graded with a tape test before painting; the limit comes from the project specification.
+  "IACS Rec. 47 cl. 6.7 (pits < 1/3 t)": Pits shallower than one third of the thickness may be filled; deeper pits are welded flush.
+  "IS 1079 / IS 2062 (limits by agreement)": Surface acceptance for sheet and strip, and outside the plate tables, is agreed between buyer and supplier.
+  "ZMicro sheet-metal cosmetic spec (company example)": One company's cosmetic spec limits dents to about 3.8-6.35 mm across; a secondary example, not a standard.
+
+# Capture-quality advice the advisor gives from the record's capture block (keys as configs/capture.yaml
+# gate.messages). Shown when the gate is PASS_FLAGGED or RETAKE.
+capture_advice:
+  PASS_FLAGGED: "Ambient light is high, but the result is valid. For the next part, shade it or fit the black hood."
+  RETAKE: "The capture check refused this image, so no defects were judged. Fix the cause below and inspect the part again."
+  reasons:
+    too_bright: "Shade the part from the window, sun or lamp, or fit the black hood on the part."
+    saturated: "Tilt the device about 10 degrees so the lamp reflection moves off the plate."
+    too_dark: "Hold the device at 200 mm from the part (the hood sets this distance)."
+    motion: "Rest your elbows or use the hood, and hold still for the whole capture."
+    blur: "Hold still; if the image stays blurred, check the focus at 200 mm."
+    changed: "Keep hands and shadows still during the capture, and switch off any flickering lamp nearby."
+
+# Advisor guardrails (llm.check_reply, steel mode). Matched case-insensitively on word boundaries;
+# spaces and hyphens are interchangeable; a phrase right after a negation (not, never, cannot, ...) is allowed.
+banned_phrases:
+  - certified
+  - certify
+  - certification
+  - compliant
+  - in compliance
+  - complies with
+  - approved
+  - guaranteed
+  - guarantee
+  - measures depth
+  - measures the depth
+  - measured depth
+  - works in any lighting
+  - any lighting condition
+  - irrespective of lighting
+  - zero defects
+  - detects all cracks
+  - replaces NDT
+  - replaces the inspector
+  - IS 2062:2011
+  - Sa 2½ achieved

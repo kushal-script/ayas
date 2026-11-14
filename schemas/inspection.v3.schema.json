@@ -1,0 +1,479 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "trinetra.inspection/3.0",
+  "title": "TriNetra inspection record 3.0 (steel and metal surfaces)",
+  "description": "docs/twin/DESIGN_STEEL.md F. Also embedded in inspection.schema.json ($defs v3*); keep both copies identical (tests/test_steel_rules.py checks it).",
+  "$ref": "#/$defs/v3",
+  "$defs": {
+    "v3": {
+      "type": "object",
+      "description": "Steel and metal surface hand-off record: one JSON with defect, severity, confidence and box, plus the capture-quality block. A RETAKE capture gate gives verdict RETAKE with no defects (a refusal, never a silent failure). The LLM reads a compact copy; it never changes verdict, severity or disposition.",
+      "required": [
+        "schema",
+        "domain",
+        "part_id",
+        "timestamp",
+        "material",
+        "thickness_mm",
+        "verdict",
+        "verdict_instruction",
+        "capture",
+        "defects",
+        "timing_ms",
+        "backend"
+      ],
+      "properties": {
+        "schema": {
+          "const": "trinetra.inspection/3.0"
+        },
+        "domain": {
+          "const": "steel_surface"
+        },
+        "part_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "material": {
+          "type": "string",
+          "description": "plate.material.kind: ms_hot_rolled, ms_cold_rolled, ss_brushed, ss_2b, galvanised, aluminium"
+        },
+        "material_name": {
+          "type": "string"
+        },
+        "thickness_mm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "size_mm": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "verdict": {
+          "enum": [
+            "PASS",
+            "CLEAN_AND_REINSPECT",
+            "REWORK",
+            "HOLD_FOR_QA",
+            "REJECT",
+            "RETAKE"
+          ]
+        },
+        "verdict_instruction": {
+          "type": "string"
+        },
+        "capture": {
+          "$ref": "#/$defs/v3_capture"
+        },
+        "defects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/v3_defect"
+          }
+        },
+        "summary": {
+          "type": "object",
+          "required": [
+            "defect_count",
+            "by_type",
+            "by_severity"
+          ],
+          "properties": {
+            "defect_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "by_type": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "by_severity": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "text"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "disclaimer": {
+          "type": "string"
+        },
+        "timing_ms": {
+          "type": "object",
+          "description": "capture, process, detect, rules, total (and advisor)",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "backend": {
+          "type": "object",
+          "required": [
+            "vision",
+            "advisor"
+          ],
+          "properties": {
+            "vision": {
+              "type": "string"
+            },
+            "advisor": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "advice": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "the advisor's first answer, when logged"
+        },
+        "source": {
+          "type": "object",
+          "description": "provenance, e.g. the twin scene, variant and arm"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "verdict": {
+                "const": "RETAKE"
+              }
+            },
+            "required": [
+              "verdict"
+            ]
+          },
+          "then": {
+            "properties": {
+              "defects": {
+                "maxItems": 0
+              },
+              "capture": {
+                "properties": {
+                  "gate": {
+                    "const": "RETAKE"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "capture": {
+                "properties": {
+                  "gate": {
+                    "const": "RETAKE"
+                  }
+                },
+                "required": [
+                  "gate"
+                ]
+              }
+            },
+            "required": [
+              "capture"
+            ]
+          },
+          "then": {
+            "properties": {
+              "verdict": {
+                "const": "RETAKE"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "v3_disposition": {
+      "enum": [
+        "PASS",
+        "CLEAN_AND_REINSPECT",
+        "REWORK",
+        "HOLD_FOR_QA",
+        "REJECT"
+      ]
+    },
+    "v3_capture": {
+      "type": "object",
+      "description": "capture quality (lightproc metrics and quality gate); null = not known",
+      "required": [
+        "mode",
+        "device_mode",
+        "r_ambient",
+        "lux_est",
+        "motion_px",
+        "sat_pct",
+        "blur",
+        "gate",
+        "gate_message"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "burst5",
+            "naive"
+          ]
+        },
+        "device_mode": {
+          "enum": [
+            "open",
+            "hood"
+          ]
+        },
+        "r_ambient": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "median(A) / median(B - A) in the plate ROI"
+        },
+        "lux_est": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "motion_px": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "sat_pct": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 100
+        },
+        "blur": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "blur_rel when known (1 = material reference), else the variance of the Laplacian"
+        },
+        "gate": {
+          "enum": [
+            "PASS",
+            "PASS_FLAGGED",
+            "RETAKE"
+          ]
+        },
+        "gate_message": {
+          "type": "string"
+        },
+        "gate_reasons": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "v3_defect": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "confidence",
+        "box_px",
+        "location_mm",
+        "size",
+        "near_edge_mm",
+        "severity",
+        "tier",
+        "disposition",
+        "rule",
+        "reference",
+        "action"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^D[0-9]+$"
+        },
+        "type": {
+          "enum": [
+            "scratch",
+            "dent",
+            "pit",
+            "corrosion",
+            "crack",
+            "stain",
+            "unknown"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "detector confidence; NOT severity"
+        },
+        "box_px": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 4,
+              "maxItems": 4
+            }
+          ],
+          "description": "[x0, y0, x1, y1] in the rectified grid image the detector saw"
+        },
+        "location_mm": {
+          "type": "object",
+          "required": [
+            "x",
+            "y"
+          ],
+          "description": "centre in plate mm (u right, v down)",
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            }
+          }
+        },
+        "size": {
+          "type": "object",
+          "description": "mm measures (length_mm, width_mm, area_mm2, diameter_mm, count, pit_d_mm); never depth",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "near_edge_mm": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "description": "edge-to-edge distance to the nearest plate edge or hole"
+        },
+        "severity": {
+          "enum": [
+            "minor",
+            "major",
+            "critical",
+            "unclassified"
+          ]
+        },
+        "tier": {
+          "enum": [
+            "Imperfection",
+            "Defect",
+            "Critical defect",
+            "Unclassified"
+          ]
+        },
+        "disposition": {
+          "$ref": "#/$defs/v3_disposition"
+        },
+        "rule": {
+          "type": "string"
+        },
+        "rule_id": {
+          "type": "string"
+        },
+        "reference": {
+          "type": "string",
+          "description": "whitelisted reference ids, '; '-joined"
+        },
+        "action": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "description": "'uncertain, operator to confirm' below the confidence gate"
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "area_pct": {
+          "type": "number",
+          "minimum": 0
+        },
+        "est_rust_grade": {
+          "enum": [
+            "A",
+            "B",
+            "C",
+            "D"
+          ],
+          "description": "estimated ISO 8501-1 / IS 9954 rust grade (visual analogue)"
+        },
+        "cluster": {
+          "type": "object"
+        },
+        "kind": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "twin_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}
