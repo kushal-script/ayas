@@ -1,0 +1,54 @@
+# I-JEPA, cross-lighting, ViT-Tiny/16 on the twin's rectified plate grids (docs/JEPA.md).
+# Full run on a JarvisLabs L4 once the paired TRAINING renders exist (training/jepa/pairs.py).
+seed: 0
+data:
+  roots: [data/jepa_train]          # dirs holding grids/<arm>/<split>/*.json (+ images); packed or raw
+  splits: [jepa_train]              # NEVER test: seeds >= 900000 / split test are refused
+  arms: [burst]                     # the deployed capture method (the naive arm is the baseline only)
+  device_modes: [open, hood]
+  skip_retake: true                 # the variant gate: a refused capture never reaches the model
+  crop: 224
+  scales: [1, 2]                    # 1 = 224 px at 0.08 mm/px (17.9 mm); 2 = 448 px -> 224 (35.8 mm)
+  scale_probs: [0.5, 0.5]
+  pair:
+    cross_prob: 0.75                # 75 % cross-lighting pairs, 25 % standard (self) I-JEPA
+    anchor: C0                      # target = the same region under C0 dark of the same device; any = another condition
+    scope: device                   # device = pair rows of one device mode; all = also open <-> hood
+  aug:
+    flip: true
+    rot90: true
+    photometric: {p: 0.5, gain: [0.6, 1.5], gamma: [0.7, 1.4], shading: 0.25, noise: 0.02}   # context only
+  cache_grids: 48                   # decoded canonical grids kept per worker (5.7 MB each: ~0.3 GB / worker)
+  crops_per_group: 16               # 16 consecutive crops share a plate/device/variant group (fewer decodes)
+model:
+  arch: vit_tiny                    # vit_tiny (5.5 M) | vit_small (22 M)
+  init: imagenet                    # imagenet (timm augreg in21k->in1k, then JEPA) | scratch
+  img_size: 224
+  in_chans: 3                       # RGB: rust / stain / white-rust colour carries class information
+  drop_path: 0.0
+  pred_dim: 96                      # narrow predictor: D / 2
+  pred_depth: 6
+  pred_heads: 3
+mask:
+  n_targets: 4
+  target_scale: [0.15, 0.2]
+  target_aspect: [0.75, 1.5]
+  ctx_scale: [0.85, 1.0]
+  ctx_aspect: [1.0, 1.0]
+  min_keep: 10
+  n_visible: 16                     # cross pairs: also predict C0 embeddings at 16 visible positions
+train:
+  steps: 30000
+  batch: 128
+  lr: 1.0e-3
+  min_lr: 1.0e-6
+  warmup: 1500
+  weight_decay: 0.05
+  ema: [0.996, 1.0]
+  vis_weight: 0.5
+  amp: auto                         # bf16 autocast on CUDA; fp32 on MPS / CPU
+  workers: 8
+  log_every: 50
+  ckpt_every: 2000
+  grad_clip: 3.0
+  out: runs/jepa/full

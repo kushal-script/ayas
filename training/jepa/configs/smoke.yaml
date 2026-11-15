@@ -1,0 +1,35 @@
+# SMOKE: proves the pipeline end to end on 2 low-res training plates. Not a result.
+seed: 0
+data:
+  roots: [data/jepa_train]
+  splits: [jepa_train]
+  arms: [burst]
+  device_modes: [open, hood]
+  skip_retake: true
+  crop: 224
+  scales: [1, 2]
+  scale_probs: [0.5, 0.5]
+  pair: {cross_prob: 0.75, anchor: C0, scope: device}
+  aug:
+    flip: true
+    rot90: true
+    photometric: {p: 0.5, gain: [0.6, 1.5], gamma: [0.7, 1.4], shading: 0.25, noise: 0.02}
+  cache_grids: 64
+  crops_per_group: 4
+model: {arch: vit_tiny, init: imagenet, img_size: 224, in_chans: 3, drop_path: 0.0, pred_dim: 96, pred_depth: 4, pred_heads: 3}
+mask: {n_targets: 4, target_scale: [0.15, 0.2], target_aspect: [0.75, 1.5], ctx_scale: [0.85, 1.0], min_keep: 10, n_visible: 16}
+train:
+  steps: 300
+  batch: 32
+  lr: 5.0e-4
+  min_lr: 1.0e-6
+  warmup: 30
+  weight_decay: 0.05
+  ema: [0.996, 1.0]
+  vis_weight: 0.5
+  amp: auto
+  workers: 4
+  log_every: 10
+  ckpt_every: 100
+  grad_clip: 3.0
+  out: runs/jepa/smoke
