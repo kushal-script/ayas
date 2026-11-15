@@ -1,0 +1,17 @@
+- .venv*
+- /data/
+- /backups/
+- __pycache__/
+- *.pyc
+- *.tar.gz
+- .pytest_cache/
+- .DS_Store
+- *.egg-info/
+- /models/
++ /hardware/
++ /hardware/enclosure/
++ /hardware/enclosure/trinetra_handheld_fusion.py
+- /hardware/**
+- /docs/
+- /reports/
+- /artifacts/
