@@ -1,0 +1,256 @@
+# Capture + lighting-invariance settings, shared by the Pi (live camera) and the twin
+# (simulated burst). Read docs/twin/DESIGN_STEEL.md section E. Thresholds are starting
+# values from docs/research/2026-11-14_lighting_invariance.md; recalibrate on pilot data.
+# Code: src/trinetra/lightproc.py (Pi + twin), src/trinetra/twin/burst.py (twin only).
+
+sensor:
+  mode: full                    # full = 4056x3040 (~10 fps); binned = 2028x1520 (~30 fps, 2x coarser)
+  bit_depth: 10
+  black_level: 64               # 10-bit units (check the frame metadata on the Pi)
+  full_well_e: 9610
+  read_noise_e: 2.5
+  exposure_us: 10000            # one full 100 Hz flicker period (50 Hz mains)
+  frame_duration_us: 40000      # binned; full mode runs at its own max (~100 ms)
+  # analogue_gain was 1.5. Twin pilot (14 Nov, 5 plates x 14 rows, docs/twin/DESIGN_STEEL.md C2): bare metal
+  # under the near-coaxial pods reflects more than the white calibration card, so at 1.5 B1 clipped over
+  # 34-50 % of aluminium and cold-rolled plates (median B1 0.2-0.75 FS) and both pods together over
+  # 1.1-2.2 % even in the dark room (gate 'saturated'); the ring clipped 2.6 % of a rough 150 x 100 mm
+  # hot-rolled plate within 3-8 mm of its edge. At gain 1.0 (x0.67, the same photons, a 1.5x wider
+  # range) those fell to 0-0.7 % (pods) and 0.8 % (ring).
+  # by_illumination.ring (lightproc.sensor_for; the app sets it by part.illumination). The camera has ONE
+  # exposure (10 ms, the flicker period), but the hood's ring gives about 1/1.5 of the pods' irradiance
+  # at the plate centre (twin analytic, 15 Nov review: pods 5.0-5.3 klux at 200 mm, ring 3.2-3.4 klux: x1.50-1.58).
+  # The twin's fixed exposure puts a white card at burst.ref_full_scale under EITHER illumination, so
+  # the ring frames carried 1.5x the photons the Pi collects. gain 1.5 on the ring keeps the card at about
+  # 57 % FS with the photons the Pi really gets (FS = 9610 / 1.5 = 6400 e-). Pilot hood re-run at 1.54 (16
+  # captures): all still PASS, pixel noise x1.2-1.3, truth error p1..p99 within +-1.0 DN (stainless
+  # +-0.75 at 1.5x the photons). MEASURE on day 1: white card under the hood vs under the pods.
+  analogue_gain: 1.0            # the ADC clips at full_well_e / gain = 9610 e- (lightproc.electrons_per_fs)
+  by_illumination:              # overrides per illumination (lightproc.sensor_for; the app applies them)
+    ring: {analogue_gain: 1.5}
+  awb: off
+  noise_reduction: off
+
+leds:
+  white_lumens_per_led: 36.7    # vendor 110 lm per 3-LED module (MEASURE on day 1)
+  colour: [1.0, 0.96, 0.90]     # LED white point (linear RGB), also the fixed WB reference
+  pwm_hz: 20000
+  frame_sigma: 0.002            # twin: per-frame LED ripple (hardware PWM >= 20 kHz: < 0.5 %, research calc)
+  # both channels on (B1, B2) vs the sum of each alone: B - A = g (L - A + R - A). M never uses B, but the
+  # closure checks do: a supply that sags 5 % with both on refused every capture as 'changed', dark room
+  # included (review 15 Nov; 2 % passed). MEASURE on day 1: metrics.led_both_ratio of a white-card burst
+  # in the dark (each head), and set it here ({pods: x, ring: y} allowed). Twin: no droop, 1.0.
+  both_on_gain: 1.0
+  led_lux_at_plate: 5000        # Pi: lux_est = r_ambient x this. Twin rig at 200 mm: 4.6-5.5 klux (analytic,
+                                # 36.7 lm/LED); research calc 2.4-4.4 klux. MEASURE on day 1 (phone lux app)
+
+burst:
+  sequence: [B1, L, A, R, B2]   # B both pods, L left only, A all off (ambient), R right only
+  led_state: {B1: [1, 1], L: [1, 0], A: [0, 0], R: [0, 1], B2: [1, 1]}
+  ref_full_scale: 0.57          # a matte white card (albedo 0.9) under LEDs only reads 57 % FS (was 85 % at
+                                # analogue_gain 1.5: the same exposure in electrons, sensor.analogue_gain)
+  ref_albedo: 0.9
+  ref_distance_mm: 200          # ... at this distance; the exposure is fixed there (twin: inverse square)
+  shadow_sigma_mm: 5.0          # twin C4: a moving hand shadow moves only the AMB pass's illumination (its
+                                # low-pass at this sigma); texture and reflections stay put (burst.shadow_shift)
+
+process:
+  sat_level: 0.95               # fraction of full scale
+  min_method: luma              # pixelwise min(Lc, Rc) choosing the darker pixel by luma (keeps colour)
+  combine:                      # L/R combination by burst.meta illumination (DESIGN_STEEL C2, E 5)
+    pods: min_luma              # handheld pods: the luma-guided min removes their mirror highlights
+    ring: mean                  # hood head dark-field ring: no LED highlight reaches the lens, and a scratch
+                                # lit from one side scatters more than from the other, so the min would
+                                # drop half the signal; the mean = (B - A) / 2 with less noise
+  min_guide_sigma_px: 1.5       # the luma guide is Gaussian-smoothed: no noise-driven pod switching / min bias
+  percentile: 99.5              # display normalisation over the plate ROI (max channel, unmasked pixels)
+  percentile_bin: 4             # ... taken on 4x4 bins, so sensor noise (which grows with ambient) cannot move it
+  gamma: 2.2
+  align: phase_correlation      # translation only (B1 reference)
+  align_crop_px: 768            # centred window of the ROI used for the shift estimate
+  align_lowpass: 0.05           # cycles/px Gaussian weight: robust on smooth plates (< 0.05 px error)
+  align_whiten: 0.6             # partial whitening of the cross-power spectrum (1 = classic phase corr.)
+  align_min_response: 0.15      # a shift counts if response >= max(this, 1.5 x noise floor); else A takes
+                                # the mean of the L and R shifts, L/R are interpolated between B1 and B2
+  align_transform: sqrt         # correlate sqrt(luma): clipped highlights no longer bias L/R (0.4 -> 0.2 px p90)
+  align_max_px: 24              # peak search radius (px) for L, R, B2; beyond motion_max_px the gate refuses anyway
+  align_a_slack_px: 3.0         # A is searched within this + |R - L| of mean(L, R): a lamp reflection in A
+                                # otherwise matched an LED highlight in B1 (false shifts of ~60 px seen)
+  # L and R are lit from opposite sides, so relief and directional scatter shift their apparent position
+  # against B1: twin pilot (14 Nov) L/R errors 0.2-0.7 px with no motion at all, enough for 'changed'
+  # ghosts on still captures. braced: the hood rests on the part, so L, A and R follow the B1 -> B2 shift
+  # linearly in time (B2 is lit like B1: unbiased). Ring pilot: L/R/A errors 0.3-0.7 px -> 0.01-0.08 px,
+  # ghost_bins 10-29 -> 0. (A B1-minus-other-pod template for the handheld was tried and dropped: it is
+  # biased by the ambient frame's structure and did not fix the open-mode cases.)
+  align_braced: {pods: false, ring: true}
+  # Closure refinement (lightproc.refine_shifts): for a still part B1 + A = L + R exactly in linear
+  # raw, so after the coarse shifts above, the L, A, R shifts take damped Gauss-Newton steps that
+  # minimise (B1 + B2)/2 + A - L - R on the align window (B1, B2 keep theirs: same light, unbiased).
+  # Full-resolution twin pilot (15 Nov, reports/pilot_lighting.md): braced shifts assume the device
+  # moves linearly from B1 to B2, but the shake is a random walk: L 0.16 px off on a brushed plate
+  # with the hood -> ghost_bins 3 > 2, a 'changed' retake of a still capture (0-3 bins in every
+  # condition, a coin flip at the limit). Open, free alignment on hot-rolled: L/R biased 0.4-0.66 px
+  # by the opposite-side light -> ghost_bins 38-50, every dark-room capture refused. Refined: L/R
+  # errors 0.01-0.11 px, ghost_bins 0, closure rms down 2-2.7x. A frame keeps its coarse shift
+  # unless its correction exceeds align_refine_z standard errors (no structure: a dark A, a blank
+  # plate); the whole refinement is dropped beyond align_refine_max_px or if the closure grows.
+  # Translations cannot explain a moving reflection, a moving shadow, flicker or a roll, so the
+  # closure / ghost checks still refuse those (tests/test_lightproc.py).
+  align_refine: true
+  align_refine_iters: 8
+  align_refine_sigma_px: 1.0    # lumas Gaussian-smoothed first (shot noise)
+  align_refine_max_px: 1.5
+  align_refine_z: 3.0
+  roi_erode_px: 6               # metrics ignore a band at the plate outline (mixed and shifted pixels)
+  resid_bin: 4                  # residual_sigma / closure_sigma on 4x4 bins (lighting change is low-frequency)
+  ghost_z: 6.0                  # ghost_bins: 4x4 bins whose closure |B+A-L-R| (ghost_closure) is > 6 sigma
+  ghost_contrast: 0.1           # ... and > 10 % of the LED level B1 - A there (= 20 % of M). Toy sweeps:
+                                # benign captures (shake, clipped highlights, glare, r <= 0.8) had 0-3 such
+                                # bins (1 in 200 had 3); moved or shaken reflections that left 60-110 DN
+                                # ghosts had 4-50
+  ghost_hl_factor: 3.0          # ... LED highlights of the raw B1 (> 3 x median, A dark there) are left out
+  # Which closure must show the ghost: min = both (B1 + A - L - R and B2 + A - L - R), max = either.
+  # With per-frame ambient offsets e_L = a_L - a_A, e_R = a_R - a_A, b_i = a_Bi - a_A the closures are
+  # b_1 - e_L - e_R and b_2 - e_L - e_R, so an ambient step after L (M wrong) and a B2-only blip
+  # (harmless) both read (0, a): min passes both. Full-resolution pilot (15 Nov, 112 bursts + 32 leak
+  # bursts, reports/pilot_lighting.md): a moving hand shadow passed open with min (ghost_bins 0) and
+  # M 56 % dark locally (-14 DN against the noise-free LED image); max refuses it (142 bins). max on
+  # the ring refused still hood captures (aluminium, stainless: 2 of 8 in every condition incl. the
+  # dark room, B1/B2 alignment residue at sharp dark-field features), so the ring keeps min; the
+  # hood blocks the ambient that such a step needs (tests/test_lightproc.py).
+  # Second review (15 Nov): a LEAKING hood does not block it. Pilot 3 mm-lift sun render on brushed
+  # stainless with its leak light x2 (r 0.06-0.09): a hand shadow arriving at the A frame passed with
+  # min (ghost_bins 0) and M +9 DN over 70 mm^2. max_ambient = both closures, or either one where the
+  # ambient frame could have made the deviation (A x ghost_amb_factor >= it): the dark-room LED-made
+  # residue (A = 0) still needs both, an ambient step needs only one. Re-run of all 112 pilot and 40
+  # leak captures: no hood capture changed its verdict (reports/pilot_lighting.md section 11).
+  ghost_closure: {pods: max, ring: max_ambient}
+  ghost_amb_factor: 1.0
+  # The same ghost test on 32 x 32 px blocks (gate.ghost_coarse_max): a change coherent over a region
+  # but below the noise of each 4 x 4 bin. Pilot, open: flicker (frame_sigma 0.0055) of a ceiling tube
+  # mirrored in a plate (local ambient 11-22 x the LED level) left M +30 % to +236 % bright over the
+  # reflection (up to 30 DN locally) with ghost_bins 0; at 32 px those captures have flagged blocks.
+  # Both closures must show it (ghost_coarse_closure min): flicker moves both, while with max the
+  # B1 / B2 alignment residue at the pods' brushed-stainless highlights added up to 3-12 flagged
+  # blocks in the dark room. Calibration: reports/pilot_lighting.md.
+  # Blocks count only where A >= ghost_coarse_min_r x the LED level B1 - A (an ambient-made ghost needs
+  # ambient): dark-room open captures of brushed stainless had blocks at ~7 e- LED level with A = 0
+  # and z 6-7 (noise); the flicker blocks had A 3-15 x the LED level and z up to 17.
+  ghost_coarse_px: 32
+  ghost_coarse_closure: min
+  ghost_coarse_min_r: 1.0
+  # local ambient ratio (gate.ambient_dominated_max): blocks of local_r_px where A > local_r_max x the
+  # LED level B1 - A. There the ambient's shot noise in L - A and R - A outweighs the LED signal (a pod's
+  # per-pixel SNR < ~2.5 at A ~0.3 FS), and the clamp of L - A, R - A at 0 biases M bright. Pilot, open:
+  # a ceiling tube mirrored in aluminium, local r ~22 at a median r of 0.31 (flagged, kept): M +236 %
+  # (+21 DN p99) over 8 % of the plate, invisible to every closure test (nothing changed between frames).
+  local_r_px: 32
+  local_r_max: 8.0
+  # plate-wide ambient flicker (lightproc._ambient_flicker, gate.flicker_err_max): the closures and B2 - B1
+  # regressed on [A, B1 - A] of the neighbouring bins (no errors-in-variables bias) over 8 x 8 bins give the ambient change between frames (fractions of A, to
+  # ~0.05 % at r 0.1) even when no bin or block shows it; times the 99th percentile of A / M it is the
+  # M error it makes where the ambient outshines M. Needs A above its noise: None (no test) in the dark
+  # room and under a seated hood.
+  flicker_bin: 8
+  flicker_z: 5.0
+  flicker_q: 99.0
+  inpaint_px: 3                 # accepted captures: pixels M cannot recover (sat_mask) are inpainted in
+                                # image_u8 (a black hole where A clips would look like a pit); 0 = off.
+                                # Ring: a pixel clipped in L or R only (A not) whose lower bound is display
+                                # white stays white (exact in image_u8): it is light scattered by relief,
+                                # and inpainting it erased the defects' strongest signal (pilot 15 Nov: pit
+                                # cluster contrast 101 -> 3 DN, scratch 191 -> 16). sat_mask / gate unchanged
+
+naive:                          # baseline arm (old method), twin only
+  ae_target: 0.18               # auto-exposure: plate median luma
+  unsharp: 0.5
+  unsharp_sigma_px: 1.0
+
+gate:                           # verdicts: PASS | PASS_FLAGGED | RETAKE (never a silent failure)
+  r_ambient: {pass: 0.3, flag: 1.0, motion_strict_upto: 2.0}   # r = median(A)/median(B-A) in the ROI
+  motion_strict_px: 0.5         # allowed motion when 1 < r <= 2
+  # motion_max_px (full-resolution sensor px: lightproc divides by burst.meta px_scale) was 3.0, which
+  # refused a third of open captures for a B2 - B1 of 2 x the per-frame shake. Translation alignment
+  # does not degrade with motion: twin pilot sweep (5 open EXRs, shake 0.5-4 px/frame, 120 bursts) align
+  # error p50 0.29-0.52 px at every motion up to 12 px, and accepted captures stayed within 0.8-1.1 DN
+  # mean (p99 <= 6.6 DN) of the still capture whether motion was 0-2 px or 6-12 px. Real misalignment is
+  # caught by closure_sigma / ghost_bins, not by this limit: a roll walk of 0.05-0.4 deg per frame
+  # (1-10 px at the corners, which translation cannot undo) was refused as 'changed' in 24/24 bursts.
+  # 8 px keeps a margin below align_max_px (24) and bounds motion blur (0.8 px in a 10 ms exposure).
+  motion_max_px: 8.0
+  sat_frac_a_max: 0.02          # saturated fraction of the ROI in the ambient frame
+  # ... when it is a local lamp reflection (sat_frac_a <= glare_frac_max at r_ambient <= glare_r_max) the
+  # reason is glare_ambient ('tilt, shade it or fit the hood'), not too_bright: pilot C5 open, a panel
+  # mirrored in polished plates, clipped A over 3-28 % of the plate at r_ambient 0.04-0.19
+  glare_r_max: 1.0
+  glare_frac_max: 0.3
+  # masked_frac_max was 0.005, which refused every polished or brushed plate even in the dark room (both
+  # pods clipped over 0.8-5 % at analogue_gain 1.5). Masked pixels are inpainted on accepted captures
+  # (process.inpaint_px). Twin pilot at gain 1.0 (140 bursts): ring (hood) max 0.0066 (a band 3-8 mm from
+  # the edge of a rough 150 x 100 mm hot-rolled plate, the same in all 7 conditions), pods in the dark
+  # room max 0.0074 (brushed aluminium); 0.02 keeps a 3x margin on both and still refuses a mirrored
+  # ceiling tube on aluminium (0.022, C1 open) or panel (0.17, C5 open).
+  masked_frac_max: {pods: 0.02, ring: 0.02}   # share of the ROI M cannot recover (A saturated, or L and R both
+                                              # saturated; ring: A, L or R saturated); reported as masked_frac
+  # ... but not where the AMBIENT frame clips: those pixels are lost in every frame, and a defect that
+  # scatters ambient light clips there itself. Smoke matrix (14 Nov): C3 window on aluminium clipped A on
+  # 75-85 % of a scratch's pixels; inpainting erased it and the capture passed (PASS where the truth was
+  # HOLD_FOR_QA: a silent failure). Pilot accepted captures: bulb glints 0.0001, window light 0.0028.
+  # 0.0005 = a ~2.5 mm lamp glint on a 100 mm plate; above it: glare_ambient (or too_bright).
+  masked_ambient_max: 0.0005
+  # led_level_min was 0.10 in the research, which assumed stepping the exposure to 20/30 ms
+  # first. The twin and the Phase-1 app use one fixed 10 ms exposure, and polished or
+  # mill-scale steel reads only ~0.02-0.1 FS there. At 0.02 FS, B - A is ~190 e- and each
+  # pod ~95 e-, a per-pixel SNR of ~8 in the dark (calc); below that M is noise.
+  # ring: dark-field is dark by design on flat metal (defects are the bright features). Pilot at
+  # gain 1.0: polished aluminium and cold-rolled 0.008-0.019, cold-rolled 0.036, hot-rolled 0.13.
+  # The hood fixes the distance, so the limit only catches a missing part or a dead ring:
+  # 0.003 FS = 29 e- in B - A at gain 1.0, below the darkest plate measured (0.008) by 2.7x. At the ring's
+  # gain 1.5 (sensor.by_illumination) it is 19 e-; a mirror-polished stainless plate reads 0.0029-0.0030 and
+  # is refused (second review: its image was correct, -2.4..+3.5 DN, so this is a margin, not a failure).
+  led_level_min: {pods: 0.02, ring: 0.003}   # median(B - A) in the ROI, as a fraction of full scale
+  blur_rel_min: 0.5             # variance of Laplacian of M relative to the material reference (needs blur_ref)
+  # residual_sigma: aligned (B2 - B1) vs expected shot noise, and closure_sigma: (B + A - L - R),
+  # which is 0 + noise when the ambient is steady in every frame (it sees flicker or a moving
+  # shadow in the middle frames, that B2 - B1 misses). Both on 4x4 bins, 1.0 = static scene;
+  # 3.0 is a change of about 1-5 % of the LED level, the size of a visible ghost in M.
+  residual_sigma_max: 3.0
+  # Both are global (trimmed) statistics: a lamp reflection in the ambient frame that moves,
+  # flickers or is misaligned by a fraction of a px leaves a local ghost in M (up to ~100 DN in
+  # toy sweeps) that they cannot see. ghost_bins counts 4x4 bins with such a ghost (process.ghost_*).
+  ghost_bins_max: 2
+  ghost_coarse_max: 0           # flagged 32 px blocks (process.ghost_coarse_px) allowed; see there
+  # share of the plate where the ambient outshines the LEDs locally (process.local_r_*). Pilot (EXR
+  # passes, 56 open bursts): accepted open captures with a correct M had 0-0.003, the corrupted one 0.084;
+  # every hood and leak capture 0. Refused as glare_ambient (tilt, shade, fit the hood) or too_bright.
+  ambient_dominated_max: 0.02
+  # Second review (15 Nov). flicker_err_max: refuse when the measured plate-wide ambient change makes an
+  # M error above 20 % at the 99th percentile of A / M, the error ghost_contrast already refuses locally
+  # (10 % of B1 - A = 20 % of M). 2-5 % random flicker at r 0.11 (cold-rolled, warm bulb) read 0.37-1.3;
+  # one 5 % draw had been accepted with M +15 DN over 8 % of the plate; the same capture without the extra flicker
+  # (the condition's own 0.5 %) reads 0.15 and passes. None in the dark and under a seated hood.
+  flicker_err_max: 0.2
+  # leak_r_max (ring): the seated hood blocks the ambient (twin pilot: r <= 0.021 in sun on brushed
+  # stainless, 56 captures; <= 0.071 with the rim lifted 3 mm, 32 captures, images correct). r is relative
+  # to the dark-field LED level, so a sealed hood on a mirror-polished plate in sun read 0.074-0.108 (led
+  # 0.003: refused as too_dark anyway). With the leak light x5 (r 0.21-0.29) 10 % flicker passed with M
+  # +8 DN over 9 mm^2 (> 4 DN over 15 % of the plate) and a 5 % ambient step -6 DN over 10 %, below every
+  # closure limit. More than 0.15 is light getting under the hood.
+  leak_r_max: {ring: 0.15}
+  messages:                     # the first key (in this order) found in the gate reasons is shown
+    hood_leak: "Light is getting under the hood: seat it flat on the part (or shade it), then retake."
+    too_bright: "Too bright: shade the part or fit the hood, then retake."
+    glare_ambient: "Lamp reflection on the part: tilt, shade it or fit the hood, then retake."
+    saturated: "Glare: tilt the device about 10 degrees and retake."
+    too_dark: "Part too dark or too far: move to 200 mm and retake."
+    motion: "Hold still and retake."
+    blur: "Image blurred: hold still or refocus, then retake."
+    changed: "Lighting changed during capture (flicker or moving shadow): retake."
+    ambient_high: "Ambient light is high: result kept, but shade the part if you can."
+  messages_by_illumination:     # overrides (same keys, gate.messages order kept)
+    ring:                       # review 15 Nov: a mirror-polished plate under the ring reads led_level 0.0026
+      too_dark: "Almost no light scattered back (mirror-like finish, or a ring LED fault): check the ring LEDs and retake; a mirror finish cannot be inspected with the hood."
+      # second review: the hood cannot be tilted. Ring LEDs clip a part that reaches under the hood wall
+      # (twin: hood rim across a plate 15 mm from its edge, masked_frac 0.08 in every condition)
+      saturated: "Glare at the hood edge: centre the part in the hood, away from the LEDs, then retake."
+      glare_ambient: "Light is getting under the hood: seat it flat on the part (or shade it), then retake."
