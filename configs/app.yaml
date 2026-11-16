@@ -1,0 +1,90 @@
+# On-device app (src/trinetra/app, docs/APP.md): camera -> lightproc -> detector -> rules -> JSON
+# -> alert -> log -> Llama (ExecuTorch). Shared capture and grid settings stay in capture.yaml and
+# twin.yaml; this file holds only what the app adds. Relative paths are from the repo root.
+# Items marked VERIFY must be checked on the Pi (docs/APP.md "Pi bring-up checks").
+
+capture_config: configs/capture.yaml      # sensor, burst, process and gate (shared with the twin)
+grid_config: configs/twin.yaml            # its `grid:` block (0.08 mm/px, 5 mm border, 640 tiles)
+spec: configs/spec_steel.yaml
+log_dir: data/app                         # trinetra.db (SQLite), inspections.jsonl, advice.jsonl, images/
+save_images: true                         # a 480 px JPEG of every result in log_dir/images (~50 KB each)
+
+part:                                     # used when the source does not say (camera, plain image folders)
+  material: ms_cold_rolled                # plate.material.kind (spec_steel.yaml materials)
+  thickness_mm: 3.0
+  size_mm: [100, 100]
+  device_mode: open                       # open | hood (the clip-on hood/standoff)
+  # illumination: ring                    # pods | ring; default ring with the hood (device v2 hood head
+                                          # with the dark-field LED ring on the pod GPIOs), pods when open
+  # holes_mm: [[20, 50, 8.5]]             # a jig's through holes [x, y, d] in grid-aligned plate mm (the
+                                          # edge-or-hole rule); the device does not detect holes itself
+
+detector:
+  conf: 0.25                              # detector score threshold (the rules mark < 0.5 as uncertain)
+
+camera:                                   # CameraSource (Pi only; picamera2 + gpiozero from apt)
+  index: 0                                # Picamera2.global_camera_info() lists the cameras (VERIFY)
+  raw_format: SRGGB10                     # unpacked 16-bit raw stream (VERIFY the Bayer order in
+                                          # cam.camera_configuration()['raw']['format'])
+  left_shifted: auto                      # auto | true | false: Pi 5 unpacked raw is MSB-aligned (VERIFY)
+  black_level: config                     # config = capture.yaml sensor.black_level; metadata = SensorBlackLevels
+  roi: null                               # [x0, y0, w, h] sensor crop (even x0, y0) to save memory, e.g.
+                                          # [1004, 496, 2048, 2048]; null = the full frame
+  corners_px: null                        # fixed plate corners in the (cropped) frame for a jig;
+                                          # null = found on B1 - A (calibration.find_plate_corners)
+  settle_ms: 0                            # extra wait after switching the pods (LED rise is microseconds)
+  warmup_frames: 2                        # frames dropped after start (AGC/AEC are off, but let it settle)
+  confirm_bursts: 2                      # P1h (22 Nov): two bursts per inspection; a low-confidence detection
+                                          # not seen in both is capped at HOLD_FOR_QA (configs/spec_steel.yaml)
+  colour_gains: [1.0, 1.0]                # ISP only: the raw stream ignores them (white balance is fixed
+                                          # in lightproc from capture.yaml leds.colour)
+
+pods:                                     # white LED pods, one logic-level MOSFET each (VERIFY the wiring)
+  L: 17                                   # BCM pin of the pod on the IMAGE LEFT (rig.model_x_is_image_left)
+  R: 27
+  active_high: true
+
+alert:
+  buzzer_pin: null                        # BCM pin of an optional buzzer; null = screen only
+  beep_ms: 120
+  beep_on: [REJECT, HOLD_FOR_QA, RETAKE]
+
+llm:                                      # advisor; the verdict never waits for it
+  backend: mock                           # mock | executorch (llama_main runner binary) | executorch_py (in-process TextLLMRunner)
+  history_turns: 3
+  stream: true                            # executorch: read the runner's stdout as it is generated (UI updates, wall TTFT)
+  # executorch: every key below except py/stream/history_turns goes to llm.ExecuTorchBackend
+  runner: /home/pi/executorch-pi/llama_main   # VERIFY the path (and any LD_LIBRARY_PATH wrapper)
+  model_path: models/llama3_2_1b_instruct.pte
+  tokenizer_path: models/tokenizer.model
+  seq_len: 2048                           # prompt + answer; the .pte must be exported with at least this context
+  temperature: 0.2
+  cpu_threads: 4
+  timeout_s: 180
+  bos_in_prompt: false                    # ET 1.6 llama_main --num_bos defaults to 0: set true if the runner adds no BOS (VERIFY)
+  extra_args: ["--max_new_tokens=160"]     # ET 1.6 llama_main has it: bounds the advice time (the first answer is 2-3 sentences)
+  py:                                     # executorch_py: pip executorch (+ torch) in the app venv
+    model_path: models/llama3_2_1b_instruct.pte
+    tokenizer_path: models/tokenizer.model   # tokenizer.json or tokenizer.model, as shipped with the .pte
+    data_path: null
+    max_new_tokens: 160
+    temperature: 0.0
+    seq_len: -1                           # -1 = the model's own max
+    warmup: true                          # one short generate at start-up (first call is slow)
+
+surface:                                  # on-demand 3D of each dent, pit and scratch (app/surface3d.py; needs torch)
+  method: pinn                            # pinn (twin dents MAE 0.053 mm, L/R) | classical (0.153 mm, faster)
+  n_seeds: 1                              # PINN ensemble members (2 gives an interval; doubles the time)
+  fast: true                              # half the fit steps: 2x faster, twin dents 0.013 mm MAE (0.008 at full)
+  workers: 3                              # defects in parallel, one core each (warm pool at start-up); 1 = sequential
+  threads: 3                              # torch threads when sequential (workers: 1)
+  plans_dir: data/twin_demo/plans         # twin scene plans (LED geometry) for twin bursts
+
+ui:
+  host: 127.0.0.1                         # the Pi's own browser (kiosk) on the 5" display; 0.0.0.0 to view from a laptop
+  port: 8080
+  image_px: 480                           # longest side of the result JPEG
+
+twin:
+  loop: true                              # TwinSource plays the bursts in a loop
+  fps: null                               # null = as fast as possible; e.g. 0.5 = one burst every 2 s
