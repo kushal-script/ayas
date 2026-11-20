@@ -1,0 +1,3 @@
+Hood (the product): from a dark room to direct sun, lighting changed nothing beyond sensor noise (in the twin the seated hood blocks ambient light; real leakage is untested). Both wrong verdicts are one low-confidence phantom "crack" at a plate edge: the part was rejected where the truth was "hold for QA" (stricter than the truth, not unsafe).
+Open (no hood): the quality gate refuses most bright scenes, but it missed defects on dark mill-scale plates, twice unsafely. So the device gives verdicts only with the hood; open mode is a preview.
+Old method: no quality gate, so it never asks for a retake. In the twin its hood rows reuse one noise draw, which flatters it.
