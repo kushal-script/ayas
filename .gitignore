@@ -1,0 +1,29 @@
+.venv/
+.venv-train/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+data/
+# JarvisLabs downloads (renders, grids, bursts, heat maps, run logs; GBs): kept locally, bulk copy on Drive
+artifacts/
+# local snapshots and training run folders
+backups/
+runs/
+# model weights are not committed (Phase 1 plan M9); see DATASETS.md / the report for how to get them
+models/*.pte
+models/*.joblib
+models/*.onnx
+models/*.pt
+models/*.hef
+models/tokenizer.model
+.DS_Store
+# internal process notes and stale local runs (kept locally, not part of the published project)
+docs/twin/build_reports/
+docs/twin/build_reports_redesign/
+docs/twin/build_reports_steel/
+docs/twin/STATUS.md
+docs/twin/STATUS_STEEL.md
+docs/research/archive/
+tools/save_workflow_reports.py
+reports/pi_phase1_Kushals-Laptop.local_*/
+reports/*.tgz
