@@ -1,0 +1,2 @@
+source twin:data/twin_demo/bursts (28 bursts, loop) | vision yolov8n Hailo-10H HailoRT (v8n_burst.hef) | advisor off | log /home/rp5/trinetra/reports/pi_phase1_raspberrypi_20261122-201042/log_vision | NETWORK: default route present
+vision p50 1665.35 ms, p95 2106.07 ms, 0.571 FPS; peak RSS 984.1 MB; wrote reports/pi_phase1_raspberrypi_20261122-201042/bench_raspberrypi_20261122-201231.json and reports/pi_phase1_raspberrypi_20261122-201042/bench_raspberrypi_20261122-201231.md

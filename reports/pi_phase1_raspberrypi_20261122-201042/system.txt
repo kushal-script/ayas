@@ -1,0 +1,40 @@
+## date
+2026-11-22T20:10:42+05:30
+## model
+Raspberry Pi 5 Model B Rev 1.1
+## uname
+Linux raspberrypi 6.12.47+rpt-rpi-2712 #1 SMP PREEMPT Debian 1:6.12.47-1+rpt1 (2025-09-16) aarch64 GNU/Linux
+## os
+PRETTY_NAME="Debian GNU/Linux 13 (trixie)"
+VERSION="13 (trixie)"
+## memory
+               total        used        free      shared  buff/cache   available
+Mem:            8063        1196        3328          52        3677        6866
+Swap:           2047           0        2047
+## disk
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/mmcblk0p2   58G   29G   28G  52% /
+## temp
+temp=51.6'C
+## throttled
+throttled=0x0
+## python
+Python 3.13.5
+## links
+lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP> 
+eth0             UP             88:a2:9e:42:ae:ad <BROADCAST,MULTICAST,UP,LOWER_UP> 
+wlan0            UP             88:a2:9e:42:ae:ae <BROADCAST,MULTICAST,UP,LOWER_UP> 
+## trinetra-app check
+python 3.13.5 on Linux aarch64
+network: NETWORK: default route present
+cpu temp: 52.9 C
+module picamera2: yes
+module gpiozero: yes
+module hailo_platform: yes
+module onnxruntime: yes
+module executorch: no
+module ultralytics: no
+llm runner: /home/rp5/executorch/cmake-out/examples/models/llama/llama_main (found)
+llm model_path: models/llama3_2_1b_instruct.pte (found)
+llm tokenizer_path: models/tokenizer.model (found)
+capture: configs/capture.yaml grid: {'mm_per_px': 0.08, 'border_mm': 5.0, 'tile': 640, 'min_overlap': 128} spec: configs/spec_steel.yaml

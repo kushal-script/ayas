@@ -1,0 +1,2 @@
+DIFFERS s900100_C1h_v0: Pi HOLD_FOR_QA, twin evaluation REJECT
+Pi verdicts equal to the twin evaluation (burst arm, same captures): 27/28 (28 records)
