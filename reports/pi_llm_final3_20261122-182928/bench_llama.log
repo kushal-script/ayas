@@ -1,0 +1,2 @@
+source twin:data/twin_demo/bursts (28 bursts, loop) | vision yolov8n onnxruntime CPU (v8n_burst.onnx) | advisor llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte) | log /home/rp5/trinetra/reports/pi_llm_final3_20261122-182928/log_llama | NETWORK: default route present
+vision p50 2899.65 ms, p95 3354.32 ms, 0.368 FPS; peak RSS 1076.7 MB; wrote reports/pi_llm_final3_20261122-182928/bench_raspberrypi_20261122-183258.json and reports/pi_llm_final3_20261122-182928/bench_raspberrypi_20261122-183258.md

@@ -1,0 +1,522 @@
+{
+ "schema": "trinetra.bench/1",
+ "label": null,
+ "date": "2026-11-22T17:35:05+05:30",
+ "platform": {
+  "host": "raspberrypi",
+  "system": "Linux",
+  "machine": "aarch64",
+  "python": "3.13.5",
+  "cpus": 4,
+  "model": "Raspberry Pi 5 Model B Rev 1.1"
+ },
+ "config": {
+  "source": "twin:data/twin_demo/bursts",
+  "detector": "onnx:models/v8n_burst.onnx",
+  "advisor": "llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte)",
+  "spec": "configs/spec_steel.yaml"
+ },
+ "n": 8,
+ "warmup": 1,
+ "vision": {
+  "capture": {
+   "n": 8,
+   "p50": 577.55,
+   "p95": 725.42,
+   "mean": 596.71,
+   "max": 741.1
+  },
+  "process": {
+   "n": 8,
+   "p50": 1095.45,
+   "p95": 1389.87,
+   "mean": 1165.06,
+   "max": 1396.9
+  },
+  "rectify": {
+   "n": 7,
+   "p50": 5.4,
+   "p95": 7.1,
+   "mean": 6.09,
+   "max": 7.1
+  },
+  "tile": {
+   "n": 7,
+   "p50": 4.2,
+   "p95": 4.3,
+   "mean": 4.23,
+   "max": 4.3
+  },
+  "detect": {
+   "n": 7,
+   "p50": 1348.2,
+   "p95": 1385.86,
+   "mean": 1352.23,
+   "max": 1400.8
+  },
+  "merge": {
+   "n": 7,
+   "p50": 0.3,
+   "p95": 0.68,
+   "mean": 0.4,
+   "max": 0.8
+  },
+  "measure": {
+   "n": 7,
+   "p50": 8.3,
+   "p95": 14.41,
+   "mean": 10.43,
+   "max": 14.8
+  },
+  "rules": {
+   "n": 7,
+   "p50": 0.2,
+   "p95": 0.3,
+   "mean": 0.23,
+   "max": 0.3
+  },
+  "report": {
+   "n": 8,
+   "p50": 0.3,
+   "p95": 0.4,
+   "mean": 0.32,
+   "max": 0.4
+  },
+  "image": {
+   "n": 8,
+   "p50": 7.9,
+   "p95": 12.06,
+   "mean": 7.81,
+   "max": 12.8
+  },
+  "total": {
+   "n": 8,
+   "p50": 2927.4,
+   "p95": 3410.52,
+   "mean": 2971.88,
+   "max": 3417.1
+  }
+ },
+ "fps": {
+  "vision": 0.336,
+  "loop": 0.016
+ },
+ "latency_ms": {
+  "camera_to_result": {
+   "n": 8,
+   "p50": 2927.4,
+   "p95": 3410.52,
+   "mean": 2971.88,
+   "max": 3417.1
+  },
+  "camera_to_advice": {
+   "n": 8,
+   "p50": 63953.0,
+   "p95": 86049.47,
+   "mean": 62735.36,
+   "max": 94438.9
+  }
+ },
+ "memory_mb": {
+  "peak_rss": 1076.8,
+  "children_peak_rss": 1376.0
+ },
+ "cpu_temp_c": {
+  "start": 49.6,
+  "max": 65.0,
+  "end": 65.0
+ },
+ "llm": {
+  "n": 8,
+  "backend": "llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte)",
+  "answered_by": {
+   "llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte)": 6,
+   "mock-template": 2
+  },
+  "ttft_ms": {
+   "n": 8,
+   "p50": 9394.0,
+   "p95": 11041.25,
+   "mean": 8735.75,
+   "max": 11813.0
+  },
+  "wall_ttft_ms": {
+   "n": 8,
+   "p50": 11999.45,
+   "p95": 13637.74,
+   "mean": 11335.04,
+   "max": 14409.0
+  },
+  "decode_tokens_per_s": {
+   "n": 8,
+   "p50": 8.06,
+   "p95": 9.94,
+   "mean": 8.3,
+   "max": 10.65
+  },
+  "prefill_tokens_per_s": {
+   "n": 8,
+   "p50": 94.16,
+   "p95": 110.06,
+   "mean": 97.5,
+   "max": 110.75
+  },
+  "total_ms": {
+   "n": 8,
+   "p50": 58019.5,
+   "p95": 80522.3,
+   "mean": 57133.25,
+   "max": 88909.0
+  },
+  "call_ms": {
+   "n": 8,
+   "p50": 60654.6,
+   "p95": 83153.16,
+   "mean": 59763.49,
+   "max": 91539.3
+  },
+  "prompt_tokens": {
+   "n": 8,
+   "p50": 884.5,
+   "p95": 1008.3,
+   "mean": 837.25,
+   "max": 1072.0
+  },
+  "generated_tokens": {
+   "n": 8,
+   "p50": 396.5,
+   "p95": 544.6,
+   "mean": 389.12,
+   "max": 602.0
+  },
+  "load_ms": {
+   "n": 8,
+   "p50": 2508.0,
+   "p95": 2510.0,
+   "mean": 2507.25,
+   "max": 2510.0
+  }
+ },
+ "verdicts": {
+  "HOLD_FOR_QA": 6,
+  "REJECT": 1,
+  "RETAKE": 1
+ },
+ "gates": {
+  "PASS": 7,
+  "RETAKE": 1
+ },
+ "cold_start": [
+  {
+   "part_id": "s900100_C0h_v0",
+   "verdict": "HOLD_FOR_QA",
+   "gate": "PASS",
+   "defects": 3,
+   "condition": "C0_dark",
+   "timing_ms": {
+    "capture": 521.5,
+    "process": 1021.6,
+    "rectify": 5.4,
+    "tile": 4.2,
+    "detect": 1321.0,
+    "merge": 0.3,
+    "measure": 7.7,
+    "rules": 0.3,
+    "report": 0.4,
+    "image": 10.5,
+    "total": 2892.9
+   },
+   "loop_ms": 2906.5,
+   "llm": {
+    "backend": "llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte)",
+    "model": "llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte)",
+    "problems": 0,
+    "ttft_ms": 9279.0,
+    "wall_ttft_ms": 11871.2,
+    "decode_tokens_per_s": 8.19,
+    "prefill_tokens_per_s": 95.92,
+    "total_ms": 63882.0,
+    "call_ms": 66509.8,
+    "prompt_tokens": 890,
+    "generated_tokens": 447,
+    "load_ms": 2503.0
+   }
+  }
+ ],
+ "runs": [
+  {
+   "part_id": "s900100_C0o_v0",
+   "verdict": "HOLD_FOR_QA",
+   "gate": "PASS",
+   "defects": 3,
+   "condition": "C0_dark",
+   "timing_ms": {
+    "capture": 644.1,
+    "process": 1173.6,
+    "rectify": 6.9,
+    "tile": 4.1,
+    "detect": 1323.9,
+    "merge": 0.4,
+    "measure": 13.2,
+    "rules": 0.2,
+    "report": 0.3,
+    "image": 12.8,
+    "total": 3179.7
+   },
+   "loop_ms": 3205.1,
+   "llm": {
+    "backend": "llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte)",
+    "model": "llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte)",
+    "problems": 0,
+    "ttft_ms": 9233.0,
+    "wall_ttft_ms": 11833.2,
+    "decode_tokens_per_s": 8.13,
+    "prefill_tokens_per_s": 95.2,
+    "total_ms": 58418.0,
+    "call_ms": 61049.9,
+    "prompt_tokens": 879,
+    "generated_tokens": 400,
+    "load_ms": 2510.0
+   }
+  },
+  {
+   "part_id": "s900100_C1h_v0",
+   "verdict": "REJECT",
+   "gate": "PASS",
+   "defects": 4,
+   "condition": "C1_office",
+   "timing_ms": {
+    "capture": 511.0,
+    "process": 1009.9,
+    "rectify": 5.3,
+    "tile": 4.3,
+    "detect": 1344.4,
+    "merge": 0.3,
+    "measure": 8.3,
+    "rules": 0.3,
+    "report": 0.3,
+    "image": 4.9,
+    "total": 2889.2
+   },
+   "loop_ms": 2918.9,
+   "llm": {
+    "backend": "llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte)",
+    "model": "llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte)",
+    "problems": 0,
+    "ttft_ms": 6692.0,
+    "wall_ttft_ms": 9284.1,
+    "decode_tokens_per_s": 8.63,
+    "prefill_tokens_per_s": 108.79,
+    "total_ms": 52927.0,
+    "call_ms": 55550.1,
+    "prompt_tokens": 728,
+    "generated_tokens": 399,
+    "load_ms": 2502.0
+   }
+  },
+  {
+   "part_id": "s900100_C1o_v0",
+   "verdict": "HOLD_FOR_QA",
+   "gate": "PASS",
+   "defects": 3,
+   "condition": "C1_office",
+   "timing_ms": {
+    "capture": 651.0,
+    "process": 1376.8,
+    "rectify": 7.1,
+    "tile": 4.3,
+    "detect": 1351.0,
+    "merge": 0.8,
+    "measure": 14.8,
+    "rules": 0.2,
+    "report": 0.3,
+    "image": 10.7,
+    "total": 3417.1
+   },
+   "loop_ms": 3439.3,
+   "llm": {
+    "backend": "llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte)",
+    "model": "llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte)",
+    "problems": 0,
+    "ttft_ms": 9309.0,
+    "wall_ttft_ms": 11919.0,
+    "decode_tokens_per_s": 8.13,
+    "prefill_tokens_per_s": 94.42,
+    "total_ms": 57621.0,
+    "call_ms": 60259.3,
+    "prompt_tokens": 879,
+    "generated_tokens": 393,
+    "load_ms": 2508.0
+   }
+  },
+  {
+   "part_id": "s900100_C2h_v0",
+   "verdict": "HOLD_FOR_QA",
+   "gate": "PASS",
+   "defects": 3,
+   "condition": "C2_warm_bulb",
+   "timing_ms": {
+    "capture": 510.3,
+    "process": 1017.3,
+    "rectify": 5.4,
+    "tile": 4.3,
+    "detect": 1400.8,
+    "merge": 0.3,
+    "measure": 7.8,
+    "rules": 0.2,
+    "report": 0.3,
+    "image": 8.5,
+    "total": 2955.2
+   },
+   "loop_ms": 2981.1,
+   "llm": {
+    "backend": "mock-template",
+    "model": "llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte)",
+    "problems": 2,
+    "ttft_ms": 9479.0,
+    "wall_ttft_ms": 12079.9,
+    "decode_tokens_per_s": 7.99,
+    "prefill_tokens_per_s": 93.89,
+    "total_ms": 58808.0,
+    "call_ms": 61440.2,
+    "prompt_tokens": 890,
+    "generated_tokens": 394,
+    "load_ms": 2510.0
+   }
+  },
+  {
+   "part_id": "s900100_C2o_v0",
+   "verdict": "HOLD_FOR_QA",
+   "gate": "PASS",
+   "defects": 4,
+   "condition": "C2_warm_bulb",
+   "timing_ms": {
+    "capture": 696.3,
+    "process": 1323.1,
+    "rectify": 7.1,
+    "tile": 4.2,
+    "detect": 1348.2,
+    "merge": 0.4,
+    "measure": 13.5,
+    "rules": 0.3,
+    "report": 0.3,
+    "image": 4.9,
+    "total": 3398.3
+   },
+   "loop_ms": 3423.2,
+   "llm": {
+    "backend": "llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte)",
+    "model": "llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte)",
+    "problems": 0,
+    "ttft_ms": 11813.0,
+    "wall_ttft_ms": 14409.0,
+    "decode_tokens_per_s": 7.4,
+    "prefill_tokens_per_s": 90.75,
+    "total_ms": 56544.0,
+    "call_ms": 59172.3,
+    "prompt_tokens": 1072,
+    "generated_tokens": 331,
+    "load_ms": 2505.0
+   }
+  },
+  {
+   "part_id": "s900100_C3h_v0",
+   "verdict": "HOLD_FOR_QA",
+   "gate": "PASS",
+   "defects": 3,
+   "condition": "C3_window",
+   "timing_ms": {
+    "capture": 510.4,
+    "process": 1009.6,
+    "rectify": 5.4,
+    "tile": 4.2,
+    "detect": 1347.3,
+    "merge": 0.3,
+    "measure": 7.6,
+    "rules": 0.2,
+    "report": 0.4,
+    "image": 4.8,
+    "total": 2890.2
+   },
+   "loop_ms": 2912.1,
+   "llm": {
+    "backend": "llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte)",
+    "model": "llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte)",
+    "problems": 0,
+    "ttft_ms": 9508.0,
+    "wall_ttft_ms": 12108.2,
+    "decode_tokens_per_s": 7.9,
+    "prefill_tokens_per_s": 93.61,
+    "total_ms": 64947.0,
+    "call_ms": 67578.9,
+    "prompt_tokens": 890,
+    "generated_tokens": 438,
+    "load_ms": 2509.0
+   }
+  },
+  {
+   "part_id": "s900100_C3o_v0",
+   "verdict": "RETAKE",
+   "gate": "RETAKE",
+   "defects": 0,
+   "condition": "C3_window",
+   "timing_ms": {
+    "capture": 741.1,
+    "process": 1396.9,
+    "report": 0.4,
+    "image": 7.3,
+    "total": 2145.7
+   },
+   "loop_ms": 2169.6,
+   "llm": {
+    "backend": "llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte)",
+    "model": "llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte)",
+    "problems": 0,
+    "ttft_ms": 4244.0,
+    "wall_ttft_ms": 6841.5,
+    "decode_tokens_per_s": 10.65,
+    "prefill_tokens_per_s": 110.75,
+    "total_ms": 18892.0,
+    "call_ms": 21517.9,
+    "prompt_tokens": 470,
+    "generated_tokens": 156,
+    "load_ms": 2506.0
+   }
+  },
+  {
+   "part_id": "s900100_C4h_v0",
+   "verdict": "HOLD_FOR_QA",
+   "gate": "PASS",
+   "defects": 3,
+   "condition": "C4_side_lamp",
+   "timing_ms": {
+    "capture": 509.5,
+    "process": 1013.3,
+    "rectify": 5.4,
+    "tile": 4.2,
+    "detect": 1350.0,
+    "merge": 0.3,
+    "measure": 7.8,
+    "rules": 0.2,
+    "report": 0.3,
+    "image": 8.6,
+    "total": 2899.6
+   },
+   "loop_ms": 2926.9,
+   "llm": {
+    "backend": "mock-template",
+    "model": "llama via executorch (/home/rp5/trinetra/models/llama3_2_1b_instruct.pte)",
+    "problems": 2,
+    "ttft_ms": 9608.0,
+    "wall_ttft_ms": 12205.4,
+    "decode_tokens_per_s": 7.59,
+    "prefill_tokens_per_s": 92.63,
+    "total_ms": 88909.0,
+    "call_ms": 91539.3,
+    "prompt_tokens": 890,
+    "generated_tokens": 602,
+    "load_ms": 2508.0
+   }
+  }
+ ]
+}

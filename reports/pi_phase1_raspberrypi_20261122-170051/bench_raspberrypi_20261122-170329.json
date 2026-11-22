@@ -1,0 +1,782 @@
+{
+ "schema": "trinetra.bench/1",
+ "label": null,
+ "date": "2026-11-22T17:03:29+05:30",
+ "platform": {
+  "host": "raspberrypi",
+  "system": "Linux",
+  "machine": "aarch64",
+  "python": "3.13.5",
+  "cpus": 4,
+  "model": "Raspberry Pi 5 Model B Rev 1.1"
+ },
+ "config": {
+  "source": "twin:data/twin_demo/bursts",
+  "detector": "onnx:models/v8n_burst.onnx",
+  "advisor": null,
+  "spec": "configs/spec_steel.yaml"
+ },
+ "n": 30,
+ "warmup": 2,
+ "vision": {
+  "capture": {
+   "n": 30,
+   "p50": 546.25,
+   "p95": 724.17,
+   "mean": 573.77,
+   "max": 870.4
+  },
+  "process": {
+   "n": 30,
+   "p50": 1117.55,
+   "p95": 1354.01,
+   "mean": 1133.48,
+   "max": 1358.0
+  },
+  "rectify": {
+   "n": 19,
+   "p50": 6.9,
+   "p95": 7.31,
+   "mean": 6.46,
+   "max": 7.4
+  },
+  "tile": {
+   "n": 19,
+   "p50": 4.2,
+   "p95": 4.3,
+   "mean": 4.21,
+   "max": 4.3
+  },
+  "detect": {
+   "n": 19,
+   "p50": 1328.7,
+   "p95": 1338.92,
+   "mean": 1330.69,
+   "max": 1361.6
+  },
+  "merge": {
+   "n": 19,
+   "p50": 0.3,
+   "p95": 0.43,
+   "mean": 0.22,
+   "max": 0.7
+  },
+  "measure": {
+   "n": 19,
+   "p50": 7.6,
+   "p95": 12.61,
+   "mean": 6.45,
+   "max": 15.4
+  },
+  "rules": {
+   "n": 19,
+   "p50": 0.2,
+   "p95": 0.3,
+   "mean": 0.14,
+   "max": 0.3
+  },
+  "report": {
+   "n": 30,
+   "p50": 0.3,
+   "p95": 0.4,
+   "mean": 0.27,
+   "max": 0.4
+  },
+  "image": {
+   "n": 30,
+   "p50": 6.1,
+   "p95": 10.77,
+   "mean": 6.9,
+   "max": 11.7
+  },
+  "total": {
+   "n": 30,
+   "p50": 2856.45,
+   "p95": 3330.5,
+   "mean": 2568.31,
+   "max": 3338.4
+  }
+ },
+ "fps": {
+  "vision": 0.389,
+  "loop": 0.386
+ },
+ "latency_ms": {
+  "camera_to_result": {
+   "n": 30,
+   "p50": 2856.45,
+   "p95": 3330.5,
+   "mean": 2568.31,
+   "max": 3338.4
+  },
+  "camera_to_advice": {
+   "n": 0,
+   "p50": null,
+   "p95": null,
+   "mean": null,
+   "max": null
+  }
+ },
+ "memory_mb": {
+  "peak_rss": 1076.7,
+  "children_peak_rss": 0.0
+ },
+ "cpu_temp_c": {
+  "start": 58.4,
+  "max": 66.7,
+  "end": 66.7
+ },
+ "llm": null,
+ "verdicts": {
+  "REJECT": 2,
+  "HOLD_FOR_QA": 10,
+  "RETAKE": 11,
+  "PASS": 7
+ },
+ "gates": {
+  "PASS": 19,
+  "RETAKE": 11
+ },
+ "cold_start": [
+  {
+   "part_id": "s900100_C0h_v0",
+   "verdict": "HOLD_FOR_QA",
+   "gate": "PASS",
+   "defects": 3,
+   "condition": "C0_dark",
+   "timing_ms": {
+    "capture": 518.6,
+    "process": 1020.2,
+    "rectify": 5.4,
+    "tile": 4.3,
+    "detect": 1332.7,
+    "merge": 0.3,
+    "measure": 7.7,
+    "rules": 0.3,
+    "report": 0.4,
+    "image": 10.5,
+    "total": 2900.4
+   },
+   "loop_ms": 2914.3,
+   "llm": null
+  },
+  {
+   "part_id": "s900100_C0o_v0",
+   "verdict": "HOLD_FOR_QA",
+   "gate": "PASS",
+   "defects": 3,
+   "condition": "C0_dark",
+   "timing_ms": {
+    "capture": 642.9,
+    "process": 1173.3,
+    "rectify": 6.9,
+    "tile": 4.2,
+    "detect": 1331.0,
+    "merge": 0.4,
+    "measure": 11.8,
+    "rules": 0.2,
+    "report": 0.3,
+    "image": 8.9,
+    "total": 3180.0
+   },
+   "loop_ms": 3205.8,
+   "llm": null
+  }
+ ],
+ "runs": [
+  {
+   "part_id": "s900100_C1h_v0",
+   "verdict": "REJECT",
+   "gate": "PASS",
+   "defects": 4,
+   "condition": "C1_office",
+   "timing_ms": {
+    "capture": 507.0,
+    "process": 988.7,
+    "rectify": 5.3,
+    "tile": 4.2,
+    "detect": 1330.7,
+    "merge": 0.3,
+    "measure": 8.2,
+    "rules": 0.3,
+    "report": 0.3,
+    "image": 8.7,
+    "total": 2853.8
+   },
+   "loop_ms": 2877.3,
+   "llm": null
+  },
+  {
+   "part_id": "s900100_C1o_v0",
+   "verdict": "HOLD_FOR_QA",
+   "gate": "PASS",
+   "defects": 3,
+   "condition": "C1_office",
+   "timing_ms": {
+    "capture": 650.3,
+    "process": 1326.8,
+    "rectify": 6.9,
+    "tile": 4.2,
+    "detect": 1327.6,
+    "merge": 0.3,
+    "measure": 12.1,
+    "rules": 0.2,
+    "report": 0.3,
+    "image": 4.8,
+    "total": 3333.7
+   },
+   "loop_ms": 3359.8,
+   "llm": null
+  },
+  {
+   "part_id": "s900100_C2h_v0",
+   "verdict": "HOLD_FOR_QA",
+   "gate": "PASS",
+   "defects": 3,
+   "condition": "C2_warm_bulb",
+   "timing_ms": {
+    "capture": 506.1,
+    "process": 990.9,
+    "rectify": 7.3,
+    "tile": 4.2,
+    "detect": 1328.4,
+    "merge": 0.3,
+    "measure": 7.6,
+    "rules": 0.2,
+    "report": 0.3,
+    "image": 8.0,
+    "total": 2853.4
+   },
+   "loop_ms": 2879.2,
+   "llm": null
+  },
+  {
+   "part_id": "s900100_C2o_v0",
+   "verdict": "HOLD_FOR_QA",
+   "gate": "PASS",
+   "defects": 4,
+   "condition": "C2_warm_bulb",
+   "timing_ms": {
+    "capture": 693.9,
+    "process": 1277.6,
+    "rectify": 6.9,
+    "tile": 4.2,
+    "detect": 1330.7,
+    "merge": 0.4,
+    "measure": 15.4,
+    "rules": 0.3,
+    "report": 0.3,
+    "image": 8.7,
+    "total": 3338.4
+   },
+   "loop_ms": 3363.4,
+   "llm": null
+  },
+  {
+   "part_id": "s900100_C3h_v0",
+   "verdict": "HOLD_FOR_QA",
+   "gate": "PASS",
+   "defects": 3,
+   "condition": "C3_window",
+   "timing_ms": {
+    "capture": 506.4,
+    "process": 990.1,
+    "rectify": 5.3,
+    "tile": 4.3,
+    "detect": 1326.0,
+    "merge": 0.3,
+    "measure": 7.6,
+    "rules": 0.2,
+    "report": 0.3,
+    "image": 8.5,
+    "total": 2848.9
+   },
+   "loop_ms": 2876.3,
+   "llm": null
+  },
+  {
+   "part_id": "s900100_C3o_v0",
+   "verdict": "RETAKE",
+   "gate": "RETAKE",
+   "defects": 0,
+   "condition": "C3_window",
+   "timing_ms": {
+    "capture": 737.0,
+    "process": 1358.0,
+    "report": 0.4,
+    "image": 7.3,
+    "total": 2102.7
+   },
+   "loop_ms": 2125.5,
+   "llm": null
+  },
+  {
+   "part_id": "s900100_C4h_v0",
+   "verdict": "HOLD_FOR_QA",
+   "gate": "PASS",
+   "defects": 3,
+   "condition": "C4_side_lamp",
+   "timing_ms": {
+    "capture": 506.7,
+    "process": 990.2,
+    "rectify": 5.3,
+    "tile": 4.3,
+    "detect": 1330.6,
+    "merge": 0.3,
+    "measure": 9.6,
+    "rules": 0.2,
+    "report": 0.3,
+    "image": 11.7,
+    "total": 2859.3
+   },
+   "loop_ms": 2886.9,
+   "llm": null
+  },
+  {
+   "part_id": "s900100_C4o_v0",
+   "verdict": "RETAKE",
+   "gate": "RETAKE",
+   "defects": 0,
+   "condition": "C4_side_lamp",
+   "timing_ms": {
+    "capture": 708.5,
+    "process": 1353.3,
+    "report": 0.4,
+    "image": 7.3,
+    "total": 2069.5
+   },
+   "loop_ms": 2091.0,
+   "llm": null
+  },
+  {
+   "part_id": "s900100_C5h_v0",
+   "verdict": "HOLD_FOR_QA",
+   "gate": "PASS",
+   "defects": 3,
+   "condition": "C5_reflected_lamp",
+   "timing_ms": {
+    "capture": 506.9,
+    "process": 988.9,
+    "rectify": 5.3,
+    "tile": 4.3,
+    "detect": 1333.2,
+    "merge": 0.3,
+    "measure": 8.8,
+    "rules": 0.2,
+    "report": 0.3,
+    "image": 11.0,
+    "total": 2859.1
+   },
+   "loop_ms": 2884.1,
+   "llm": null
+  },
+  {
+   "part_id": "s900100_C5o_v0",
+   "verdict": "RETAKE",
+   "gate": "RETAKE",
+   "defects": 0,
+   "condition": "C5_reflected_lamp",
+   "timing_ms": {
+    "capture": 654.9,
+    "process": 1288.6,
+    "report": 0.4,
+    "image": 7.3,
+    "total": 1951.3
+   },
+   "loop_ms": 1974.6,
+   "llm": null
+  },
+  {
+   "part_id": "s900100_C6h_v0",
+   "verdict": "HOLD_FOR_QA",
+   "gate": "PASS",
+   "defects": 3,
+   "condition": "C6_sun",
+   "timing_ms": {
+    "capture": 507.2,
+    "process": 989.8,
+    "rectify": 5.3,
+    "tile": 4.3,
+    "detect": 1361.6,
+    "merge": 0.7,
+    "measure": 7.6,
+    "rules": 0.2,
+    "report": 0.3,
+    "image": 5.5,
+    "total": 2882.6
+   },
+   "loop_ms": 2916.0,
+   "llm": null
+  },
+  {
+   "part_id": "s900100_C6o_v0",
+   "verdict": "RETAKE",
+   "gate": "RETAKE",
+   "defects": 0,
+   "condition": "C6_sun",
+   "timing_ms": {
+    "capture": 870.4,
+    "process": 1354.6,
+    "report": 0.4,
+    "image": 7.5,
+    "total": 2232.9
+   },
+   "loop_ms": 2253.6,
+   "llm": null
+  },
+  {
+   "part_id": "s900101_C0h_v0",
+   "verdict": "PASS",
+   "gate": "PASS",
+   "defects": 0,
+   "condition": "C0_dark",
+   "timing_ms": {
+    "capture": 558.8,
+    "process": 1104.7,
+    "rectify": 7.4,
+    "tile": 4.3,
+    "detect": 1325.9,
+    "merge": 0.0,
+    "measure": 0.6,
+    "rules": 0.0,
+    "report": 0.2,
+    "image": 8.5,
+    "total": 3010.4
+   },
+   "loop_ms": 3033.2,
+   "llm": null
+  },
+  {
+   "part_id": "s900101_C0o_v0",
+   "verdict": "RETAKE",
+   "gate": "RETAKE",
+   "defects": 0,
+   "condition": "C0_dark",
+   "timing_ms": {
+    "capture": 500.8,
+    "process": 1128.2,
+    "report": 0.2,
+    "image": 6.1,
+    "total": 1635.2
+   },
+   "loop_ms": 1656.5,
+   "llm": null
+  },
+  {
+   "part_id": "s900101_C1h_v0",
+   "verdict": "PASS",
+   "gate": "PASS",
+   "defects": 0,
+   "condition": "C1_office",
+   "timing_ms": {
+    "capture": 560.9,
+    "process": 1100.2,
+    "rectify": 7.2,
+    "tile": 4.1,
+    "detect": 1329.2,
+    "merge": 0.0,
+    "measure": 0.6,
+    "rules": 0.0,
+    "report": 0.2,
+    "image": 8.5,
+    "total": 3011.0
+   },
+   "loop_ms": 3030.7,
+   "llm": null
+  },
+  {
+   "part_id": "s900101_C1o_v0",
+   "verdict": "RETAKE",
+   "gate": "RETAKE",
+   "defects": 0,
+   "condition": "C1_office",
+   "timing_ms": {
+    "capture": 526.1,
+    "process": 1151.1,
+    "report": 0.2,
+    "image": 6.1,
+    "total": 1683.5
+   },
+   "loop_ms": 1703.9,
+   "llm": null
+  },
+  {
+   "part_id": "s900101_C2h_v0",
+   "verdict": "PASS",
+   "gate": "PASS",
+   "defects": 0,
+   "condition": "C2_warm_bulb",
+   "timing_ms": {
+    "capture": 560.5,
+    "process": 1106.9,
+    "rectify": 7.3,
+    "tile": 4.2,
+    "detect": 1328.4,
+    "merge": 0.0,
+    "measure": 0.6,
+    "rules": 0.0,
+    "report": 0.2,
+    "image": 8.1,
+    "total": 3016.4
+   },
+   "loop_ms": 3034.5,
+   "llm": null
+  },
+  {
+   "part_id": "s900101_C2o_v0",
+   "verdict": "RETAKE",
+   "gate": "RETAKE",
+   "defects": 0,
+   "condition": "C2_warm_bulb",
+   "timing_ms": {
+    "capture": 519.7,
+    "process": 1145.1,
+    "report": 0.2,
+    "image": 6.1,
+    "total": 1671.0
+   },
+   "loop_ms": 1703.6,
+   "llm": null
+  },
+  {
+   "part_id": "s900101_C3h_v0",
+   "verdict": "PASS",
+   "gate": "PASS",
+   "defects": 0,
+   "condition": "C3_window",
+   "timing_ms": {
+    "capture": 560.5,
+    "process": 1100.7,
+    "rectify": 7.2,
+    "tile": 4.1,
+    "detect": 1326.6,
+    "merge": 0.0,
+    "measure": 0.6,
+    "rules": 0.0,
+    "report": 0.2,
+    "image": 4.5,
+    "total": 3004.6
+   },
+   "loop_ms": 3021.0,
+   "llm": null
+  },
+  {
+   "part_id": "s900101_C3o_v0",
+   "verdict": "RETAKE",
+   "gate": "RETAKE",
+   "defects": 0,
+   "condition": "C3_window",
+   "timing_ms": {
+    "capture": 516.3,
+    "process": 1171.8,
+    "report": 0.2,
+    "image": 6.0,
+    "total": 1694.3
+   },
+   "loop_ms": 1717.5,
+   "llm": null
+  },
+  {
+   "part_id": "s900101_C4h_v0",
+   "verdict": "PASS",
+   "gate": "PASS",
+   "defects": 0,
+   "condition": "C4_side_lamp",
+   "timing_ms": {
+    "capture": 561.7,
+    "process": 1100.1,
+    "rectify": 7.2,
+    "tile": 4.1,
+    "detect": 1327.0,
+    "merge": 0.0,
+    "measure": 0.6,
+    "rules": 0.0,
+    "report": 0.2,
+    "image": 4.5,
+    "total": 3005.4
+   },
+   "loop_ms": 3021.5,
+   "llm": null
+  },
+  {
+   "part_id": "s900101_C4o_v0",
+   "verdict": "RETAKE",
+   "gate": "RETAKE",
+   "defects": 0,
+   "condition": "C4_side_lamp",
+   "timing_ms": {
+    "capture": 512.9,
+    "process": 1151.8,
+    "report": 0.2,
+    "image": 6.1,
+    "total": 1671.0
+   },
+   "loop_ms": 1692.5,
+   "llm": null
+  },
+  {
+   "part_id": "s900101_C5h_v0",
+   "verdict": "PASS",
+   "gate": "PASS",
+   "defects": 0,
+   "condition": "C5_reflected_lamp",
+   "timing_ms": {
+    "capture": 561.5,
+    "process": 1103.4,
+    "rectify": 7.2,
+    "tile": 4.2,
+    "detect": 1325.2,
+    "merge": 0.0,
+    "measure": 0.6,
+    "rules": 0.0,
+    "report": 0.2,
+    "image": 4.5,
+    "total": 3007.0
+   },
+   "loop_ms": 3026.4,
+   "llm": null
+  },
+  {
+   "part_id": "s900101_C5o_v0",
+   "verdict": "RETAKE",
+   "gate": "RETAKE",
+   "defects": 0,
+   "condition": "C5_reflected_lamp",
+   "timing_ms": {
+    "capture": 533.7,
+    "process": 1168.1,
+    "report": 0.2,
+    "image": 6.1,
+    "total": 1708.0
+   },
+   "loop_ms": 1730.5,
+   "llm": null
+  },
+  {
+   "part_id": "s900101_C6h_v0",
+   "verdict": "PASS",
+   "gate": "PASS",
+   "defects": 0,
+   "condition": "C6_sun",
+   "timing_ms": {
+    "capture": 570.6,
+    "process": 950.3,
+    "rectify": 7.2,
+    "tile": 4.2,
+    "detect": 1328.7,
+    "merge": 0.0,
+    "measure": 0.6,
+    "rules": 0.0,
+    "report": 0.2,
+    "image": 4.5,
+    "total": 2866.4
+   },
+   "loop_ms": 2882.6,
+   "llm": null
+  },
+  {
+   "part_id": "s900101_C6o_v0",
+   "verdict": "RETAKE",
+   "gate": "RETAKE",
+   "defects": 0,
+   "condition": "C6_sun",
+   "timing_ms": {
+    "capture": 499.3,
+    "process": 1141.5,
+    "report": 0.2,
+    "image": 6.1,
+    "total": 1647.2
+   },
+   "loop_ms": 1671.2,
+   "llm": null
+  },
+  {
+   "part_id": "s900100_C0h_v0",
+   "verdict": "HOLD_FOR_QA",
+   "gate": "PASS",
+   "defects": 3,
+   "condition": "C0_dark",
+   "timing_ms": {
+    "capture": 509.8,
+    "process": 987.6,
+    "rectify": 5.3,
+    "tile": 4.3,
+    "detect": 1329.2,
+    "merge": 0.3,
+    "measure": 7.6,
+    "rules": 0.2,
+    "report": 0.3,
+    "image": 4.8,
+    "total": 2849.5
+   },
+   "loop_ms": 2875.7,
+   "llm": null
+  },
+  {
+   "part_id": "s900100_C0o_v0",
+   "verdict": "HOLD_FOR_QA",
+   "gate": "PASS",
+   "defects": 3,
+   "condition": "C0_dark",
+   "timing_ms": {
+    "capture": 647.1,
+    "process": 1188.0,
+    "rectify": 6.9,
+    "tile": 4.1,
+    "detect": 1328.3,
+    "merge": 0.4,
+    "measure": 12.0,
+    "rules": 0.2,
+    "report": 0.3,
+    "image": 4.8,
+    "total": 3192.4
+   },
+   "loop_ms": 3215.1,
+   "llm": null
+  },
+  {
+   "part_id": "s900100_C1h_v0",
+   "verdict": "REJECT",
+   "gate": "PASS",
+   "defects": 4,
+   "condition": "C1_office",
+   "timing_ms": {
+    "capture": 506.6,
+    "process": 990.4,
+    "rectify": 5.3,
+    "tile": 4.3,
+    "detect": 1336.4,
+    "merge": 0.3,
+    "measure": 9.5,
+    "rules": 0.3,
+    "report": 0.3,
+    "image": 10.5,
+    "total": 2863.9
+   },
+   "loop_ms": 2890.9,
+   "llm": null
+  },
+  {
+   "part_id": "s900100_C1o_v0",
+   "verdict": "HOLD_FOR_QA",
+   "gate": "PASS",
+   "defects": 3,
+   "condition": "C1_office",
+   "timing_ms": {
+    "capture": 650.9,
+    "process": 1317.1,
+    "rectify": 6.9,
+    "tile": 4.1,
+    "detect": 1329.5,
+    "merge": 0.3,
+    "measure": 12.3,
+    "rules": 0.2,
+    "report": 0.3,
+    "image": 4.8,
+    "total": 3326.6
+   },
+   "loop_ms": 3348.8,
+   "llm": null
+  }
+ ]
+}

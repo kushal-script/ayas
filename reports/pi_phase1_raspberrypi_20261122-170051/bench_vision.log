@@ -1,0 +1,2 @@
+source twin:data/twin_demo/bursts (28 bursts, loop) | vision yolov8n onnxruntime CPU (v8n_burst.onnx) | advisor off | log /home/rp5/trinetra/reports/pi_phase1_raspberrypi_20261122-170051/log_vision | NETWORK: default route present
+vision p50 2856.45 ms, p95 3330.5 ms, 0.389 FPS; peak RSS 1076.7 MB; wrote reports/pi_phase1_raspberrypi_20261122-170051/bench_raspberrypi_20261122-170329.json and reports/pi_phase1_raspberrypi_20261122-170051/bench_raspberrypi_20261122-170329.md
