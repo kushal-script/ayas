@@ -550,6 +550,15 @@ def fit_once(crop: Crop, rend: Renderer, prior: Mapping[str, float], cfg: Mappin
     scale = 0.3
     if method == "grid":
         field_ = GridField(rend.D, scale, rend.dtype, bool(cfg["material_field"]))
+        h0 = cfg.get("h_init")
+        if h0 is not None:          # start from a given height (working lattice, mm), e.g. the depth network's
+            h0 = np.asarray(h0, np.float64)
+            if rend.ss > 1:
+                h0 = np.repeat(np.repeat(h0, rend.ss, 0), rend.ss, 1)
+            Dn = rend.D.detach().numpy()
+            z0 = np.where(Dn > 0.02, h0[:Dn.shape[0], :Dn.shape[1]] / (np.maximum(Dn, 0.02) * scale), 0.0)
+            with torch.no_grad():
+                field_.z.copy_(torch.as_tensor(np.clip(z0, -20, 20), dtype=rend.dtype))
     else:
         Lmax = max(rend.shape) * crop.s
         sigma = float(cfg["fourier_sigma"]) * Lmax / max(size_mm, 2 * crop.s) / 2.0
