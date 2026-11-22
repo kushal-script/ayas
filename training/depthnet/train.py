@@ -17,28 +17,39 @@ sys.path.insert(0, str(Path(__file__).parent))
 import model as M  # noqa: E402
 
 
-def ring_median(h: np.ndarray, n: int) -> float:
-    k = max(2, n // 8)
-    a = h[:n, :n]
-    ring = np.ones((n, n), bool)
-    ring[k:n - k, k:n - k] = False
+def ring_median(h: np.ndarray, nv: int, nu: int | None = None) -> float:
+    nu = nv if nu is None else nu
+    k = max(2, max(nv, nu) // 8)
+    a = h[:nv, :nu]
+    ring = np.ones((nv, nu), bool)
+    ring[k:nv - k, k:nu - k] = False
     return float(np.median(a[ring]))
 
 
-def load(paths):
+def load(paths, keep=None):
+    """Synthetic (datagen.py) or Blender (blender_crops.py) shards; keep(meta) -> bool filters samples."""
     X, Y, V, D = [], [], [], []
     for p in paths:
         z = np.load(p)
         meta = json.loads(bytes(z["meta"]).decode())
         for obs, valid, h, m in zip(z["obs"], z["valid"], z["height"], meta):
-            n = m["n"]
+            if keep is not None and not keep(m):
+                continue
+            nv, nu = m.get("nv", m["n"]), m.get("nu", m["n"])
             X.append(M.prepare(obs, valid, m["illumination"], m["rel_u_mm"], m["rel_v_mm"], m["s_mm"]))
             hr = np.zeros((M.N, M.N), np.float32)
-            hr[:n, :n] = (h[:n, :n] - ring_median(h, n)) / M.H_UNIT_MM
+            hr[:nv, :nu] = (h[:nv, :nu] - ring_median(h, nv, nu)) / M.H_UNIT_MM
             Y.append(hr)
             V.append(valid.astype(np.float32))
-            D.append({"kind": m["kind"], "depth_mm": -min(0.0, float(hr[:n, :n].min()) * M.H_UNIT_MM), "n": n})
+            D.append({"kind": m["kind"], "depth_mm": -min(0.0, float(hr[:nv, :nu].min()) * M.H_UNIT_MM), "n": max(nv, nu),
+                      "plan": m.get("plan")})
     return np.stack(X), np.stack(Y)[:, None], np.stack(V)[:, None], D
+
+
+def _val_plan(plan_id: str | None) -> bool:
+    """10 % of the TRAIN plates (by id) are held out for validation: whole plates, never split."""
+    import hashlib
+    return plan_id is not None and int(hashlib.md5(plan_id.encode()).hexdigest(), 16) % 10 == 0
 
 
 def main():
@@ -46,17 +57,33 @@ def main():
     ap.add_argument("--data", required=True); ap.add_argument("--out", required=True)
     ap.add_argument("--epochs", type=int, default=30); ap.add_argument("--bs", type=int, default=128)
     ap.add_argument("--width", type=int, default=24); ap.add_argument("--lr", type=float, default=2e-3)
+    ap.add_argument("--blender", default=None, help="dir of blender_*.npz: fine-tune on them (val = held-out plates)")
+    ap.add_argument("--init", default=None, help="start from this state dict (e.g. the synthetic run's best.pt)")
+    ap.add_argument("--blender-repeat", type=int, default=3, help="oversample the Blender crops this many times")
     a = ap.parse_args()
     import torch
     dev = "mps" if torch.backends.mps.is_available() else ("cuda" if torch.cuda.is_available() else "cpu")
     shards = sorted(Path(a.data).glob("shard_*.npz"))
-    seeds = sorted({p.name.split("_")[1] for p in shards})
-    val = [p for p in shards if p.name.split("_")[1] == seeds[-1]]
-    tr = [p for p in shards if p not in val]
-    Xt, Yt, Vt, _ = load(tr)
-    Xv, Yv, Vv, Dv = load(val)
+    if a.blender:
+        bl = sorted(Path(a.blender).glob("blender_*.npz"))
+        Xb, Yb, Vb, _ = load(bl, keep=lambda m: not _val_plan(m.get("plan")))
+        Xv, Yv, Vv, Dv = load(bl, keep=lambda m: _val_plan(m.get("plan")))
+        Xs, Ys, Vs, _ = load(shards)
+        r = max(1, a.blender_repeat)
+        Xt, Yt, Vt = (np.concatenate([Xs] + [Xb] * r), np.concatenate([Ys] + [Yb] * r), np.concatenate([Vs] + [Vb] * r))
+        print(f"blender train {len(Xb)} (x{r}), synthetic {len(Xs)}, blender val {len(Xv)}", flush=True)
+    else:
+        seeds = sorted({p.name.split("_")[1] for p in shards})
+        val = [p for p in shards if p.name.split("_")[1] == seeds[-1]]
+        tr = [p for p in shards if p not in val]
+        Xt, Yt, Vt, _ = load(tr)
+        Xv, Yv, Vv, Dv = load(val)
     print(f"train {len(Xt)} val {len(Xv)} device {dev}", flush=True)
-    net = M.build(a.width).to(dev)
+    net = M.build(a.width)
+    if a.init:
+        net.load_state_dict(torch.load(a.init, map_location="cpu"))
+        print("init from", a.init, flush=True)
+    net = net.to(dev)
     print("params", sum(p.numel() for p in net.parameters()), flush=True)
     opt = torch.optim.AdamW(net.parameters(), lr=a.lr, weight_decay=1e-4)
     steps = a.epochs * (len(Xt) // a.bs)

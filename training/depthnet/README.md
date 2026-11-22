@@ -36,8 +36,26 @@ On the Blender twin dent plate (s900104; hood in dark room and direct sun, plus 
 
 **Decision.** Not adopted: by the rule set beforehand, it had to match the physics fit's accuracy. The 3D view keeps the physics fit, which was made 3.7× faster the same day (parallel per-defect workers, half the steps).
 
+**Second attempt: fine-tuned on Blender renders (22 Nov, evening).**
+- `blender_crops.py` takes the 800 TRAIN scenes' Blender renders (from Drive) through the device's capture path: sensor noise, shake, ambient light at 4 levels, the 5-frame burst processing and the gate.
+  - It cuts the same crop the physics fit uses round every labelled dent, pit and scratch window, plus 2 jittered boxes, and takes the true height from the twin at the crop's spacing.
+  - The result is 7,995 crops. 885 of them, from 10 % of the TRAIN plates (held out whole), are the validation set.
+- `jl_blender_job.sh` ran it on a JarvisLabs A30 (about 55 min in all). The model started from the synthetic one and trained for 25 epochs on the synthetic crops plus the Blender crops ×3.
+- Held-out Blender plates: dents 0.149 mm, pits 0.096 mm, scratches 0.041 mm.
+
+| Dent plate s900104 (test) | Dents MAE | Pits MAE |
+|---|---|---|
+| Synthetic-only network | 0.140 mm | 0.150 mm |
+| Fine-tuned on Blender | 0.150 mm | 0.124 mm |
+| Fine-tuned, then a 40-step physics fit | 0.183 mm | 0.121 mm |
+| **Physics fit (shipped)** | **0.022 mm** | **0.034 mm** |
+
+- Real-domain data helped the large hood dent (0.317 mm against 0.331) and one hood pit (0.122 against 0.130).
+- The 0.168 mm dent still reads 0.03 mm and pit D5 still reads 3× too deep. In open mode, dents read 2× too deep.
+- One pass from one crop does not pin down shallow relief, while the per-crop fit does. **Still not adopted.**
+
 **What would fix it (Phase 2).**
-- Train on crops from Blender renders of the TRAIN scenes (their EXRs are on Drive), and later on real gauged coupons, so the training domain matches the device.
+- More and harder Blender data (displacement renders with real shadows, more shallow dents), a larger model, and real gauged coupons. Or use the network only as a detector of where the relief is, and keep the fit for the depth.
 - Then compile with `hailo/compile_hef_jl.sh`, exactly as for the detector.
 
 The code is kept here; `depth_pinn.fit_once` accepts `cfg["h_init"]` to start the grid fit from any height map.
