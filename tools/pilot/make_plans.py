@@ -1,4 +1,4 @@
-"""Write the pilot lighting matrix (explicit plate seeds) in trinetra.twin.matrix's manifest format.
+"""Write the pilot lighting matrix (explicit plate seeds) in ayas.twin.matrix's manifest format.
 
 Seeds: for each material asked, the first seed >= 900010 (honesty rule: 900000-900004 calibrated the
 gate) whose plate is 100 x 100 mm with >= 3 labelled defects (scan_seeds.py).
@@ -7,7 +7,7 @@ gate) whose plate is 100 x 100 mm with >= 3 labelled defects (scan_seeds.py).
 import json, sys
 from pathlib import Path
 import yaml
-from trinetra.twin import matrix as MX, sampler
+from ayas.twin import matrix as MX, sampler
 
 ROOT = Path(__file__).resolve().parents[2]
 out = Path(sys.argv[1])

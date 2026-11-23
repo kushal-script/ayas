@@ -11,7 +11,7 @@ Only plate.material changes for the adversarial plates; geometry, defects and li
 import copy, json, sys
 from pathlib import Path
 import yaml
-from trinetra.twin import matrix as MX, sampler
+from ayas.twin import matrix as MX, sampler
 
 ROOT = Path(__file__).resolve().parents[2]
 out = Path(sys.argv[1])

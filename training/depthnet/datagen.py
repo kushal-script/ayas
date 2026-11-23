@@ -20,7 +20,7 @@ from pathlib import Path
 
 import numpy as np
 
-from trinetra.physics import depth_pinn as DP, optics as O, twin_eval as TE
+from ayas.physics import depth_pinn as DP, optics as O, twin_eval as TE
 
 N = 48
 GROUPS = ("L", "R")
@@ -138,7 +138,7 @@ def main():
     assert plans, "no train plans"
     cfg = dict(DP.DEFAULTS); cfg["hood_env"] = True
     sensor = dict(TE.capture_cfg().get("sensor") or {})
-    from trinetra import lightproc as LP
+    from ayas import lightproc as LP
     sensor["e_per_fs"] = LP.electrons_per_fs(sensor)
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     rng = np.random.default_rng(a.seed)

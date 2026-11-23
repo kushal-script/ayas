@@ -4,11 +4,11 @@ from pathlib import Path
 import pytest
 import yaml
 
-from trinetra.calibration import Calibration, calibrate
-from trinetra.capture import bright_view, capture_set
-from trinetra.config import VIEWS, load_config
-from trinetra.golden import GoldenBuilder
-from trinetra.sim import SimRig
+from ayas.calibration import Calibration, calibrate
+from ayas.capture import bright_view, capture_set
+from ayas.config import VIEWS, load_config
+from ayas.golden import GoldenBuilder
+from ayas.sim import SimRig
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -61,7 +61,7 @@ def arch_only_cfg(tmp_path_factory):
 
 @pytest.fixture(scope="session")
 def inspector(sim_cfg):
-    from trinetra.pipeline import Inspector
+    from ayas.pipeline import Inspector
 
     return Inspector(sim_cfg)
 

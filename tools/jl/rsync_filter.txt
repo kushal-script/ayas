@@ -10,7 +10,7 @@
 - /models/
 + /hardware/
 + /hardware/enclosure/
-+ /hardware/enclosure/trinetra_handheld_fusion.py
++ /hardware/enclosure/ayas_handheld_fusion.py
 - /hardware/**
 - /docs/
 - /reports/

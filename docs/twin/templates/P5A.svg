@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="140mm" height="211.3mm" viewBox="0 0 140 211.3" font-family="Helvetica, Arial, sans-serif">
-<title>P5A Held-out test plate - TriNetra coupon template (1:1)</title>
+<title>P5A Held-out test plate - Ayas coupon template (1:1)</title>
 <defs><pattern id="hatch-corrosion" patternUnits="userSpaceOnUse" width="0.8" height="0.8" patternTransform="rotate(45)"><path d="M0 0.4H0.8" stroke="#b35a00" stroke-width="0.15"/></pattern><pattern id="hatch-scratch" patternUnits="userSpaceOnUse" width="0.8" height="0.8" patternTransform="rotate(0)"><path d="M0 0.4H0.8" stroke="#1f5fbf" stroke-width="0.15"/></pattern><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="1.4" markerHeight="1.4" orient="auto"><path d="M0 0L10 5L0 10z" fill="#8e24aa"/></marker></defs>
 <rect x="0" y="0" width="140" height="211.3" fill="#ffffff"/>
 <text x="20" y="7.5" font-size="4.2" fill="#000" text-anchor="start" font-weight="bold">P5A  Held-out test plate</text>
-<text x="20" y="12" font-size="2" fill="#000" text-anchor="start" font-weight="normal">role: test  |  plate 100 x 100 x 3 mm  |  drill Ø4.1 for Ø4 fasteners  |  TriNetra aircraft-representative coupon (commercial alloy)</text>
+<text x="20" y="12" font-size="2" fill="#000" text-anchor="start" font-weight="normal">role: test  |  plate 100 x 100 x 3 mm  |  drill Ø4.1 for Ø4 fasteners  |  Ayas aircraft-representative coupon (commercial alloy)</text>
 <text x="120" y="7.5" font-size="3" fill="#c0392b" text-anchor="end" font-weight="bold">HELD-OUT TEST PLATE</text>
 <g transform="translate(20 22)">
 <line x1="0" y1="-0.6" x2="0" y2="-2.6" stroke="#999999" stroke-width="0.12"/>

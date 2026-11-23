@@ -1,4 +1,4 @@
-# TriNetra repo audit: reuse for 1x IMX500 + N/E/S/W banks + Hailo-10H
+# Ayas repo audit: reuse for 1x IMX500 + N/E/S/W banks + Hailo-10H
 
 **Tests:** `.venv/bin/pytest -q` gave **50 passed in 29.14 s** (31.0 s wall, measured with `/usr/bin/time`). I ran it with `-p no:cacheprovider` so nothing in the repo was written. No files were changed. Local env: Python 3.11.14, numpy 2.4.6, opencv-python-headless 5.0.0.93, scikit-learn 1.9.1, macOS arm64.
 

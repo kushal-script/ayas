@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from trinetra import rules
+from ayas import rules
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -74,7 +74,7 @@ def test_open_mode_never_accepts(spec, verdict, mode, want):
 
 def test_twin_pair_is_one_inspection_and_a_refused_second_burst_retakes(tmp_path):
     from tests.test_app import make_pipeline, write_npz
-    from trinetra.app import sources as SR
+    from ayas.app import sources as SR
 
     write_npz(tmp_path / "ok" / "s1_v0.npz", seed=0)
     write_npz(tmp_path / "ok" / "s1_v1.npz", seed=1)
@@ -92,7 +92,7 @@ def test_twin_pair_is_one_inspection_and_a_refused_second_burst_retakes(tmp_path
 
 def test_single_variant_folder_has_no_partner(tmp_path):
     from tests.test_app import write_npz
-    from trinetra.app import sources as SR
+    from ayas.app import sources as SR
 
     write_npz(tmp_path / "s3_v0.npz")
     assert "partner" not in SR.TwinSource(tmp_path, loop=False).next()[1]

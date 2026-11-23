@@ -1,12 +1,12 @@
 """The lighting experiment: does the inspector work in different lighting? (DESIGN_STEEL G).
 
-Inputs come from trinetra.twin.matrix (plans + manifest) rendered and post-processed with
+Inputs come from ayas.twin.matrix (plans + manifest) rendered and post-processed with
 post.eval_arms [burst, naive]:
   <matrix>/matrix_manifest.json                     plate -> rows (condition, device_mode)
   <matrix>/grids/<arm>/<split>/<scene>_v<k>.png     full rectified grids, one per arm and variant
   <matrix>/sidecar/<scene>.json                     labels, condition, device_mode, per-variant gate
 
-For each model x arm x (condition, device_mode) row, on the full grids (trinetra.npu
+For each model x arm x (condition, device_mode) row, on the full grids (ayas.npu
 detect_grid, the same tiling and seam merge as the Pi), matched to the sidecar labels with
 the eval_plates rule (same class; IoU >= 0.25 or the box covers >= 50 % of the mask):
 - precision, recall and F1 of the defects, Wilson 95 % intervals (F1: the Wilson interval
@@ -22,7 +22,7 @@ the eval_plates rule (same class; IoU >= 0.25 or the box covers >= 50 % of the m
   detector then gets the ground-truth verdict), so the comparison isolates what the lighting
   does to detection. A box only bounds a thin defect: a diagonal 0.1 mm scratch measures as
   wide as its box, on both sides. --measure app: detections are measured exactly as the
-  on-device app does (trinetra.app.pipeline.detection_record: sizes from the defect's own
+  on-device app does (ayas.app.pipeline.detection_record: sizes from the defect's own
   pixels in the grid image, so lighting can change them; plate-edge distance only) and the
   ground truth defaults to the analytic measures (--gt-measure true: the sidecar's record
   fields): the verdict the device would really show against the physical truth;
@@ -88,12 +88,12 @@ import cv2
 import numpy as np
 
 import eval_plates as EP
-from trinetra.npu import detect_grid, load_detector
-from trinetra.tiles import CLASSES, ELONGATED, Det, clip_box, tile_grid
-from trinetra.twin import matrix as MX
+from ayas.npu import detect_grid, load_detector
+from ayas.tiles import CLASSES, ELONGATED, Det, clip_box, tile_grid
+from ayas.twin import matrix as MX
 
 ROOT = Path(__file__).resolve().parents[1]
-SCHEMA = "trinetra.lighting_matrix/1"
+SCHEMA = "ayas.lighting_matrix/1"
 ARMS = ("naive", "burst")
 REFERENCE = ("C0_dark", "open")
 HOOD_REFERENCE = ("C0_dark", "hood")
@@ -385,7 +385,7 @@ def pred_defects(dets: Sequence[Det], sc: dict, min_box_px: float = MIN_BOX_PX) 
 
 def grid_of(sc: dict):
     """config.Grid of a sidecar's image-aligned plate grid (grid.plate_mm / border_mm, else from H_grid_plate)."""
-    from trinetra.config import Grid
+    from ayas.config import Grid
 
     _, mpp, (x0, y0, x1, y1) = grid_frame(sc)
     g = sc.get("grid") or {}
@@ -395,9 +395,9 @@ def grid_of(sc: dict):
 
 
 def app_defects(dets: Sequence[Det], sc: dict, rgb: np.ndarray) -> list[dict[str, Any]]:
-    """Record 3.0 defects measured as the on-device app measures them (trinetra.app.pipeline.
+    """Record 3.0 defects measured as the on-device app measures them (ayas.app.pipeline.
     detection_record on this grid image: mask-based sizes, near_edge_mm to the plate edge)."""
-    from trinetra.app import pipeline as AP
+    from ayas.app import pipeline as AP
 
     grid = grid_of(sc)
     gm = AP.GridMap(grid, np.eye(3), np.zeros((4, 2)))
@@ -425,7 +425,7 @@ def gt_defects(gts: Sequence[EP.Gt], sc: dict, measure: str = "box", min_box_px:
     from_label = None
     if measure == "true":
         try:
-            from trinetra.twin.records import defect_from_label as from_label
+            from ayas.twin.records import defect_from_label as from_label
         except ImportError:
             pass
     plan_defects = {str(d["id"]): d for d in (plan or {}).get("defects") or [] if "id" in d}
@@ -463,17 +463,17 @@ def gt_defects(gts: Sequence[EP.Gt], sc: dict, measure: str = "box", min_box_px:
 
 
 def default_judge() -> Judge:
-    from trinetra import rules
+    from ayas import rules
 
     if not hasattr(rules, "judge_steel"):
-        raise SystemExit("trinetra.rules.judge_steel is missing (the spec-advisor workstream adds it)")
+        raise SystemExit("ayas.rules.judge_steel is missing (the spec-advisor workstream adds it)")
     return rules.judge_steel
 
 
 def default_spec(path: Path = ROOT / "configs/spec_steel.yaml") -> dict:
     """configs/spec_steel.yaml (rules.load_spec). An empty spec would make judge_steel hold every
     defect as 'unknown', so evaluate_matrix never runs the real rules without one."""
-    from trinetra import rules
+    from ayas import rules
 
     return rules.load_spec(path)
 
@@ -490,7 +490,7 @@ def label_min_box(path: Path = ROOT / "configs/twin.yaml") -> float:
 
 def verdict_order() -> tuple[str, ...]:
     try:
-        from trinetra.rules import VERDICTS
+        from ayas.rules import VERDICTS
     except ImportError:
         return VERDICT_ORDER
     return tuple(VERDICTS)
@@ -1125,14 +1125,14 @@ def main(argv: list[str] | None = None) -> dict[str, Any]:
     ap.add_argument("--min-overlap", type=int, default=128)
     ap.add_argument("--measure", choices=MEASURES, default="box",
                     help="box: detections and truth measured from padded boxes alike (isolates detection); "
-                         "app: detections measured as the on-device app does (trinetra.app.pipeline)")
+                         "app: detections measured as the on-device app does (ayas.app.pipeline)")
     ap.add_argument("--gt-measure", choices=("box", "true"),
                     help="ground-truth measures (default: box with --measure box, true with --measure app)")
     ap.add_argument("--gt-visibility", choices=("c0", "own", "all"), default="c0")
     ap.add_argument("--min-box-px", type=float, default=label_min_box(),
                     help="boxes are measured padded to this many px per side (default: twin.yaml label.min_box_px)")
     a = ap.parse_args(argv)
-    from trinetra import rules
+    from ayas import rules
 
     man_path = a.matrix / MX.MANIFEST
     manifest = MX.load_manifest(man_path) if man_path.exists() else None

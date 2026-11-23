@@ -1,20 +1,20 @@
 #!/bin/sh
-# Full TriNetra twin render on the JarvisLabs L4 instance.
-# Instance copy: /home/trinetra_jobs/render_all.sh   (repo copy: tools/jl/render_all.sh)
+# Full Ayas twin render on the JarvisLabs L4 instance.
+# Instance copy: /home/ayas_jobs/render_all.sh   (repo copy: tools/jl/render_all.sh)
 #
 # Run it tracked, from the Mac (see tools/jl/README.md):
-#   jl run --on <id> --json --yes -- sh -lc 'sh /home/trinetra_jobs/render_all.sh --jobs matrix,train'
+#   jl run --on <id> --json --yes -- sh -lc 'sh /home/ayas_jobs/render_all.sh --jobs matrix,train'
 #
 # Resumable: re-run the same command after a stop, a crash or a pause/resume. Rendered scenes
 # (good render_meta.json + render.exr in <job>/work/<scene>/) and posted scenes (<post dir>/sidecar/
 # <scene>.json) are skipped. EXRs are always kept (keep-work), texture maps are deleted.
 #
 # Jobs and their dirs under --data (default /home/data):
-#   matrix  twin_matrix/  `trinetra-twin matrix --plans-only`: test plates (seeds from --matrix-start-seed,
+#   matrix  twin_matrix/  `ayas-twin matrix --plans-only`: test plates (seeds from --matrix-start-seed,
 #                         900100: the gate was tuned on 900000-900068, so those are not test plates) x 14 rows
 #                         (7 conditions x open/hood); the first --matrix-showcase plates also get the
 #                         overview render and --save-bursts post (Pi demo bursts).
-#   train   twin_train/   `trinetra-twin plan`: random training/val scenes, seeds from --train-start-seed.
+#   train   twin_train/   `ayas-twin plan`: random training/val scenes, seeds from --train-start-seed.
 #   jepa    jepa_train/   `python training/jepa/pairs.py` (no --render): paired TRAINING plates
 #                         (seeds 100000..899999) x 14 rows, split jepa_train; post uses pairs.jepa_config
 #                         (burst grids as JPEG q95, no YOLO tiles).
@@ -73,7 +73,7 @@ done
 case "$STAGE" in render|post|both) ;; *) echo "--stage must be render, post or both"; exit 2;; esac
 [ "$MATRIX_SEED" -ge 900100 ] || { echo "--matrix-start-seed must be >= 900100 (900000-900068 tuned the gate)"; exit 2; }
 
-. /home/trinetra_jobs/env.sh
+. /home/ayas_jobs/env.sh
 mkdir -p "$DATA/logs"
 LOG="$DATA/logs/render_all.log"
 RC_FILE="$DATA/logs/.render_all.rc"
@@ -82,11 +82,11 @@ main() {
   set -e
   echo "=== render_all $(date -u +%FT%TZ) jobs=$JOBS stage=$STAGE procs=$PROCS device=$DEVICE data=$DATA"
   sh /home/setup_sys.sh
-  [ -x "$TRINETRA_BLENDER" ] || { echo "Blender missing: run /home/trinetra_jobs/bootstrap.sh"; exit 3; }
-  "$TRINETRA_BLENDER" -b --factory-startup --version 2>/dev/null | head -1
+  [ -x "$AYAS_BLENDER" ] || { echo "Blender missing: run /home/ayas_jobs/bootstrap.sh"; exit 3; }
+  "$AYAS_BLENDER" -b --factory-startup --version 2>/dev/null | head -1
   nvidia-smi --query-gpu=name,memory.used,memory.total,utilization.gpu --format=csv,noheader || true
-  cd "$TRINETRA_REPO"
-  PY="$TRINETRA_VENV/bin/python"
+  cd "$AYAS_REPO"
+  PY="$AYAS_VENV/bin/python"
   TJ="$PY tools/jl/twin_jobs.py"
   RARGS="--device $DEVICE --procs $PROCS --min-free-gb $MIN_FREE"
   [ -n "$SAMPLES" ] && RARGS="$RARGS --samples $SAMPLES"
@@ -97,14 +97,14 @@ main() {
     case "$job" in
       matrix)
         D="$DATA/twin_matrix"; MAN="$D/matrix_manifest.json"; EXTRA=""
-        [ -f "$MAN" ] || "$TRINETRA_VENV/bin/trinetra-twin" matrix --n "$MATRIX_N" --start-seed "$MATRIX_SEED" --out "$D" --plans-only
+        [ -f "$MAN" ] || "$AYAS_VENV/bin/ayas-twin" matrix --n "$MATRIX_N" --start-seed "$MATRIX_SEED" --out "$D" --plans-only
         ;;
       train)
         D="$DATA/twin_train"; MAN="$D/plans"; EXTRA=""
         have=$(ls "$D/plans" 2>/dev/null | grep -c '\.json$' || true)
         if [ "$have" -lt "$TRAIN_N" ]; then
           [ "$have" -gt 0 ] && echo "WARNING: $D/plans has $have < $TRAIN_N plans; rewriting seeds $TRAIN_SEED.. (same code -> same plans)"
-          "$TRINETRA_VENV/bin/trinetra-twin" plan --n "$TRAIN_N" --start-seed "$TRAIN_SEED" --out "$D"
+          "$AYAS_VENV/bin/ayas-twin" plan --n "$TRAIN_N" --start-seed "$TRAIN_SEED" --out "$D"
         fi
         ;;
       jepa)

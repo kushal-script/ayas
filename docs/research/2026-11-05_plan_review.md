@@ -74,7 +74,7 @@ All points below were folded into the revised plan the same day.
 
 **C4. Judges can't run the application without the rig or weights (§13.1).**
 *Fix:*
-- Add `trinetra replay data/real/sample/`, which runs the full pipeline on recorded sequences.
+- Add `ayas replay data/real/sample/`, which runs the full pipeline on recorded sequences.
 - Attach the team's **own** `best.onnx` and `.hef` to GitHub Release `v1.0-phase1`. Fetch the `.pte` with a pinned script.
 - Put the TEST `.npz` files on the Release or Drive so the evaluation can be checked.
 
@@ -87,7 +87,7 @@ All points below were folded into the revised plan the same day.
 
 - **Calibration tiles:** 1,024 calibration tiles is more than the roughly 864 TRAIN tiles. Use `calibset_size=864` or flipped TRAIN tiles, never TEST tiles.
 - **§6.1 example:** `spec.yaml` has no dent `zone_limits`. 3.4 mm is "major" → REJECT, not "critical".
-- **Llama licence naming:** name the export `Llama-3.2-1B-Instruct-SpinQuant-TriNetra.pte` (derivative names must start with "Llama").
+- **Llama licence naming:** name the export `Llama-3.2-1B-Instruct-SpinQuant-Ayas.pte` (derivative names must start with "Llama").
 - **Show the backend:** the Result screen shows "ExecuTorch 1.5.1 · <pte> · 4 threads" or "TEMPLATE FALLBACK". Template text must never look like Llama output in the video.
 - **Offline proof:** prove M7 with Wi-Fi off, Ethernet unplugged and an `ip link` readout on the System screen. Don't show the LAN laptop view.
 - **Operator flow:** add **Acknowledge / QA sign-off** buttons (name + action) to the Result screen, logged to SQLite. This adds to both operator experience and logging.
@@ -137,8 +137,8 @@ Parts → rig and wiring → focus and exposures → capture tool → **pilot ga
 Files reviewed:
 - <repo>/docs/Phase1_build_plan.md
 - <repo>/configs/spec.yaml
-- <repo>/src/trinetra/rules.py
-- <repo>/src/trinetra/llm.py
+- <repo>/src/ayas/rules.py
+- <repo>/src/ayas/llm.py
 - the six research files in <repo>/docs/research/
 
 
@@ -146,7 +146,7 @@ Files reviewed:
 
 ## Lens: technical
 
-# TriNetra Phase 1 plan: technical-correctness review
+# Ayas Phase 1 plan: technical-correctness review
 
 I found one blocker, nine major problems and ten minor ones. The checks that passed are listed at the end.
 

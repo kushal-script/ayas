@@ -2,7 +2,7 @@ import json, sys
 from pathlib import Path
 import cv2, numpy as np
 ROOT = Path(sys.argv[1]); OUT = ROOT / "reports/figures/scenes"; OUT.mkdir(parents=True, exist_ok=True)
-B = ROOT / "artifacts/jarvislabs/trinetra-render_574738_final/twin_matrix/post_final/bursts"
+B = ROOT / "artifacts/jarvislabs/ayas-render_574738_final/twin_matrix/post_final/bursts"
 COND = {"C0": "dark room", "C1": "office", "C2": "warm bulb", "C3": "window", "C4": "side lamp", "C5": "reflected lamp", "C6": "direct sun"}
 MAT = {"ms_hot_rolled": "mild steel, hot-rolled (mill scale)", "ss_brushed": "stainless, brushed"}
 

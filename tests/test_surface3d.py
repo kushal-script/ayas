@@ -7,12 +7,12 @@ import numpy as np
 import pytest
 
 from tests.test_app import make_pipeline, wait_for, write_npz
-from trinetra.app import sources as SR
-from trinetra.app import surface3d as S3
-from trinetra.app import ui as UI
+from ayas.app import sources as SR
+from ayas.app import surface3d as S3
+from ayas.app import ui as UI
 
 ROOT = Path(__file__).resolve().parents[1]
-TWIN_BURST = ROOT / "artifacts/jarvislabs/trinetra-render_574738_final/twin_matrix/post_final/bursts/s900100_C0h_v0.npz"
+TWIN_BURST = ROOT / "artifacts/jarvislabs/ayas-render_574738_final/twin_matrix/post_final/bursts/s900100_C0h_v0.npz"
 
 
 def inspected(tmp_path, **kw):
@@ -78,8 +78,8 @@ def test_station_surface_endpoint_reports_unavailable(tmp_path):
 @pytest.mark.skipif(not TWIN_BURST.exists(), reason="twin burst not on this machine")
 def test_twin_gouge_depth_close_to_truth(tmp_path):
     torch = pytest.importorskip("torch")
-    from trinetra import rules
-    from trinetra.app import pipeline as PL
+    from ayas import rules
+    from ayas.app import pipeline as PL
     cfg = PL.load_app_config(ROOT / "configs/app.yaml")
     pipe = PL.InspectionPipeline(cfg["_capture"], cfg["_grid"], PL.FakeDetector(), rules.load_spec(ROOT / "configs/spec_steel.yaml"),
                                  cfg["part"], None, log=None, advise="off")
@@ -94,8 +94,8 @@ def test_twin_gouge_depth_close_to_truth(tmp_path):
 @pytest.mark.skipif(not TWIN_BURST.exists(), reason="twin burst not on this machine")
 def test_parallel_workers_match_sequential_and_stream(tmp_path):
     pytest.importorskip("torch")
-    from trinetra import rules
-    from trinetra.app import pipeline as PL
+    from ayas import rules
+    from ayas.app import pipeline as PL
     cfg = PL.load_app_config(ROOT / "configs/app.yaml")
     pipe = PL.InspectionPipeline(cfg["_capture"], cfg["_grid"], PL.FakeDetector(), rules.load_spec(ROOT / "configs/spec_steel.yaml"),
                                  cfg["part"], None, log=None, advise="off")

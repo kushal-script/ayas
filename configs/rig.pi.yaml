@@ -1,5 +1,5 @@
 # Real rig on the Raspberry Pi 5. Values marked TUNE are starting points - set them
-# on the rig (see docs/TriNetra_plan.md, "Bring-up").
+# on the rig (see docs/Ayas_plan.md, "Bring-up").
 paths:
   data_dir: data/rig
   spec: configs/spec.yaml

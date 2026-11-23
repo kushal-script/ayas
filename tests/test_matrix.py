@@ -10,8 +10,8 @@ import numpy as np
 import pytest
 import yaml
 
-from trinetra.twin import matrix as MX
-from trinetra.twin import sampler
+from ayas.twin import matrix as MX
+from ayas.twin import sampler
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
@@ -25,7 +25,7 @@ def fake_make_plan(cfg, seed, split, mode=None, source=None, coupons=None, condi
     """Stands in for sampler.make_plan: the plate and defects depend on the seed only (per-part streams)."""
     rng = np.random.default_rng(seed)
     mode_ = device_mode or "open"
-    return {"schema": "trinetra.twin.scene/2", "scene_id": sampler.scene_id(seed), "seed": seed, "split": split,
+    return {"schema": "ayas.twin.scene/2", "scene_id": sampler.scene_id(seed), "seed": seed, "split": split,
             "plate": {"size_mm": [100.0, 100.0], "thickness_mm": float(rng.uniform(1.5, 6)),
                       "material": {"kind": "ms_hot_rolled"}},
             "defects": [{"id": "D1", "cls": "pit", "kind": "single", "params": {"u": float(rng.uniform(10, 90))},
@@ -205,7 +205,7 @@ def test_demo_video_three_cards(tmp_path):
 
 
 def test_run_matrix_renders_the_written_plans(tmp_path, fake_sampler, monkeypatch):
-    from trinetra.twin import pipeline
+    from ayas.twin import pipeline
 
     MX.write_matrix_plans({}, 2, tmp_path, ("C0_dark", "C6_sun"), ("C6_sun",))
     seen = {}

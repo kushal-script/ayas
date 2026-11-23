@@ -1,13 +1,13 @@
-"""Forward image-formation model (trinetra.physics.optics): photometry, BRDF, numpy/torch agreement."""
+"""Forward image-formation model (ayas.physics.optics): photometry, BRDF, numpy/torch agreement."""
 
 import math
 
 import numpy as np
 import pytest
 
-from trinetra.physics import optics as O
-from trinetra.twin import frames as F
-from trinetra.twin import lighting, textures
+from ayas.physics import optics as O
+from ayas.twin import frames as F
+from ayas.twin import lighting, textures
 
 
 def _ring_plan():
@@ -155,7 +155,7 @@ def test_env_lookup_numpy_torch_agree():
 
 
 def test_sector_partitions_nest_and_cover():
-    from trinetra.physics import twin_eval as TE
+    from ayas.physics import twin_eval as TE
     plan = _ring_plan()
     plan["lights"] = TE.per_led_lights(plan)
     parts = TE.led_partitions(plan, (2, 3, 4, 6))
@@ -170,8 +170,8 @@ def test_sector_partitions_nest_and_cover():
 
 def test_device_meta_recovers_twin_geometry():
     """physics.device rebuilds the ring LEDs, camera and exposure from the plate corners alone."""
-    from trinetra.physics import device as DV
-    from trinetra.twin import burst
+    from ayas.physics import device as DV
+    from ayas.twin import burst
     plan = _ring_plan()
     K = np.array(plan["camera"]["K"])
     R, t = np.array(plan["camera"]["R"]), np.array(plan["camera"]["t"])

@@ -10,9 +10,9 @@ from pathlib import Path
 
 import pytest
 
-from trinetra.report import validate_record
-from trinetra.rules import load_spec
-from trinetra.twin import records as R
+from ayas.report import validate_record
+from ayas.rules import load_spec
+from ayas.twin import records as R
 
 ROOT = Path(__file__).resolve().parents[1]
 STEEL = load_spec(ROOT / "configs" / "spec_steel.yaml")
@@ -46,7 +46,7 @@ def steel_plan(seed=900001, material="ms_hot_rolled", t=3.0, defects=None):
             defect("D5", "crack", "fatigue", rect(50, 50, 4, 0.05), {"length_mm": 4.0, "width_mm": 0.05}, 48.0,
                    label=False),
         ]
-    return {"schema": "trinetra.twin.scene/2", "scene_id": f"s{seed:06d}", "seed": seed, "split": "test",
+    return {"schema": "ayas.twin.scene/2", "scene_id": f"s{seed:06d}", "seed": seed, "split": "test",
             "mode": "surface", "source": "random",
             "plate": {"size_mm": [100.0, 100.0], "thickness_mm": t, "material": {"kind": material}},
             "holes": [], "rivets": [], "defects": defects, "distractors": [{"kind": "marker", "params": {"u": 10, "v": 10}}],
@@ -74,7 +74,7 @@ def steel_sidecar(plan, record_fields=True):
                "motion_px": 0.3, "residual_sigma": 1.1, "masked_frac": 0.001}
     every = {d["id"]: True for d in plan["defects"]}
     return {
-        "schema": "trinetra.twin.sidecar/2", "scene_id": plan["scene_id"], "plate": "P1", "seed": plan["seed"],
+        "schema": "ayas.twin.sidecar/2", "scene_id": plan["scene_id"], "plate": "P1", "seed": plan["seed"],
         "split": "test", "plate_size_mm": [100.0, 100.0], "condition": "C3_window", "device_mode": "open",
         "part": {"material": plan["plate"]["material"]["kind"], "thickness_mm": plan["plate"]["thickness_mm"],
                  "size_mm": [100.0, 100.0]},
@@ -100,7 +100,7 @@ def steel_sidecar(plan, record_fields=True):
 def test_steel_record_from_plan_is_a_perfect_detector():
     plan = steel_plan()
     rec = R.records_from_plan(plan, STEEL, timestamp="2026-11-14T10:00:00+05:30")
-    assert rec["schema"] == "trinetra.inspection/3.0" and validate_record(rec) == []
+    assert rec["schema"] == "ayas.inspection/3.0" and validate_record(rec) == []
     assert [d["twin_id"] for d in rec["defects"]] == ["D1", "D2", "D3", "D4"]      # D5 is unlabelled
     by = {d["twin_id"]: d for d in rec["defects"]}
     assert by["D3"]["near_edge_mm"] == 9.0 and by["D3"]["est_rust_grade"] == "D" and by["D3"]["severity"] == "critical"
@@ -243,7 +243,7 @@ def test_run_regression_counts_model_violations(tmp_path):
 
 
 def test_aero_regression_still_runs():
-    plan = {"schema": "trinetra.twin.scene/1", "scene_id": "a000001", "seed": 1, "split": "train", "mode": "surface",
+    plan = {"schema": "ayas.twin.scene/1", "scene_id": "a000001", "seed": 1, "split": "train", "mode": "surface",
             "source": "random", "plate": {"size_mm": [100.0, 100.0], "thickness_mm": 3.0, "finish": "brushed"},
             "holes": [], "rivets": [], "distractors": [],
             "defects": [defect("D1", "scratch", "scriber", rect(30, 40, 20, 0.3), {"length_mm": 20.0, "width_mm": 0.3}, 30.0)],
@@ -253,8 +253,8 @@ def test_aero_regression_still_runs():
 
 
 def test_load_plans_accepts_both_plan_schemas():
-    old = {"schema": "trinetra.twin.scene/1", "plate": {}}
-    assert len(R.load_plans([old, steel_plan(), {"schema": "trinetra.twin.sidecar/2"}])) == 2
+    old = {"schema": "ayas.twin.scene/1", "plate": {}}
+    assert len(R.load_plans([old, steel_plan(), {"schema": "ayas.twin.sidecar/2"}])) == 2
 
 
 def test_gt_verdict_ignores_detection_confidence():

@@ -9,8 +9,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from trinetra.twin import coupons as C
-from trinetra.twin import templates as T
+from ayas.twin import coupons as C
+from ayas.twin import templates as T
 
 ROOT = Path(__file__).resolve().parents[1]
 FACES = ("P1A", "P2A", "P3A", "P4A", "S1A", "S2A", "P5A")
@@ -241,7 +241,7 @@ def test_validate_rejects_bad_keys_and_malformed_entries(coupons):
 
 def test_aero_rules_agree_with_expect(coupons):
     """The expect lists are the regression answers for aero.py on the real coupons: keep them equal."""
-    aero = pytest.importorskip("trinetra.aero")
+    aero = pytest.importorskip("ayas.aero")
     yaml = pytest.importorskip("yaml")
     spec = yaml.safe_load((ROOT / "configs" / "spec_aero.yaml").read_text())
     for k, c in coupons.items():

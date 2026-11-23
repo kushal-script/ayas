@@ -1,7 +1,7 @@
 # Capture + lighting-invariance settings, shared by the Pi (live camera) and the twin
 # (simulated burst). Read docs/twin/DESIGN_STEEL.md section E. Thresholds are starting
 # values from docs/research/2026-11-14_lighting_invariance.md; recalibrate on pilot data.
-# Code: src/trinetra/lightproc.py (Pi + twin), src/trinetra/twin/burst.py (twin only).
+# Code: src/ayas/lightproc.py (Pi + twin), src/ayas/twin/burst.py (twin only).
 
 sensor:
   mode: full                    # full = 4056x3040 (~10 fps); binned = 2028x1520 (~30 fps, 2x coarser)

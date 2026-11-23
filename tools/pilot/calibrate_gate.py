@@ -8,8 +8,8 @@ import json, sys, time
 from pathlib import Path
 import numpy as np
 import yaml
-from trinetra import lightproc as LP
-from trinetra.twin import matrix as MX, post as P
+from ayas import lightproc as LP
+from ayas.twin import matrix as MX, post as P
 
 ROOT = Path(__file__).resolve().parents[2]
 mx, keep, outp = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])

@@ -1,14 +1,14 @@
 #!/bin/sh
 # YOLOv8n capture-arm training (naive = old single frame, burst = new 5-frame method) on the JarvisLabs
-# instance, next to the twin data. Instance copy: /home/trinetra_jobs/train_yolo.sh (repo: tools/jl/train_yolo.sh)
+# instance, next to the twin data. Instance copy: /home/ayas_jobs/train_yolo.sh (repo: tools/jl/train_yolo.sh)
 #
 # Run it tracked, from the Mac, after render_all.sh --stage post --post-tag final has finished:
-#   jl run --on <id> --json --yes -- sh -lc 'sh /home/trinetra_jobs/train_yolo.sh'
+#   jl run --on <id> --json --yes -- sh -lc 'sh /home/ayas_jobs/train_yolo.sh'
 #
 # Steps (each one is skipped when its output is already there, so re-run the same command after a stop):
 #   venv   /home/venvs/yolo: uv Python 3.11, CUDA torch (cu130 wheel, as training/jepa/jl_train.sh; the L4
 #          driver runs it), ultralytics/onnx/onnxruntime/onnxslim/opencv at the requirements-train.txt pins,
-#          the rest at tools/jl/constraints-mac.txt, the project --no-deps. /home/venvs/trinetra is not touched.
+#          the rest at tools/jl/constraints-mac.txt, the project --no-deps. /home/venvs/ayas is not touched.
 #   naive  post the training renders a second time with post.train_arm: naive -> <train>/post_naive (CPU)
 #   train  training/train_arms.py: per-arm datasets, train.py, export_onnx.py, then eval_lighting.py on the
 #          test matrix (<matrix>/post_<tag> + a copy of matrix_manifest.json) -> /home/data/yolo_runs/
@@ -40,10 +40,10 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-. /home/trinetra_jobs/env.sh
+. /home/ayas_jobs/env.sh
 sh /home/setup_sys.sh            # libgl1 for opencv; apt installs do not survive a pause
-cd "$TRINETRA_REPO"
-D=$TRINETRA_DATA
+cd "$AYAS_REPO"
+D=$AYAS_DATA
 TRAIN=$D/twin_train; MATRIX=$D/twin_matrix
 BURST_POST=$TRAIN/post_$POST_TAG; NAIVE_POST=$TRAIN/post_naive; MATRIX_POST=$MATRIX/post_$POST_TAG
 OUT=$D/yolo_runs; [ -n "$QUICK" ] && OUT=$D/yolo_runs_quick
@@ -51,7 +51,7 @@ V=/home/venvs/yolo; PY=$V/bin/python
 echo "=== train_yolo $(date -u +%FT%TZ) post_tag=$POST_TAG epochs=$EPOCHS batch=$BATCH out=$OUT $QUICK"
 
 # --- venv -------------------------------------------------------------------------------------------
-if ! "$PY" -c 'import torch, ultralytics, onnxruntime, trinetra' 2>/dev/null; then
+if ! "$PY" -c 'import torch, ultralytics, onnxruntime, ayas' 2>/dev/null; then
   echo "--- venv $V"
   [ -x /home/.uvtool/bin/uv ] || { python3 -m venv /home/.uvtool && /home/.uvtool/bin/pip install -q uv; }
   [ -x "$PY" ] || { /home/.uvtool/bin/uv python install 3.11 && /home/.uvtool/bin/uv venv --python 3.11 --seed "$V"; }
@@ -68,8 +68,8 @@ fi
 if [ ! -d "$NAIVE_POST/yolo" ] || [ "$(ls "$NAIVE_POST/sidecar" 2>/dev/null | wc -l)" -lt "$(ls "$BURST_POST/sidecar" | wc -l)" ]; then
   echo "--- naive post -> $NAIVE_POST"
   mkdir -p runs
-  "$TRINETRA_VENV/bin/python" training/train_arms.py --write-naive-config runs/twin_naive.yaml
-  "$TRINETRA_VENV/bin/python" tools/jl/twin_jobs.py post --plans "$TRAIN/plans" --out "$TRAIN" --post-out "$NAIVE_POST" \
+  "$AYAS_VENV/bin/python" training/train_arms.py --write-naive-config runs/twin_naive.yaml
+  "$AYAS_VENV/bin/python" tools/jl/twin_jobs.py post --plans "$TRAIN/plans" --out "$TRAIN" --post-out "$NAIVE_POST" \
       --config runs/twin_naive.yaml --procs 24
 fi
 for t in "$BURST_POST" "$NAIVE_POST"; do

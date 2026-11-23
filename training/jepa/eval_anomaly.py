@@ -47,7 +47,7 @@ from jepa import metrics as MX  # noqa: E402
 from jepa.data import normalize, to_input  # noqa: E402
 from jepa.masks import checker_groups  # noqa: E402
 from jepa.model import Encoder, gather_tokens, load_jepa  # noqa: E402
-from trinetra import anomaly as A  # noqa: E402
+from ayas import anomaly as A  # noqa: E402
 
 CLASSES = ("scratch", "dent", "pit", "corrosion", "crack", "stain")
 EXTRACTORS = ("jepa", "vit_in1k", "resnet18", "pixels")

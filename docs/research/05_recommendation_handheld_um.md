@@ -32,7 +32,7 @@ Every handheld tool that reaches µm detail **rests on the part and brings its o
 
 So µm detail comes from a small field held steady by **touching**. A wide view finds where to touch. Industry works the same way: wafer optical inspection then SEM review, AOI then a verification station, Waygate's "locate then measure". Published vision-then-touch on Boeing panels covered a whole panel in 168 s, against 12,978 s for touch alone, with touch at precision/recall 1.0/1.0.
 
-## 3. Recommended product: "TriNetra-Handheld", find + touch-measure
+## 3. Recommended product: "Ayas-Handheld", find + touch-measure
 
 One handheld "torch" body with two heads facing forward. No box, no gimbal, no arch.
 

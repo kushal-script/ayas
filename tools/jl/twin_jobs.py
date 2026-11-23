@@ -1,9 +1,9 @@
 """Render / post driver for long twin jobs on the JarvisLabs GPU instance (instance copy:
-/home/trinetra/tools/jl/twin_jobs.py). It only calls the project's own building blocks
+/home/ayas/tools/jl/twin_jobs.py). It only calls the project's own building blocks
 (textures.write_maps, render.prepare, render.render_batch, post.process_scene) and never
 changes src/, twin/ or configs/.
 
-Why not `trinetra-twin run|matrix --keep-work`: pipeline.run_plans marks a scene done by its
+Why not `ayas-twin run|matrix --keep-work`: pipeline.run_plans marks a scene done by its
 sidecar, i.e. only after post. With post deferred (render now, post later with the final code)
 a restart would re-render every scene, and render.render_batch deletes the old render.exr first.
 So this driver tracks the two stages apart:
@@ -16,7 +16,7 @@ So this driver tracks the two stages apart:
   post    done = <post_out>/sidecar/<scene>.json (--force redoes it). Post a second time into a
           NEW --post-out: re-posting into the old dir leaves stale tiles behind.
 
-Never run `trinetra-twin run|matrix` or pipeline.run_plans on a render-only out dir: they see
+Never run `ayas-twin run|matrix` or pipeline.run_plans on a render-only out dir: they see
 no sidecar and re-render.
 
   python tools/jl/twin_jobs.py render --plans OUT/matrix_manifest.json --out OUT --device OPTIX --procs 2
@@ -45,7 +45,7 @@ from concurrent.futures import FIRST_COMPLETED, ProcessPoolExecutor, wait
 from pathlib import Path
 from typing import Any
 
-REPO = Path(os.environ.get("TRINETRA_REPO") or Path(__file__).resolve().parents[2])
+REPO = Path(os.environ.get("AYAS_REPO") or Path(__file__).resolve().parents[2])
 KEEP_FILES = {"plan.json", "blender_cam.json", "render.exr", "render_clean.exr", "render_meta.json",
               "blender.log", "overview.png"}
 
@@ -141,7 +141,7 @@ def copy_overview(work: Path, post_out: Path) -> None:
 # ----------------------------------------------------------------------------- workers
 
 def _post_one(work: str, post_out: str, cfg: dict, save_bursts: bool | None) -> dict:
-    from trinetra.twin import post
+    from ayas.twin import post
 
     t0 = time.time()
     try:
@@ -156,7 +156,7 @@ def _post_one(work: str, post_out: str, cfg: dict, save_bursts: bool | None) -> 
 
 def _render_batch(plan_paths: list[str], out: str, cfg: dict, rkw: dict, post_out: str | None,
                   save_bursts: bool | None, keep_textures: bool) -> dict:
-    from trinetra.twin import render, textures
+    from ayas.twin import render, textures
 
     out_p = Path(out)
     t0 = time.time()
@@ -190,7 +190,7 @@ def _render_batch(plan_paths: list[str], out: str, cfg: dict, rkw: dict, post_ou
 # ----------------------------------------------------------------------------- commands
 
 def cmd_render(a: argparse.Namespace) -> int:
-    from trinetra.twin import pipeline
+    from ayas.twin import pipeline
 
     cfg = load_cfg(a)
     out = Path(a.out)
@@ -275,7 +275,7 @@ def cmd_render(a: argparse.Namespace) -> int:
                     + (f" | BATCH ERROR {r['error']}" if r.get("error") else ""))
                 submit_next()
     if post_out:
-        from trinetra.twin import post as post_mod
+        from ayas.twin import post as post_mod
         post_mod.write_data_yaml(post_out, cfg["classes"])
     summary = {"plans": len(plans), "rendered_now": done, "failed": failed,
                "already": len(plans) - len(todo), "stopped": stop, "seconds": round(time.time() - t0, 1)}
@@ -284,7 +284,7 @@ def cmd_render(a: argparse.Namespace) -> int:
 
 
 def cmd_post(a: argparse.Namespace) -> int:
-    from trinetra.twin import post as post_mod
+    from ayas.twin import post as post_mod
 
     cfg = load_cfg(a)
     out = Path(a.out)

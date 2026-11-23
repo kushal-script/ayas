@@ -1,11 +1,11 @@
 # Physics, forward model and PINN depth: results on the twin (15 Nov 2026)
 
 - **Contract and method:** `docs/twin/PHYSICS_PINN.md`.
-- **Code:** `src/trinetra/physics/`.
+- **Code:** `src/ayas/physics/`.
 - **Raw tables:** `reports/physics_pinn_tables.md` and `.json`. Regenerate them with:
 
   ```bash
-  python -m trinetra.physics.experiments summarise --coupons <coupons.jsonl> --pilot <pilot.jsonl> --bench <bench.json> --out reports/physics_pinn_tables.md
+  python -m ayas.physics.experiments summarise --coupons <coupons.jsonl> --pilot <pilot.jsonl> --bench <bench.json> --out reports/physics_pinn_tables.md
   ```
 
 **Read this first.**
@@ -337,11 +337,11 @@ All scratch paths are under the session scratchpad.
 
 ```bash
 # coupon renders (6 x ~40 s Blender; per-LED light groups) and the black-hood control
-python -m trinetra.physics.experiments coupons --out <scratch>/renders
-python -m trinetra.physics.experiments hood0  --out <scratch>/renders --scene <pilot exr>/s900028_C0h
+python -m ayas.physics.experiments coupons --out <scratch>/renders
+python -m ayas.physics.experiments hood0  --out <scratch>/renders --scene <pilot exr>/s900028_C0h
 # depth sweeps (CPU; torch)
-python -m trinetra.physics.experiments coupon-depth --renders <scratch>/renders --out coupons.jsonl --parts 2 3 6 --seeds 1
-python -m trinetra.physics.experiments pilot --exr-root <pilot exr> --out pilot.jsonl --seeds 1
-python -m trinetra.physics.experiments bench --work <scratch>/renders/coupon_aluminium_910002 --out bench.json --ids D12 D1 D13 D6 D10
-python -m trinetra.physics.experiments summarise --coupons coupons.jsonl --pilot pilot.jsonl --bench bench.json --out reports/physics_pinn_tables.md
+python -m ayas.physics.experiments coupon-depth --renders <scratch>/renders --out coupons.jsonl --parts 2 3 6 --seeds 1
+python -m ayas.physics.experiments pilot --exr-root <pilot exr> --out pilot.jsonl --seeds 1
+python -m ayas.physics.experiments bench --work <scratch>/renders/coupon_aluminium_910002 --out bench.json --ids D12 D1 D13 D6 D10
+python -m ayas.physics.experiments summarise --coupons coupons.jsonl --pilot pilot.jsonl --bench bench.json --out reports/physics_pinn_tables.md
 ```

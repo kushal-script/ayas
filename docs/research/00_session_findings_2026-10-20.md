@@ -8,13 +8,13 @@ This file saves the state of the design discussion, so nothing is lost if the se
 | `02_gelsight_tactile_3d.md` | **COMPLETE.** Bottom line below |
 | `03_handheld_inspection_architecture.md` | **COMPLETE** |
 | `04_usb_camera_options.md` | COMPLETE (camera shortlist, Bengaluru sourcing, pitfalls) |
-| `05_recommendation_handheld_um.md` | **RECOMMENDATION (21 Oct):** TriNetra-Handheld, find + touch-measure (+ optional gel tip) |
+| `05_recommendation_handheld_um.md` | **RECOMMENDATION (21 Oct):** Ayas-Handheld, find + touch-measure (+ optional gel tip) |
 | `archive/` | earlier laser / microscope research (10 Oct) |
 
 Related plans in `docs/`:
-- `TriNetra_plan.md`: fixed 3-camera rig + 3D + red-dye
-- `TriNetra_FPI.md`: fluorescent penetrant
-- `TriNetra_parts.md`
+- `Ayas_plan.md`: fixed 3-camera rig + 3D + red-dye
+- `Ayas_FPI.md`: fluorescent penetrant
+- `Ayas_parts.md`
 - `SukshmaScope_plan.md`, `BeamTriage_plan.md`: older
 
 ## Where we are
@@ -42,7 +42,7 @@ The user said the box/rig ideas "don't work", and asked how handheld 3D scanners
 
 | Topic | Conclusion | Why |
 |---|---|---|
-| Fixed 3-camera rig (TriNetra) | Works on the simulator. Code and plan are in the repo (50 tests) | Dark-frame subtraction handles room light. Photometric stereo gives depth (sim −0.69 vs −0.71 mm). Red-dye penetrant mode coded |
+| Fixed 3-camera rig (Ayas) | Works on the simulator. Code and plan are in the repo (50 tests) | Dark-frame subtraction handles room light. Photometric stereo gives depth (sim −0.69 vs −0.71 mm). Red-dye penetrant mode coded |
 | One camera moving on a 0–90° arch | Possible, but adds a mechanism; stop-and-shoot is needed before video | Repeatable angle (about ±0.2°) needed; motion blur; light/frame sync with UVC |
 | 90° vs 180° arch | 90° is enough when 3D comes from photometric stereo at the top position | The lights provide the angles; 180° only adds the opposite-side views |
 | Gimbal | Not recommended | It stabilises rotation only, not distance or drift. A 2 mm drift is about 55 px at 0.036 mm/px (calc) during a 1–2 s multi-light sequence. A 1 kg payload gimbal costs about ₹30k+ |

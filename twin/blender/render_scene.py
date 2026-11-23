@@ -1,11 +1,11 @@
-"""Build and render TriNetra twin scenes with Blender/Cycles. Runs INSIDE Blender.
+"""Build and render Ayas twin scenes with Blender/Cycles. Runs INSIDE Blender.
 
     Blender -b --factory-startup -P twin/blender/render_scene.py -- \
         --scenes WORK [WORK ...] [--device METAL|CPU|OPTIX|CUDA] [--samples N] [--res-scale F] \
         [--overview] [--overview-samples N]
 
 Each WORK dir holds plan.json (sampler), the texture maps (textures.py) and
-blender_cam.json (trinetra.twin.render.prepare). Per scene this writes render.exr
+blender_cam.json (ayas.twin.render.prepare). Per scene this writes render.exr
 (multilayer, half float, linear, light groups L/R/UV/AMB), render_clean.exr when
 plan.render.clean_pass, render_meta.json and blender.log. One bad scene never stops
 the batch: its error goes into its render_meta.json. --overview also writes overview.png:
@@ -21,7 +21,7 @@ window, and the L/R passes get noisier the brighter the ambient (measured: 28 % 
 pixel in C6 against 7 % in the dark at 64 spp). That is render noise, not physics, so when
 the scene has ambient light it is rendered twice: render.exr with the LEDs only (world
 strength 0, ambient lights hidden) and render_amb.exr with the ambient only (LEDs hidden).
-trinetra.twin.render merges the AMB pass (and its light in Combined) into render.exr and
+ayas.twin.render merges the AMB pass (and its light in Combined) into render.exr and
 deletes render_amb.exr. plan.render.split_ambient = false renders once instead;
 plan.render.amb_samples sets the samples of the ambient pass (default: the same).
 
@@ -30,7 +30,7 @@ Y = -v/1000, Z = w/1000; the plate front face is Z = 0. Plate-frame angles (hole
 grain, gloves, rivet tilt direction) are measured from +u towards +v, so the world
 direction of angle a is (cos a, -sin a, 0).
 
-Only bpy, bmesh, mathutils and the stdlib are used: never import trinetra here.
+Only bpy, bmesh, mathutils and the stdlib are used: never import ayas here.
 """
 
 from __future__ import annotations
@@ -89,7 +89,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 
 def scaled_size(w: int, h: int, f: float) -> tuple[int, int]:
-    """Same rounding as trinetra.twin.render.scaled_size."""
+    """Same rounding as ayas.twin.render.scaled_size."""
     return max(1, int(math.floor(w * f + 0.5))), max(1, int(math.floor(h * f + 0.5)))
 
 
@@ -720,7 +720,7 @@ def build_occluders(amb: dict, meta: dict) -> list:
 
 
 def hood_points(hood: dict, cam: dict) -> dict:
-    """World corners of the hood (same maths as trinetra.twin.lighting.hood_corners).
+    """World corners of the hood (same maths as ayas.twin.lighting.hood_corners).
 
     In the OpenCV camera frame the top rectangle top_mm sits at z = top_z_cam_mm and the
     bottom_mm rectangle at the depth where the optical axis meets the bottom plane
@@ -1220,7 +1220,7 @@ def main(argv: list[str]) -> int:
     for d in args.scenes:
         meta = run_scene(Path(d).resolve(), args)
         short = {k: meta.get(k) for k in ("scene_id", "device", "resolution", "seconds", "error")}
-        print("TRINETRA_SCENE " + json.dumps(short), flush=True)
+        print("AYAS_SCENE " + json.dumps(short), flush=True)
     return 0
 
 

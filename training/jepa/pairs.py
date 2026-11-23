@@ -1,6 +1,6 @@
 """Paired TRAINING plates for the cross-lighting JEPA: every plate under every (condition, device) row.
 
-`trinetra-twin matrix` only writes TEST plates (seeds >= 900000; twin.matrix refuses lower seeds
+`ayas-twin matrix` only writes TEST plates (seeds >= 900000; twin.matrix refuses lower seeds
 on purpose), so this module writes the same kind of rows for TRAINING seeds (100000..899999)
 with sampler.make_plan, checks that plate/defects/distractors are identical across a plate's
 rows (as twin.matrix does), and renders them with twin.pipeline.run_plans under a config copy
@@ -34,7 +34,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SPLIT = "jepa_train"
 MANIFEST = "pairs_manifest.json"
 TRAIN_SEED_MIN = 100000
-TEST_SEED_MIN = 900000            # = trinetra.twin.matrix.TEST_SEED_MIN (never trained on)
+TEST_SEED_MIN = 900000            # = ayas.twin.matrix.TEST_SEED_MIN (never trained on)
 SAME_KEYS = ("plate", "sheets", "holes", "rivets", "defects", "distractors", "empty")
 
 
@@ -56,7 +56,7 @@ def jepa_config(cfg: dict[str, Any], arms: Sequence[str] = ("burst",), variants:
 
 
 def plate_plans(cfg: dict[str, Any], seed: int, rows: Sequence[tuple[str, str]]) -> list[dict[str, Any]]:
-    from trinetra.twin import matrix, sampler
+    from ayas.twin import matrix, sampler
 
     check_train_seed(seed)
     base = sampler.scene_id(seed)
@@ -87,7 +87,7 @@ def write_pair_plans(cfg: dict[str, Any], n_plates: int, out: str | Path, start_
                      hood_conditions: Sequence[str] | None = None) -> dict[str, Any]:
     """hood_conditions None = the same conditions as open (14 rows per plate); e.g. [C0_dark,
     C4_side_lamp, C6_sun] gives 10 rows (the sealed hood rows differ from C0h by ~1.5 DN only)."""
-    from trinetra.twin import matrix
+    from ayas.twin import matrix
 
     out = Path(out)
     (out / "plans").mkdir(parents=True, exist_ok=True)
@@ -111,7 +111,7 @@ def write_pair_plans(cfg: dict[str, Any], n_plates: int, out: str | Path, start_
                    for d in ref.get("defects") or []]
         plates.append({"plate": ref["matrix"]["plate"], "seed": seed, "part": matrix.part_of(ref),
                        "clean": not any(d["label"] for d in defects), "defects": defects, "rows": entries})
-    man = {"schema": "trinetra.jepa.pairs/1", "split": SPLIT, "start_seed": int(start_seed),
+    man = {"schema": "ayas.jepa.pairs/1", "split": SPLIT, "start_seed": int(start_seed),
            "n_plates": int(n_plates), "conditions": conditions,
            "rows": [{"condition": c, "device_mode": m, "tag": matrix.row_tag(c, m)} for c, m in rows],
            "plates": plates}
@@ -148,7 +148,7 @@ def main(argv: Sequence[str] | None = None) -> dict[str, Any]:
     n_rows = sum(len(p["rows"]) for p in man["plates"])
     print(f"{len(man['plates'])} training plates x {len(man['rows'])} rows = {n_rows} plans -> {out}/plans")
     if a.render:
-        from trinetra.twin.pipeline import run_plans
+        from ayas.twin.pipeline import run_plans
 
         paths = [out / r["plan"] for p in man["plates"] for r in p["rows"]]
         res = run_plans(jcfg, paths, out, batch=a.batch, device=a.device, samples=a.samples,

@@ -16,8 +16,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 import yaml
-from trinetra import lightproc as LP
-from trinetra.twin import burst as B, post as P
+from ayas import lightproc as LP
+from ayas.twin import burst as B, post as P
 
 ROOT = Path(__file__).resolve().parents[2]
 SEQ = ("B1", "L", "A", "R", "B2")

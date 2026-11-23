@@ -5,7 +5,7 @@ EXRs of a rendered matrix, after a lightproc / capture.yaml change. Old outputs 
 import json, sys, time
 from pathlib import Path
 import yaml
-from trinetra.twin import matrix as MX, post as P
+from ayas.twin import matrix as MX, post as P
 
 ROOT = Path(__file__).resolve().parents[2]
 a = sys.argv[1:]

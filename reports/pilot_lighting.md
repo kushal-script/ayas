@@ -1,6 +1,6 @@
 # Pilot: the inspector under seven kinds of lighting (digital twin, full resolution)
 
-TriNetra, Arm Bharat AI SoC Challenge PS5, Phase 1 proof of concept. Pilot run 14–15 Nov 2026 on the Blender digital twin. All numbers here come from simulation, not from real steel.
+Ayas, Arm Bharat AI SoC Challenge PS5, Phase 1 proof of concept. Pilot run 14–15 Nov 2026 on the Blender digital twin. All numbers here come from simulation, not from real steel.
 
 ## 1. In plain words
 
@@ -60,7 +60,7 @@ Galvanised steel is not in the pilot: cold-rolled filled the "cold-rolled or gal
 - That makes 112 captures per arm, 224 in all.
 
 **Arms.**
-- **burst** (new method): the five-frame LED burst B1, L, A, R, B2, then ambient subtraction, L/R combination (ring: mean; pods: luma-guided min), alignment, and the quality gate (`src/trinetra/lightproc.py`, `configs/capture.yaml`).
+- **burst** (new method): the five-frame LED burst B1, L, A, R, B2, then ambient subtraction, L/R combination (ring: mean; pods: luma-guided min), alignment, and the quality gate (`src/ayas/lightproc.py`, `configs/capture.yaml`).
 - **naive** (old method): one auto-exposed frame through the ISP. It never refuses.
 
 **Cost.**
@@ -229,7 +229,7 @@ The hood rows of the pilot were re-rendered with the hood held 3 mm above the pa
 - `data/twin_pilot/overview/s900011_C0o.png` … `s900011_C6o.png`: open handheld.
 - `data/twin_pilot/overview/s900011_C0h.png` … `s900011_C6h.png`: hood, re-rendered after the glow fix.
 
-**Pi demo bursts.** `data/twin_pilot/bursts/s900011_C{0..6}{h,o}_v0.npz`: 14 files, 345 MB. Each holds five 1641 × 1633 RGB frames plus labels and the plate geometry, for `trinetra-app --source twin:data/twin_pilot/bursts`.
+**Pi demo bursts.** `data/twin_pilot/bursts/s900011_C{0..6}{h,o}_v0.npz`: 14 files, 345 MB. Each holds five 1641 × 1633 RGB frames plus labels and the plate geometry, for `ayas-app --source twin:data/twin_pilot/bursts`.
 
 **Data.**
 - `data/twin_pilot/`: grids, sidecars and gate_stats.json.

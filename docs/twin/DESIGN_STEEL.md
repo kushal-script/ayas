@@ -1,4 +1,4 @@
-# TriNetra v2: steel and metal surfaces, lighting-invariant (design contract, 14 Nov 2026)
+# Ayas v2: steel and metal surfaces, lighting-invariant (design contract, 14 Nov 2026)
 
 This file **supersedes** the aircraft parts of `docs/twin/DESIGN.md`: classes, rivets as labels, aero rules. These parts of DESIGN.md stay valid unless changed below: frames (section 1), the plan JSON skeleton (section 3), work-dir files (section 4), post rules (section 5), tiles and Blender facts (section 7.1).
 
@@ -22,7 +22,7 @@ Evidence for every choice is in:
 
 ## A. Classes and kinds
 
-`trinetra.tiles.CLASSES = ("scratch", "dent", "pit", "corrosion", "crack", "stain")`, with YOLO ids 0–5. `ELONGATED = ("scratch", "crack")`.
+`ayas.tiles.CLASSES = ("scratch", "dent", "pit", "corrosion", "crack", "stain")`, with YOLO ids 0–5. `ELONGATED = ("scratch", "crack")`.
 
 | Class | Kinds (params in plate mm) | `measure` keys |
 |---|---|---|
@@ -119,7 +119,7 @@ Evidence for every choice is in:
 | v1 gate and exposure | 4/10 in every condition (saturated) | C0 8/10, C1 8/10, C2 7/10, C3 10/10, C4 8/10 (saturated), C5 9/10 (glare_ambient), C6 10/10 (too_bright) |
 | **v2** | **0/10 in every condition** (the hood seals: identical verdicts in all 7 per plate) | C0 3/10, C1 5/10, C2 2/10 (changed), C3 9/10, C4 4/10, C5 7/10 (glare_ambient), C6 10/10 (too_bright) |
 
-**Smoke matrix** (`trinetra-twin matrix --n 1 --res-scale 0.25 --samples 16`; aluminium plate s900000, one scriber scratch). The burst arm passes every hood row (C0h–C6h, 2/2 each, SSIM 0.975 vs C0h) and refuses open C1, C3, C4 and C5 as `glare_ambient` and C6 as `too_bright`. With an oracle detector (the boxes post judged visible in each arm's grid), `eval_lighting` gives the burst arm PASS under the device-v2 criterion: hood F1 1.00 in all 7 conditions and no silent failure open. Under the ring the scratch's contrast is 56 against 11 under the pods.
+**Smoke matrix** (`ayas-twin matrix --n 1 --res-scale 0.25 --samples 16`; aluminium plate s900000, one scriber scratch). The burst arm passes every hood row (C0h–C6h, 2/2 each, SSIM 0.975 vs C0h) and refuses open C1, C3, C4 and C5 as `glare_ambient` and C6 as `too_bright`. With an oracle detector (the boxes post judged visible in each arm's grid), `eval_lighting` gives the burst arm PASS under the device-v2 criterion: hood F1 1.00 in all 7 conditions and no silent failure open. Under the ring the scratch's contrast is 56 against 11 under the pods.
 
 The open handheld still refuses often on specular plates ('changed': the pods' L/R correlation bias, which a moving handheld cannot avoid by bracing). That is allowed by section G; the hood head is the product. The calibration used matrix seeds 900000–900004 and the full-resolution pilot tuned the gate on 900011, 900027, 900028 and 900068, so the lighting experiment must start at `--start-seed 900100` or later (training/README.md honesty rules). Known open-mode blind spot: ambient flicker of 3 % or more at r > 0.3 on a near-black plate passes with a 4–5 DN error (the old 3 px motion limit happened to refuse that toy case); the hood blocks it.
 
@@ -141,7 +141,7 @@ A 3 mm hood lift (`data/twin_pilot/leak3`) let in at most r 0.07 (sun) and was p
 
 **Phase 2 hardware.** The hood head is a matte-black printed frustum/skirt, top 170 × 160 mm at the pods' front, bottom 200 × 190 mm resting on the part, 2 mm wall, about 183 mm tall at the 200 mm working distance (`lighting.HOOD`). The LED ring is the existing 12 V 3-LED white modules: six modules (18 LEDs) glued to the inner walls 15–20 mm above the rim (twin: 18 mm), about 6 mm proud of the wall and tilted to aim at the centre. Fit two on each long wall and one on each short wall, about 40 mm LED pitch. The three image-left modules go on the L pod channel and the three image-right on R (existing MOSFETs and GPIO; `app.yaml part.illumination: ring`).
 
-## D. Plan JSON changes (`schema: trinetra.twin.scene/2`)
+## D. Plan JSON changes (`schema: ayas.twin.scene/2`)
 
 - `plate.material.kind` (section B).
 - `ambient`:
@@ -171,7 +171,7 @@ A 3 mm hood lift (`data/twin_pilot/leak3`) let in at most r 0.07 (sun) and was p
 
 ## E. Capture burst: simulation (twin) and processing (shared with the Pi)
 
-### `src/trinetra/twin/burst.py` (twin only)
+### `src/ayas/twin/burst.py` (twin only)
 
 `simulate_burst(groups, plan, rng, capture_cfg, roi_mask=None) -> lightproc.Burst` takes the light-group passes (linear radiance, float32 H×W×3: `L`, `R`, `AMB`, maybe `UV`) and builds each frame.
 
@@ -191,7 +191,7 @@ For frame f in `B1, L, A, R, B2`, with LED state `(l, r)` from `capture.yaml bur
 - the same noise;
 - sRGB gamma and a mild unsharp mask.
 
-### `src/trinetra/lightproc.py` (shared; runs on the Pi; numpy + cv2 only)
+### `src/ayas/lightproc.py` (shared; runs on the Pi; numpy + cv2 only)
 
 **Data structures:**
 - `Burst(frames: dict[str, float32 H×W×3], meta: dict)`.
@@ -244,10 +244,10 @@ Also provide `naive_process(frame_u8)` (identity: the ISP output is used as is) 
 - **References** whitelist: EN 10163-2 / ISO 7788, ISO 8501-1 / IS 9954, ISO 8501-3, IS 2062 (Part 1):2025 cl. 7, ISO 4628-3 bands, IS 1477-1, ISO 8502-3/-4.
 - Plate thickness comes from the part config.
 
-**Hand-off record: `trinetra.inspection/3.0`.** This is the organisers' "one JSON hand-off" (defect, severity, confidence, box).
+**Hand-off record: `ayas.inspection/3.0`.** This is the organisers' "one JSON hand-off" (defect, severity, confidence, box).
 
 ```jsonc
-{"schema": "trinetra.inspection/3.0", "part_id", "timestamp", "material", "thickness_mm",
+{"schema": "ayas.inspection/3.0", "part_id", "timestamp", "material", "thickness_mm",
  "verdict", "verdict_instruction",
  "capture": {"mode": "burst5|naive", "device_mode", "r_ambient", "lux_est", "motion_px",
              "sat_pct", "blur", "gate": "PASS|PASS_FLAGGED|RETAKE", "gate_message"},
@@ -267,7 +267,7 @@ Also provide `naive_process(frame_u8)` (identity: the ISP output is used as is) 
 
 ## G. Test matrix and the lighting experiment
 
-**`src/trinetra/twin/matrix.py`:** `write_matrix_plans(cfg, n_plates, out, conditions=ALL, hood_conditions=None, start_seed=900000)`; `hood_conditions` None = `matrix.HOOD_CONDITIONS` = every condition (device v2), those of them in `conditions`; the CLI's `--hood-conditions` with no value gives no hood rows.
+**`src/ayas/twin/matrix.py`:** `write_matrix_plans(cfg, n_plates, out, conditions=ALL, hood_conditions=None, start_seed=900000)`; `hood_conditions` None = `matrix.HOOD_CONDITIONS` = every condition (device v2), those of them in `conditions`; the CLI's `--hood-conditions` with no value gives no hood rows.
 - For each test plate seed, write one plan per (condition, device_mode), with split `test`.
 - The plate, defects and distractors are identical across a plate's rows.
 - The same plate seeds are never used for training.
@@ -286,9 +286,9 @@ Also provide `naive_process(frame_u8)` (identity: the ISP output is used as is) 
 
 **Models.** One YOLOv8n per arm: `naive` and `burst`. Both use the same training plans and the same tile pipeline. Outputs are `reports/lighting_matrix.md` and `reports/lighting_matrix.json`.
 
-## H. On-device app (`src/trinetra/app/`)
+## H. On-device app (`src/ayas/app/`)
 
-**Command:** `trinetra-app --source twin:<dir of npz>|camera --detector onnx:<path>|hailo:<hef> --spec configs/spec_steel.yaml --advisor executorch|mock`
+**Command:** `ayas-app --source twin:<dir of npz>|camera --detector onnx:<path>|hailo:<hef> --spec configs/spec_steel.yaml --advisor executorch|mock`
 
 **Flow:**
 1. **Source.**
@@ -313,8 +313,8 @@ Also provide `naive_process(frame_u8)` (identity: the ISP output is used as is) 
 |---|---|
 | steel-twin | `sampler.py`, `textures.py`, `geometry.py`, `coupons.yaml` (+ steel coupons), sampler/textures/coupons tests |
 | lighting-render | `twin/lighting.py`, `rig.py`, `twin/blender/render_scene.py`, `twin/render.py`, render tests, plus a Blender overview-camera render for the demo |
-| lightproc | `src/trinetra/lightproc.py`, `src/trinetra/twin/burst.py`, `configs/capture.yaml` (tune), tests |
+| lightproc | `src/ayas/lightproc.py`, `src/ayas/twin/burst.py`, `configs/capture.yaml` (tune), tests |
 | post | `post.py`, `realdata.py`, `tiles.py` (CLASSES), `pipeline.py`, `twin/cli.py`, `configs/twin.yaml`, post/realdata/frames-tiles tests |
 | spec-advisor | `configs/spec_steel.yaml`, `rules.py`, `report.py`, `llm.py`, `schemas/`, `twin/records.py`, tests |
 | eval | `twin/matrix.py`, `training/*`, `hailo/*` (classes 6), eval/npu tests, `tools/make_demo_video.py` |
-| app | `src/trinetra/app/*`, `pyproject` script, app tests |
+| app | `src/ayas/app/*`, `pyproject` script, app tests |

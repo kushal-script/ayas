@@ -5,7 +5,7 @@ captures and never from the test split (P5). Twin tiles (names s<seed>_...) are 
 unless --allow-twin is given: Phase 1 (steel, no real captures yet) calibrates on the
 burst-arm TRAIN tiles of the twin, which is what the deployed pipeline feeds the model;
 replace them with real burst captures as soon as those exist. Lighting-matrix plates
-(seed >= 900000, trinetra.twin.matrix) are always refused. Images bigger than a tile
+(seed >= 900000, ayas.twin.matrix) are always refused. Images bigger than a tile
 (rectified grids) give random crops; 640 px tiles are used whole. When there are fewer
 source images than N, flipped copies (horizontal, vertical, both) fill the set; past
 that, images repeat with fresh crops.
@@ -33,7 +33,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from trinetra.twin.matrix import TEST_SEED_MIN     # lighting-matrix test plates start here
+from ayas.twin.matrix import TEST_SEED_MIN     # lighting-matrix test plates start here
 
 ROOT = Path(__file__).resolve().parents[1]
 IMG_EXT = {".jpg", ".jpeg", ".png", ".bmp"}

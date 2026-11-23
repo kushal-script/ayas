@@ -1,4 +1,4 @@
-"""Train YOLOv8n on native-scale 640 px tiles with Ultralytics, using the TriNetra settings.
+"""Train YOLOv8n on native-scale 640 px tiles with Ultralytics, using the Ayas settings.
 
 Tiles are already 640 px cut from the 0.08 mm/px grid, so imgsz=640 means no resizing,
 and scale=0.1 keeps mm/px nearly fixed. Colour jitter follows the lighting research
@@ -7,10 +7,10 @@ rust and stain hues), hsv_s=0.4, hsv_v=0.4, as a last line of defence after the 
 method. Tiles are plain RGB (the burst's min(L, R) image or the naive ISP frame), so flips
 are safe. Fine-tuning (--weights) defaults to SGD, lr0=0.002 and a frozen backbone
 (freeze=10); with Ultralytics' optimizer=auto the lr0 would be silently replaced, so the
-optimizer is set explicitly. Classes come from the data.yaml (trinetra.tiles.CLASSES).
+optimizer is set explicitly. Classes come from the data.yaml (ayas.tiles.CLASSES).
 
 --test runs Ultralytics val on the data.yaml test split (the real test tiles) with
-best.pt and stores tile-level mAP50 in <run>/trinetra_train.json.
+best.pt and stores tile-level mAP50 in <run>/ayas_train.json.
 
 Examples (training venv):
   .venv-train/bin/python training/train.py --data runs/datasets/real_only/data.yaml --name real_only --test
@@ -131,7 +131,7 @@ def main(argv: list[str] | None = None) -> dict[str, Any]:
     }
     if a.test:
         summary["test"] = test_metrics(best, kw["data"], device, a.batch, save_dir)
-    (save_dir / "trinetra_train.json").write_text(json.dumps(summary, indent=2))
+    (save_dir / "ayas_train.json").write_text(json.dumps(summary, indent=2))
     print(json.dumps({k: summary[k] for k in ("best", "train_seconds", "device")}))
     return summary
 

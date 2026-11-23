@@ -14,8 +14,8 @@ fills the gaps (finished scenes are skipped; only new work dirs get the naive pa
 
   .venv/bin/python training/train_arms.py --write-naive-config runs/twin_naive.yaml
   for s in $(seq 0 100 1400); do
-    .venv/bin/python -m trinetra.twin.cli run --n 100 --start-seed $s --out data/twin/arm_burst --keep-work
-    .venv/bin/python -m trinetra.twin.cli post --work data/twin/arm_burst/work --out data/twin/arm_naive \\
+    .venv/bin/python -m ayas.twin.cli run --n 100 --start-seed $s --out data/twin/arm_burst --keep-work
+    .venv/bin/python -m ayas.twin.cli post --work data/twin/arm_burst/work --out data/twin/arm_naive \\
         --config runs/twin_naive.yaml
     rm -rf data/twin/arm_burst/work
   done
@@ -53,7 +53,7 @@ import yaml
 
 import build_datasets as BD
 from train import TRAIN_SETTINGS
-from trinetra.twin.matrix import TEST_SEED_MIN
+from ayas.twin.matrix import TEST_SEED_MIN
 
 ROOT = Path(__file__).resolve().parents[1]
 HERE = Path(__file__).resolve().parent

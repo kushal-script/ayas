@@ -1,4 +1,4 @@
-# On-device app (src/trinetra/app, docs/APP.md): camera -> lightproc -> detector -> rules -> JSON
+# On-device app (src/ayas/app, docs/APP.md): camera -> lightproc -> detector -> rules -> JSON
 # -> alert -> log -> Llama (ExecuTorch). Shared capture and grid settings stay in capture.yaml and
 # twin.yaml; this file holds only what the app adds. Relative paths are from the repo root.
 # Items marked VERIFY must be checked on the Pi (docs/APP.md "Pi bring-up checks").
@@ -6,7 +6,7 @@
 capture_config: configs/capture.yaml      # sensor, burst, process and gate (shared with the twin)
 grid_config: configs/twin.yaml            # its `grid:` block (0.08 mm/px, 5 mm border, 640 tiles)
 spec: configs/spec_steel.yaml
-log_dir: data/app                         # trinetra.db (SQLite), inspections.jsonl, advice.jsonl, images/
+log_dir: data/app                         # ayas.db (SQLite), inspections.jsonl, advice.jsonl, images/
 save_images: true                         # a 480 px JPEG of every result in log_dir/images (~50 KB each)
 
 part:                                     # used when the source does not say (camera, plain image folders)

@@ -1,6 +1,6 @@
 # Datasets
 
-Every image TriNetra was trained or evaluated on is a **render of the Blender digital twin in this repository**. Procedural textures, no third-party photos. No public dataset was used for training.
+Every image Ayas was trained or evaluated on is a **render of the Blender digital twin in this repository**. Procedural textures, no third-party photos. No public dataset was used for training.
 
 There are no real-camera images yet; that is Phase 2.
 
@@ -15,13 +15,13 @@ The renders are not in git: they total about 90 GB of EXR renders and processed 
 | JEPA paired plates | `s100000`–`s100047` | 48 plates × 14 rows, pixel-aligned across lighting | The JEPA experiment (`docs/JEPA.md`); not adopted |
 | Pilot plates (excluded from test) | `s900000`–`s900068` | small | Tuned the capture quality gate, so they are not test plates |
 
-The lighting conditions are C0 dark, C1 office (~350 lux), C2 warm bulb, C3 window daylight, C4 low side lamp + hand shadow, C5 lamp reflected in the plate, and C6 direct sun (~45,000 lux). Each is captured with the open device and with the hood. Definitions: `src/trinetra/twin/lighting.py`, `configs/twin.yaml`.
+The lighting conditions are C0 dark, C1 office (~350 lux), C2 warm bulb, C3 window daylight, C4 low side lamp + hand shadow, C5 lamp reflected in the plate, and C6 direct sun (~45,000 lux). Each is captured with the open device and with the hood. Definitions: `src/ayas/twin/lighting.py`, `configs/twin.yaml`.
 
-Ground truth comes from the generator: defect class, mask, box, size in mm and depth. The defect classes are scratch, dent, pit, corrosion, crack and stain; their geometry is in `src/trinetra/twin/sampler.py`.
+Ground truth comes from the generator: defect class, mask, box, size in mm and depth. The defect classes are scratch, dent, pit, corrosion, crack and stain; their geometry is in `src/ayas/twin/sampler.py`.
 
 ## Regenerating
 
-- **Plans** (exact scene parameters per seed) are produced by `trinetra-twin plan` / `trinetra-twin matrix` / `training/jepa/pairs.py`. Same code + same seed gives the same plan.
+- **Plans** (exact scene parameters per seed) are produced by `ayas-twin plan` / `ayas-twin matrix` / `training/jepa/pairs.py`. Same code + same seed gives the same plan.
 - **Render + post on a GPU box:** `tools/jl/render_all.sh` (see `tools/jl/README.md`). About 3.5 h of rendering on one L4 for all three sets (matrix 28 min, JEPA 1 h 22 min, training 1 h 43 min, measured 15 Nov), plus about 12 min of post on the CPUs.
 - **A private backup of the exact renders** exists (tar bundles with an MD5 manifest). Ask the team if you need it instead of re-rendering.
 

@@ -1,4 +1,4 @@
-"""Depth estimator, classical baseline and depth-aware severity (trinetra.physics)."""
+"""Depth estimator, classical baseline and depth-aware severity (ayas.physics)."""
 
 import math
 
@@ -6,12 +6,12 @@ import numpy as np
 import pytest
 import yaml
 
-from trinetra.physics import baselines as B
-from trinetra.physics import depth_pinn as DP
-from trinetra.physics import optics as O
-from trinetra.physics import severity as SV
-from trinetra.twin import frames as F
-from trinetra.twin import lighting
+from ayas.physics import baselines as B
+from ayas.physics import depth_pinn as DP
+from ayas.physics import optics as O
+from ayas.physics import severity as SV
+from ayas.twin import frames as F
+from ayas.twin import lighting
 
 SPEC = yaml.safe_load(open("configs/spec_steel.yaml"))
 
@@ -118,7 +118,7 @@ def _dent(d=5.0):
 
 
 def test_today_is_hold_for_major_dent():
-    from trinetra import rules
+    from ayas import rules
     _, j = rules.judge_steel([_dent()], SPEC, PART)
     assert j[0]["disposition"] == "HOLD_FOR_QA"
 

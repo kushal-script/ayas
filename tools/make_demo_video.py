@@ -240,7 +240,7 @@ def cards_from_report(rep: dict[str, Any], plate: str | None = None, overviews: 
         cs = [c for c in mine if c["arm"] == arm and (c["condition"], c["device_mode"]) == key]
         return min(cs, key=lambda c: (c.get("model", arm) != arm, c["k"] if c["k"] is not None else -1)) if cs else None
 
-    cards = [{"title": "TriNetra: steel surface inspection across lighting",
+    cards = [{"title": "Ayas: steel surface inspection across lighting",
               "caption": f"One test plate ({plate}), {len(keys)} lighting set-ups, two capture methods",
               "text": ("Old method: one frame with auto-exposure and the camera ISP. New method: a 5-frame LED "
                        "burst in raw (lit frames and LEDs-off frames), ambient subtraction, glare removal, and a "

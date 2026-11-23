@@ -17,8 +17,8 @@ import cv2
 import numpy as np
 import yaml
 
-from trinetra import lightproc as LP
-from trinetra.twin import post as P
+from ayas import lightproc as LP
+from ayas.twin import post as P
 
 ROOT = Path(__file__).resolve().parents[2]
 

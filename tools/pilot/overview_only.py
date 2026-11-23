@@ -6,7 +6,7 @@ overview.png to <out>/overview/<scene>.png and deletes the work dirs.
 import json, shutil, sys
 from pathlib import Path
 import yaml
-from trinetra.twin import render, textures
+from ayas.twin import render, textures
 
 ROOT = Path(__file__).resolve().parents[2]
 out, root, scenes = Path(sys.argv[1]), Path(sys.argv[2]), sys.argv[3:]

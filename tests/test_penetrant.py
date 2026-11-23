@@ -3,9 +3,9 @@ from pathlib import Path
 
 import pytest
 
-from trinetra.capture import capture_set
-from trinetra.penetrant import PenetrantInspector
-from trinetra.sim import SimDefect, SimRig
+from ayas.capture import capture_set
+from ayas.penetrant import PenetrantInspector
+from ayas.sim import SimDefect, SimRig
 
 SCHEMA = Path(__file__).resolve().parents[1] / "schemas" / "inspection.schema.json"
 

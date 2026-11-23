@@ -1,4 +1,4 @@
-# TriNetra on-device app (`trinetra-app`)
+# Ayas on-device app (`ayas-app`)
 
 The station program that closes the loop on the Raspberry Pi 5 (and on the Mac for development):
 
@@ -6,12 +6,12 @@ The station program that closes the loop on the Raspberry Pi 5 (and on the Mac f
 camera burst (or twin .npz) -> lightproc.process_burst (ambient subtraction, glare removal, quality gate)
   -> RETAKE? -> record with verdict RETAKE + the gate message (nothing is detected)
   -> rectify to the plate grid (0.08 mm/px) -> 640 px tiles -> detector (Hailo / ONNX / fake) -> merge
-  -> mm measures -> rules.judge_steel (configs/spec_steel.yaml) -> record trinetra.inspection/3.0
+  -> mm measures -> rules.judge_steel (configs/spec_steel.yaml) -> record ayas.inspection/3.0
   -> ALERT (screen banner, console line, optional buzzer) -> LOG (SQLite + JSONL)
   -> Llama 3.2 via ExecuTorch explains the record (after the alert: the verdict never waits for it)
 ```
 
-Design contract: `docs/twin/DESIGN_STEEL.md` section H. Code: `src/trinetra/app/`.
+Design contract: `docs/twin/DESIGN_STEEL.md` section H. Code: `src/ayas/app/`.
 
 | File | What it does |
 |---|---|
@@ -20,10 +20,10 @@ Design contract: `docs/twin/DESIGN_STEEL.md` section H. Code: `src/trinetra/app/
 | `advisor.py` | `AdvisorService`: mock template, the `llama_main` runner (streamed, timed), the in-process `TextLLMRunner` |
 | `ui.py` | the station page (stdlib `http.server`, no external JS/CSS) for the 5" 800 x 480 display |
 | `bench.py` | per-stage latency, FPS, memory, CPU temperature, Llama TTFT and tokens/s |
-| `cli.py` | `trinetra-app run ...` and `trinetra-app check` |
+| `cli.py` | `ayas-app run ...` and `ayas-app check` |
 | `configs/app.yaml` | the app's own settings (pods, camera, advisor, UI, log); shared settings stay in `capture.yaml`, `twin.yaml`, `spec_steel.yaml` |
 
-`trinetra-app` is registered in `pyproject.toml`. After pulling, run `pip install -e .` once so the command exists; until then use `python -m trinetra.app.cli` with the same arguments.
+`ayas-app` is registered in `pyproject.toml`. After pulling, run `pip install -e .` once so the command exists; until then use `python -m ayas.app.cli` with the same arguments.
 
 ## 1. Run it on the Mac
 
@@ -31,16 +31,16 @@ Design contract: `docs/twin/DESIGN_STEEL.md` section H. Code: `src/trinetra/app/
 source .venv/bin/activate
 
 # Twin bursts for the demo: every test plate x every lighting condition (+ hood rows), with .npz bursts.
-trinetra-twin matrix --n 2 --save-bursts --out data/twin_demo          # -> data/twin_demo/bursts/*.npz (30-50 MB each)
+ayas-twin matrix --n 2 --save-bursts --out data/twin_demo          # -> data/twin_demo/bursts/*.npz (30-50 MB each)
 
 # Console: each burst once, verdict line + advice
-trinetra-app run --source twin:data/twin_demo/bursts --detector fake --advisor mock
+ayas-app run --source twin:data/twin_demo/bursts --detector fake --advisor mock
 
 # Station page: http://127.0.0.1:8080 (Inspect button), or an automatic demo loop every 5 s
-trinetra-app run --source twin:data/twin_demo/bursts --detector onnx:models/best.onnx --advisor mock --ui --auto 5
+ayas-app run --source twin:data/twin_demo/bursts --detector onnx:models/best.onnx --advisor mock --ui --auto 5
 
 # Benchmark (writes reports/bench_<host>_<date>.json and .md)
-trinetra-app run --source twin:data/twin_demo/bursts --detector onnx:models/best.onnx --advisor mock --bench 20
+ayas-app run --source twin:data/twin_demo/bursts --detector onnx:models/best.onnx --advisor mock --bench 20
 ```
 
 - `--detector fake` replays the twin's ground-truth boxes through the real tile, merge, measure and rules code. The record says `backend.vision = "fake (ground-truth replay)"`, so it is never mistaken for a detector result. `fake:empty` returns no boxes.
@@ -55,16 +55,16 @@ trinetra-app run --source twin:data/twin_demo/bursts --detector onnx:models/best
 ```bash
 sudo apt install -y python3-picamera2 python3-gpiozero python3-libcamera
 sudo apt install -y hailo-h10-all            # only for --detector hailo:<hef> (HailoRT 5.x, AI HAT+ 2)
-git clone <repo> ~/trinetra && cd ~/trinetra
+git clone <repo> ~/ayas && cd ~/ayas
 python3 -m venv --system-site-packages .venv  # picamera2, libcamera, gpiozero and hailo_platform come from apt
 source .venv/bin/activate
 pip install -e .                              # keeps apt's numpy and PyYAML; adds opencv-python-headless, scikit-learn
-trinetra-app check                            # lists camera, GPIO, Hailo, onnxruntime, ExecuTorch, network, model files
+ayas-app check                            # lists camera, GPIO, Hailo, onnxruntime, ExecuTorch, network, model files
 ```
 
 ### Llama via ExecuTorch (mandatory for the advice)
 
-Two ways; both get the same prompt, guardrail check and template fallback from `trinetra/llm.py`.
+Two ways; both get the same prompt, guardrail check and template fallback from `ayas/llm.py`.
 
 1. **The `llama_main` runner the team already has** (`--advisor executorch`). Set in `configs/app.yaml` `llm:` the `runner` (full path, or a wrapper script that sets `LD_LIBRARY_PATH`), `model_path` (`.pte`) and `tokenizer_path`, or pass `--runner`, `--pte`, `--tokenizer`. The app streams the runner's stdout to the screen and reads its `PyTorchObserver {...}` stats line for TTFT and tokens/s. The runner loads the `.pte` on every answer, so the wall time includes the model load (reported separately as `load_ms`).
 2. **In-process `TextLLMRunner`** (`--advisor executorch_py`): `pip install executorch==1.5.1 torch==2.14.0 --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple` in the same venv (docs/research/2026-11-05_executorch.md; match the version the `.pte` was exported with). The model stays loaded and one warm-up answer runs at start-up. Paths come from `llm.py.model_path` / `llm.py.tokenizer_path` or `--pte` / `--tokenizer`.
@@ -76,7 +76,7 @@ Prompt length: `llm.Advisor` drops the oldest follow-up turns so that prompt + a
 ### Copy twin bursts to the Pi (before going offline)
 
 ```bash
-rsync -av --progress data/twin_demo/bursts/ pi@<pi-host>:~/trinetra/data/twin_demo/bursts/
+rsync -av --progress data/twin_demo/bursts/ pi@<pi-host>:~/ayas/data/twin_demo/bursts/
 # one file per (plate, condition, device mode); a handful is enough for the demo (30-50 MB each)
 ```
 
@@ -84,12 +84,12 @@ rsync -av --progress data/twin_demo/bursts/ pi@<pi-host>:~/trinetra/data/twin_de
 
 ```bash
 # twin bursts as the camera, Hailo detector, Llama in-process, station page on the display
-trinetra-app run --source twin:data/twin_demo/bursts --detector hailo:models/yolov8n_steel.hef \
+ayas-app run --source twin:data/twin_demo/bursts --detector hailo:models/yolov8n_steel.hef \
                  --advisor executorch_py --ui --auto 8
 chromium --kiosk --app=http://127.0.0.1:8080 &      # the 5" display (Wayland desktop)
 
 # the real camera (AI Camera raw burst + both LED pods)
-trinetra-app run --source camera --detector hailo:models/yolov8n_steel.hef --advisor executorch --ui
+ayas-app run --source camera --detector hailo:models/yolov8n_steel.hef --advisor executorch --ui
 ```
 
 The UI binds to 127.0.0.1 by default (the Pi's own browser). Use `--host 0.0.0.0` only to watch from a laptop on the same network, never in the offline demo.
@@ -108,9 +108,9 @@ API (for scripts): `GET /api/latest`, `GET /api/record` (the full 3.0 record), `
 
 ## 4. Record, log and measures
 
-- **Record**: `trinetra.inspection/3.0` (`schemas/inspection.v3.schema.json`), built by `report.build_steel_record`. The app adds `source` (twin scene, condition, lux, and `truth`, the rules verdict on the twin's visible ground truth), `inspection_id`, and after the advisor answers `advice`, `backend.advisor`, `timing_ms.advisor` and `advisor_stats`.
+- **Record**: `ayas.inspection/3.0` (`schemas/inspection.v3.schema.json`), built by `report.build_steel_record`. The app adds `source` (twin scene, condition, lux, and `truth`, the rules verdict on the twin's visible ground truth), `inspection_id`, and after the advisor answers `advice`, `backend.advisor`, `timing_ms.advisor` and `advisor_stats`.
 - **timing_ms**: capture (camera grab + demosaic, or the twin file read), process (lightproc), rectify, tile, detect (model inference only), merge, measure, rules, report, image, **total** (camera-to-result, without the advisor), advisor.
-- **Log** (`log_dir`, default `data/app/`): `trinetra.db` (the `store.py` tables `inspections` and `chats`; the row is updated with the advice), `inspections.jsonl` (one record per line, written at alert time), `advice.jsonl` (advisor answers, questions, acknowledgements, with stats), `images/<id>_<part>.jpg`.
+- **Log** (`log_dir`, default `data/app/`): `ayas.db` (the `store.py` tables `inspections` and `chats`; the row is updated with the advice), `inspections.jsonl` (one record per line, written at alert time), `advice.jsonl` (advisor answers, questions, acknowledgements, with stats), `images/<id>_<part>.jpg`.
 - **Locations** are plate mm in the grid's own frame: origin at the imaged top-left plate corner, x right, y down, as in the twin's records. `near_edge_mm` is the gap from the detector box (the defect's extent) to the nearest plate edge or known hole, so the edge-or-hole rule errs on the safe side.
 - **Holes.** The device does not detect holes, so give them when the part has any:
   - for a jig, in `app.yaml part.holes_mm: [[x, y, d], ...]` (grid-aligned plate mm);
@@ -130,21 +130,21 @@ API (for scripts): `GET /api/latest`, `GET /api/record` (the full 3.0 record), `
 
 ## 5. Offline demo checklist (organisers: "show the full system works without the internet")
 
-1. Before: copy the bursts and the `.pte`/tokenizer to the Pi, run `trinetra-app check` (every file found).
-2. Pull the Ethernet cable and turn Wi-Fi off (`nmcli radio wifi off`). `trinetra-app check` must print `network: OFFLINE: no default route`.
+1. Before: copy the bursts and the `.pte`/tokenizer to the Pi, run `ayas-app check` (every file found).
+2. Pull the Ethernet cable and turn Wi-Fi off (`nmcli radio wifi off`). `ayas-app check` must print `network: OFFLINE: no default route`.
 3. Start the station (`--ui --auto 8`, or press Inspect) on the Hailo detector and the ExecuTorch advisor; the console prints each alert line.
 4. Show the lighting story on twin bursts: C0-C5 open give verdicts, C6 sun without the hood gives amber **RETAKE** with "Too bright: shade the part or fit the hood" (a refusal, never a silent pass), and C6 with the hood gives a verdict again.
 5. Llama: the advice streams in after the banner; press Why?, How to fix?, Shift summary. Point at the TTFT and tokens/s on the page.
-6. Show the log: `sqlite3 data/app/trinetra.db "select id, part_id, verdict, defect_count from inspections order by id desc limit 5"` and `tail -n 1 data/app/inspections.jsonl | python3 -m json.tool` (the one JSON hand-off).
+6. Show the log: `sqlite3 data/app/ayas.db "select id, part_id, verdict, defect_count from inspections order by id desc limit 5"` and `tail -n 1 data/app/inspections.jsonl | python3 -m json.tool` (the one JSON hand-off).
 7. Run the benchmark (section 6) and show the markdown table.
 8. The code never imports a network client: `tests/test_app.py::test_app_imports_no_network_client`. The only socket is the local UI server on 127.0.0.1.
 
 ## 6. Benchmarks
 
 ```bash
-trinetra-app run --source twin:data/twin_demo/bursts --detector hailo:models/yolov8n_steel.hef \
+ayas-app run --source twin:data/twin_demo/bursts --detector hailo:models/yolov8n_steel.hef \
                  --advisor executorch_py --bench 20 --warmup 1
-trinetra-app run --source twin:data/twin_demo/bursts --detector hailo:models/yolov8n_steel.hef --no-advice --bench 50   # vision only
+ayas-app run --source twin:data/twin_demo/bursts --detector hailo:models/yolov8n_steel.hef --no-advice --bench 50   # vision only
 ```
 
 - Each inspection runs vision first, then the advisor, one after the other, so Llama never overlaps the vision timings.

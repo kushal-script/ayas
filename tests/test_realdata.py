@@ -12,10 +12,10 @@ import numpy as np
 import pytest
 import yaml
 
-from trinetra import tiles as T
-from trinetra.twin import frames as F
-from trinetra.twin import post as P
-from trinetra.twin import realdata as RD
+from ayas import tiles as T
+from ayas.twin import frames as F
+from ayas.twin import post as P
+from ayas.twin import realdata as RD
 from test_twin_post import (DRAWN, HOLE2, SCRATCH, SIZE, fake_capture, make_scene, read_labels,  # noqa: F401
                              twin_cfg)
 

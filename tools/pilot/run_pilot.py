@@ -5,7 +5,7 @@
 import json, shutil, sys, time
 from pathlib import Path
 import yaml
-from trinetra.twin import matrix as MX, pipeline as PL
+from ayas.twin import matrix as MX, pipeline as PL
 
 ROOT = Path(__file__).resolve().parents[2]
 args = [a for a in sys.argv[1:] if not a.startswith("--")]

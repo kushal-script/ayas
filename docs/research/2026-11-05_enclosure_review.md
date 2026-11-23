@@ -1,12 +1,12 @@
 # Independent reviews of the handheld enclosure (5 Nov 2026)
 
-These reviews were of the first export, which was 80 mm deep and had a simplified heatsink. Every blocker and major item, and most minor items, are folded into `hardware/enclosure/trinetra_handheld_fusion.py`. The README lists what is still open.
+These reviews were of the first export, which was 80 mm deep and had a simplified heatsink. Every blocker and major item, and most minor items, are folded into `hardware/enclosure/ayas_handheld_fusion.py`. The README lists what is still open.
 
 ---
 
 ## Lens: assembly
 
-**TriNetra handheld enclosure: mechanical, assembly and print review**
+**Ayas handheld enclosure: mechanical, assembly and print review**
 
 Two problems stop assembly. The HAT clamp bosses land on the AI HAT+ 2 heatsink push pins, so the FrontCentre cannot close. The CamHood screws cannot be put in or driven. I checked every number by ray-casting the exported STLs (scripts in (local working files, not in the repo)). Positions use `pi_usb_dir=+1`.
 
@@ -116,7 +116,7 @@ The M3 insert bosses (4.0 mm hole, 7.6 mm OD) leave a 1.8 mm wall. That meets th
 
 ## Lens: function
 
-**TriNetra handheld enclosure review: device function and requirements (trinetra_handheld_fusion.py, out/*.stl)**
+**Ayas handheld enclosure review: device function and requirements (ayas_handheld_fusion.py, out/*.stl)**
 
 The part counts match the request: per side, 3 white modules and 3 UV strips of 3 LEDs, all facing +Z. The display faces −Z, the camera is on the display centre, and there are two side grips.
 

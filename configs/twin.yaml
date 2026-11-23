@@ -1,9 +1,9 @@
-# Digital twin of the TriNetra handheld + steel and metal plates under many lighting conditions.
+# Digital twin of the Ayas handheld + steel and metal plates under many lighting conditions.
 # Read docs/twin/DESIGN_STEEL.md (and DESIGN.md) first. Units: mm unless a key says _m (metres) or _deg.
 
 out_dir: data/twin                  # plans, work dirs (deleted after each batch), tiles, sidecars
 
-classes: [scratch, dent, pit, corrosion, crack, stain]   # YOLO ids 0..5 (= trinetra.tiles.CLASSES); DESIGN_STEEL.md A
+classes: [scratch, dent, pit, corrosion, crack, stain]   # YOLO ids 0..5 (= ayas.tiles.CLASSES); DESIGN_STEEL.md A
 capture_config: configs/capture.yaml                     # burst + gate settings shared with the Pi
 
 camera:                             # IMX500 nominal; replace K with the ChArUco calibration
@@ -22,7 +22,7 @@ grid:                               # rectified plate grid the detector sees (sa
   min_overlap: 128
 
 rig:                                # LED geometry comes from the Fusion generator (single source of truth)
-  fusion_generator: hardware/enclosure/trinetra_handheld_fusion.py
+  fusion_generator: hardware/enclosure/ayas_handheld_fusion.py
   # Which pod lights the image's left half depends on how the camera board is mounted.
   # Check with one photo (left pod only) and flip this if needed.
   model_x_is_image_left: true

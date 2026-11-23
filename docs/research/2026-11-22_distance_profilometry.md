@@ -216,7 +216,7 @@ Speckle sets the noise: δz ≈ C·λ/(2π·sin u·sinθ), with θ = 30° and λ
   - At 1 m, a 10° grazing angle needs the lamp 174 mm high and 985 mm to the side.
   - So lighting invariance is lost when the lamps move away, not when the camera does.
 - **This is how industrial strip-inspection stations work:** an overhead camera with a long lens, and line lights or strobes close to the strip, usually shrouded. That is general industry practice; no specific product was verified in this run.
-- **The honest form of "a few metres" for TriNetra:**
+- **The honest form of "a few metres" for Ayas:**
   - a fixed overhead station (telephoto camera at 1-3 m, grazing strobes or a shroud near the plate) for detection and preview;
   - depth and verdicts still from the hood.
 

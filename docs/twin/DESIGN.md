@@ -1,8 +1,8 @@
-# TriNetra digital twin: design contract
+# Ayas digital twin: design contract
 
 **Status:** build contract (5 Nov 2026).
 
-Every module in `src/trinetra/twin/`, `twin/blender/`, `training/` and `hailo/` follows this file. If code and this file disagree, fix the code or update this file in the same change.
+Every module in `src/ayas/twin/`, `twin/blender/`, `training/` and `hailo/` follows this file. If code and this file disagree, fix the code or update this file in the same change.
 
 ## 0. What the twin is for
 
@@ -37,7 +37,7 @@ Fusion generator ─────┘   (random +                       │
                sidecars -> twin/records.py -> aero rules + advisor regression
 ```
 
-## 1. Frames and units (`src/trinetra/twin/frames.py`, tested)
+## 1. Frames and units (`src/ayas/twin/frames.py`, tested)
 
 - **Plate frame, mm.**
   - Origin at the plate's datum corner. u points right and v points down along the front face; w is height out of the face.
@@ -53,7 +53,7 @@ Fusion generator ─────┘   (random +                       │
 - **Rectified grid.**
   - This is `config.Grid` with `mm_per_px = 0.08` and `border_mm = 5`.
   - `frames.homography_plate_to_grid(mpp, border)` maps plate mm to grid px.
-  - A 100 × 100 plate gives a 1375 × 1375 grid, cut into 3 × 3 tiles of 640 at 0, 368 and 735 (`trinetra.tiles`).
+  - A 100 × 100 plate gives a 1375 × 1375 grid, cut into 3 × 3 tiles of 640 at 0, 368 and 735 (`ayas.tiles`).
 - **Corner ordering.**
   - The Pi orders the 4 imaged plate corners TL, TR, BR, BL by image position (`frames.order_corners`). The grid is therefore image-aligned, not datum-aligned.
   - Post must do exactly the same. It maps the plate polygon through `H_img<-plate`, orders the corners by image position, and builds `H_grid<-img` from those 4 points. Labels go through `H_grid<-img ∘ H_img<-plate`.
@@ -67,7 +67,7 @@ Fusion generator ─────┘   (random +                       │
 
 ## 2. Classes
 
-- **YOLO surface detector, ids:** 0 `rivet`, 1 `open_hole`, 2 `dent`, 3 `scratch`, 4 `crack`, 5 `corrosion`. These are `trinetra.tiles.CLASSES` and `configs/twin.yaml: classes`.
+- **YOLO surface detector, ids:** 0 `rivet`, 1 `open_hole`, 2 `dent`, 3 `scratch`, 4 `crack`, 5 `corrosion`. These are `ayas.tiles.CLASSES` and `configs/twin.yaml: classes`.
 - **Kinds per class:**
 
   | Class | Kinds |
@@ -84,13 +84,13 @@ Fusion generator ─────┘   (random +                       │
 - **Geometry checks on fasteners are done by rules, not by YOLO:** edge distance, pitch, missing fastener and oval hole. YOLO only finds `rivet` and `open_hole`.
   - Ovality and centres are refined on the CPU (`aero.refine_hole`).
 
-## 3. Scene plan JSON (`schema: trinetra.twin.scene/1`)
+## 3. Scene plan JSON (`schema: ayas.twin.scene/1`)
 
 **Where it lives.** One file per scene, `<out>/plans/<scene_id>.json`. It is written by `sampler.py`, read by `textures.py`, `twin/blender/render_scene.py` and `post.py`. All randomness is decided here, so a plan plus its seed reproduces the scene. Keys not listed below must not be required by consumers.
 
 ```jsonc
 {
-  "schema": "trinetra.twin.scene/1",
+  "schema": "ayas.twin.scene/1",
   "scene_id": "s000042", "seed": 42, "split": "train",          // train | val | twin_test
   "mode": "surface",                                              // surface | penetrant
   "source": "random",                                             // random | replica:P2 | fixture
@@ -218,9 +218,9 @@ All params are in plate mm. **`footprint.polys_mm` is computed by the sampler fr
 | Path | Contents |
 |---|---|
 | `<out>/yolo/images/{train,val}/<scene>_v<k>_<tile>.jpg` | tiles (640², quality `post.jpeg_quality`) |
-| `<out>/yolo/labels/{train,val}/<same>.txt` | YOLO lines (`trinetra.tiles.yolo_line`); empty file for background tiles |
+| `<out>/yolo/labels/{train,val}/<same>.txt` | YOLO lines (`ayas.tiles.yolo_line`); empty file for background tiles |
 | `<out>/yolo/data.yaml` | Ultralytics dataset: `path`, `train`, `val`, `names` |
-| `<out>/sidecar/<scene>.json` | `schema: trinetra.twin.sidecar/1`: scene_id, grid size, `H_grid_plate` (3 × 3, the full label mapping), fasteners (id, cls, centre/diameter/ovality in mm and grid px), defects (id, cls, kind, measure, near, polys in grid px, bbox_grid, visible, contrast, tiles), variants (gains, exposure, noise) |
+| `<out>/sidecar/<scene>.json` | `schema: ayas.twin.sidecar/1`: scene_id, grid size, `H_grid_plate` (3 × 3, the full label mapping), fasteners (id, cls, centre/diameter/ovality in mm and grid px), defects (id, cls, kind, measure, near, polys in grid px, bbox_grid, visible, contrast, tiles), variants (gains, exposure, noise) |
 | `<out>/penetrant/<scene>_v<k>.png` + sidecar | full rectified grids for `penetrant.py` tests |
 | `<out>/debug/<scene>_v<k>.jpg` | the first 50 scenes: grid with label overlays |
 
@@ -266,7 +266,7 @@ All params are in plate mm. **`footprint.polys_mm` is computed by the sampler fr
 
 ## 7. Deployment contract
 
-- **Grid.** The Pi rectifies the frame from the 4 plate corners to the grid (0.08 mm/px, 5 mm border) and tiles it with `trinetra.tiles`.
+- **Grid.** The Pi rectifies the frame from the 4 plate corners to the grid (0.08 mm/px, 5 mm border) and tiles it with `ayas.tiles`.
 - **Detection.** `npu.py` runs YOLOv8n per tile:
   - `HailoDetector` (HEF with on-chip NMS, uint8 RGB input) or `OnnxDetector` (CPU, float RGB / 255).
   - `merge_tiles` joins the results; grid px → mm via `config.Grid.px_to_mm`.
@@ -288,7 +288,7 @@ All params are in plate mm. **`footprint.polys_mm` is computed by the sampler fr
   - Set `prefs.compute_device_type = 'METAL'`, call `prefs.get_devices()`, enable the "Apple M3 (GPU - 10 cores)" device, and set `scene.cycles.device = 'GPU'`.
   - The first Metal render compiles the kernels: about 200 s once, then cached. Budget for it in tests and timing.
 - **Principled BSDF inputs (5.2):** Base Color, Metallic, Roughness, IOR, Alpha, Normal, Specular IOR Level, Specular Tint, Anisotropic, Anisotropic Rotation, Tangent, Coat Weight, Sheen Weight, Emission Color, Emission Strength.
-- **Python:** Blender bundles its own Python with numpy. Do not import `trinetra` inside Blender. The driver precomputes the camera into `blender_cam.json`.
+- **Python:** Blender bundles its own Python with numpy. Do not import `ayas` inside Blender. The driver precomputes the camera into `blender_cam.json`.
 - **DOF.** For physically right depth of field, give Blender the physical sensor: `sensor_width_mm = max(w, h) · pixel_um / 1000`. Then `lens_mm` is about 4.74 and the aperture is `lens / fstop`.
   - Use `frames.blender_intrinsics(K_roi, w, h, sensor_width_mm=...)`.
 

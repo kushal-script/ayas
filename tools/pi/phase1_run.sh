@@ -6,12 +6,12 @@
 #   bash tools/pi/phase1_run.sh                                   # defaults below
 #   bash tools/pi/phase1_run.sh --detector hailo:models/yolov8n_steel.hef --advisor executorch_py --n 50
 #
-# Before it, copy from the Mac (replace <pi-host>; ~/trinetra = the repo on the Pi):
-#   rsync -av models/v8n_burst.onnx models/v8n_burst.json <pi-host>:~/trinetra/models/
-#   rsync -av reports/lighting_matrix.json <pi-host>:~/trinetra/reports/
-#   rsync -av artifacts/jarvislabs/trinetra-render_574738_final/twin_matrix/post_final/bursts/ \
-#         <pi-host>:~/trinetra/data/twin_demo/bursts/            # 28 twin bursts, ~1 GB
-# After it, copy the bundle back:  rsync -av <pi-host>:~/trinetra/reports/pi_phase1_*.tgz reports/
+# Before it, copy from the Mac (replace <pi-host>; ~/ayas = the repo on the Pi):
+#   rsync -av models/v8n_burst.onnx models/v8n_burst.json <pi-host>:~/ayas/models/
+#   rsync -av reports/lighting_matrix.json <pi-host>:~/ayas/reports/
+#   rsync -av artifacts/jarvislabs/ayas-render_574738_final/twin_matrix/post_final/bursts/ \
+#         <pi-host>:~/ayas/data/twin_demo/bursts/            # 28 twin bursts, ~1 GB
+# After it, copy the bundle back:  rsync -av <pi-host>:~/ayas/reports/pi_phase1_*.tgz reports/
 #
 # Options:
 #   --bursts DIR       twin bursts used as the camera            (data/twin_demo/bursts)
@@ -36,7 +36,7 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-APP="trinetra-app"; command -v trinetra-app >/dev/null 2>&1 || APP="python -m trinetra.app.cli"
+APP="ayas-app"; command -v ayas-app >/dev/null 2>&1 || APP="python -m ayas.app.cli"
 [ -d "$BURSTS" ] && ls "$BURSTS"/*.npz >/dev/null 2>&1 || { echo "no .npz bursts in $BURSTS (copy them first, see the header)"; exit 3; }
 OUT=reports/pi_phase1_$(hostname)_$(date +%Y%m%d-%H%M%S)
 mkdir -p "$OUT"
@@ -55,7 +55,7 @@ rc=0
   echo "## throttled"; vcgencmd get_throttled 2>/dev/null
   echo "## python";    python -V 2>&1
   echo "## links";     ip -brief link 2>/dev/null
-  echo "## trinetra-app check"; $APP check 2>&1
+  echo "## ayas-app check"; $APP check 2>&1
 } > "$OUT/system.txt" 2>&1
 echo "--- 1/4 system record: $OUT/system.txt"
 

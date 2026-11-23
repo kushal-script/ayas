@@ -1,4 +1,4 @@
-# Making the TriNetra test coupons
+# Making the Ayas test coupons
 
 **Status:** build guide (5 Nov 2026). For the students making the coupons in Bengaluru.
 
@@ -9,9 +9,9 @@ The coupons are the only ground truth of the project. Every metric in the report
 - The printed templates in `docs/twin/templates/` (one SVG per face, plus `index.html`) and the ground-truth CSV template are generated from it:
 
   ```
-  .venv/bin/python -m trinetra.twin.coupons validate
-  .venv/bin/python -m trinetra.twin.coupons table P2A
-  .venv/bin/python -m trinetra.twin.coupons templates          # SVGs, index.html, ground_truth_template.csv
+  .venv/bin/python -m ayas.twin.coupons validate
+  .venv/bin/python -m ayas.twin.coupons table P2A
+  .venv/bin/python -m ayas.twin.coupons templates          # SVGs, index.html, ground_truth_template.csv
   ```
 
 - If you change anything on a plate, change `configs/coupons.yaml` too, then re-run `validate` and `templates`.
@@ -88,13 +88,13 @@ Work in this order. Gloves on whenever you handle a plate; skin oil shows up in 
 
 1. **Day 1, first: mark and photograph everything clean.**
    1. Choose the cleaner face of each plate as face A. Punch a small "A" in its top-left corner, about 4 mm in from both edges: use a 3 mm letter punch, or 5–7 light dots (lowest punch setting) in an A shape. Keep the 8 × 8 mm corner clear of everything else.
-   2. Photograph faces A and B of P1–P5 **bare**, before any work: the bare-plate set. Use the TriNetra capture tool if it is running. Otherwise use a phone on a stand, for documentation only.
+   2. Photograph faces A and B of P1–P5 **bare**, before any work: the bare-plate set. Use the Ayas capture tool if it is running. Otherwise use a phone on a stand, for documentation only.
 2. **Day 1: cut P4 and start the corrosion.** Corrosion needs 48–72 h, so it starts first.
    1. Cut S1 and S2 off P4 (section 6.4).
    2. Drill P4 and fit the screws. Drill P5's holes (no rivets yet).
    3. Mask both plates and start the salt + vinegar patches on P4 (D1–D4) and P5 (D8).
 3. **Day 1: P1, the golden reference.** Drill, deburr and rivet P1 (section 6.1).
-   - Capture P1A with the TriNetra device as soon as it runs, at every pose and light setting used for the dataset. P1 never changes after riveting, so the golden set can be re-shot at any time.
+   - Capture P1A with the Ayas device as soon as it runs, at every pose and light setting used for the dataset. P1 never changes after riveting, so the golden set can be re-shot at any time.
    - **Never** damage, mark, corrode or penetrant-test P1.
 4. **Day 1–2: one punch session with marked settings.**
    1. Mark the punch cap at three positions (low, mid, high).
@@ -313,7 +313,7 @@ The CSV has the columns of DESIGN section 6: `defect_id, plate, face, cls, kind,
 1. **After measuring, regenerate it from the YAML**, so the CSV and the twin never disagree:
 
    ```
-   .venv/bin/python -m trinetra.twin.coupons templates --csv data/real/ground_truth.csv
+   .venv/bin/python -m ayas.twin.coupons templates --csv data/real/ground_truth.csv
    ```
 
 2. **Check it.** There is one row per defect (`defect_id` is the coupon's id, e.g. D3, with `plate` P2 and `face` A).

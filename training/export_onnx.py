@@ -5,15 +5,15 @@ nms=False) gives input (1, 3, 640, 640) float32 RGB / 255 and output (1, 4 + nc,
 boxes (cx, cy, w, h) in input pixels plus sigmoid class scores.
 
 Checks, on a few tiles (--check-tiles, else synthetic ones):
-- raw: onnxruntime output (trinetra.npu.OnnxDetector) against the PyTorch model on the CPU;
+- raw: onnxruntime output (ayas.npu.OnnxDetector) against the PyTorch model on the CPU;
 - detections: OnnxDetector against UltralyticsDetector (same conf and IoU);
 - graph: the six head convolutions the Hailo Model Zoo yolov8n.yaml cuts the graph at
   (/model.22/cv2.i/cv2.i.2/Conv and /model.22/cv3.i/cv3.i.2/Conv).
 
 Writes <out>/<name>.onnx and <out>/<name>.json (classes, imgsz, grid mm/px, versions,
-check results). trinetra.npu reads "classes" from that JSON (copy it next to the HEF as
+check results). ayas.npu reads "classes" from that JSON (copy it next to the HEF as
 <hef stem>.json). Exit code 1 if the raw check fails; a warning if the model's classes
-are not trinetra.tiles.CLASSES (6 steel classes: scratch, dent, pit, corrosion, crack, stain).
+are not ayas.tiles.CLASSES (6 steel classes: scratch, dent, pit, corrosion, crack, stain).
 
 Example (training venv):
   .venv-train/bin/python training/export_onnx.py --weights runs/train/real_only/weights/best.pt \\
@@ -34,8 +34,8 @@ import cv2
 import numpy as np
 import yaml
 
-from trinetra.npu import OnnxDetector, UltralyticsDetector, class_names
-from trinetra.tiles import CLASSES, TILE, Det
+from ayas.npu import OnnxDetector, UltralyticsDetector, class_names
+from ayas.tiles import CLASSES, TILE, Det
 
 ROOT = Path(__file__).resolve().parents[1]
 HAILO_END_NODES = [f"/model.22/cv{k}.{i}/cv{k}.{i}.2/Conv" for i in range(3) for k in (2, 3)]
@@ -187,7 +187,7 @@ def main(argv: list[str] | None = None) -> dict[str, Any]:
     (a.out / f"{a.name}.json").write_text(json.dumps(meta, indent=2))
     print(json.dumps(meta["check"], indent=1))
     if not meta["classes_match_tiles"]:
-        print(f"WARNING: model classes {names} != trinetra.tiles.CLASSES {list(CLASSES)}; "
+        print(f"WARNING: model classes {names} != ayas.tiles.CLASSES {list(CLASSES)}; "
               "detect_grid remaps by name and drops unknown classes")
     if graph["hailo_end_nodes_missing"]:
         print("WARNING: Hailo yolov8n end nodes missing:", graph["hailo_end_nodes_missing"])

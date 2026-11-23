@@ -21,6 +21,6 @@ pytest==9.2.0
 # - hailo_platform (HailoRT 5.1.1 Python bindings) comes from apt: hailo-h10-all. Never pip-install
 #   hailort, hailo-all or hailo-gen-ai-model-zoo (they pull in the Hailo-8 stack).
 # - numpy 2.2 and OpenCV 4.10 come from apt; make the venv with --system-site-packages.
-# - onnxruntime (pip, aarch64 wheel) only for the CPU fallback (trinetra.npu.OnnxDetector).
+# - onnxruntime (pip, aarch64 wheel) only for the CPU fallback (ayas.npu.OnnxDetector).
 # The HEF compiler (DFC 5.1.0 + Hailo Model Zoo v5.1.0) runs only on Colab with Python 3.12
 # (hailo/compile_hef_colab.ipynb), never in this venv.

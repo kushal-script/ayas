@@ -1,4 +1,4 @@
-"""I-JEPA for TriNetra (docs/JEPA.md).
+"""I-JEPA for Ayas (docs/JEPA.md).
 
 A self-supervised ViT encoder trained on the twin's rectified plate grids (0.08 mm/px), with a
 cross-lighting objective (context from the plate under condition X, targets from the same

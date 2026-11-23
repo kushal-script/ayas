@@ -39,7 +39,7 @@ Prepared 20 Oct 2026 for the Bharat AI-SoC Challenge, Manufacturing theme, PS5 (
    - A phone wins on Llama speed (Llama 3.2 1B at 50.2 tok/s decode on a OnePlus 12 [H]) and on size.
    - The Pi 5 + AI HAT+ wins on camera and lighting control, Hailo vision (YOLO26n 21.7 ms [H]) and reuse of the team's existing Python code.
    - Recommendation: Pi for 23 Nov; phone + USB-C "nose" accessory as the scale-up path (a shipped product category, e.g., FLIR ONE Pro [H]).
-8. **Recommended PoC: "TriNetra-Handheld: find + touch-measure".**
+8. **Recommended PoC: "Ayas-Handheld: find + touch-measure".**
    - A Camera Module 3 "find" view at about 10 cm (≈28 µm/px over 130 × 73 mm) with its own LED ring.
    - A Raspberry Pi HQ camera "measure" nose (≈1.55-3.1 µm/px, 6-12 mm field) with **two swappable caps**:
      - **Optical cap:** 15-30 mm, light-tight, with bright-field, dark-field, 4-direction and cross-polarised LEDs. Gives width, length and colour.
@@ -156,7 +156,7 @@ Prepared 20 Oct 2026 for the Bharat AI-SoC Challenge, Manufacturing theme, PS5 (
 | Short pulses + filtering + subtraction recovered a flash image at 1/37,000 of ambient power (UBC thesis claim). | M | [UBC thesis](https://open.library.ubc.ca/collections/24/items/1.0071707) |
 | 50 Hz mains → 100 Hz light ripple; rolling shutter + short exposure → bands; multiples of 10 ms average it out. | M | [Kasson](https://blog.kasson.com/nikon-z6-7/ameliorating-lighting-banding-with-the-z7-silent-shutter), [Verkada](https://help.verkada.com/en/articles/3943201-black-banding-on-camera-feed) |
 
-**Take-away [L]:** take the off-frame within a few ms of the on-frame, or make ambient small so the 100 Hz ripple is irrelevant. The existing `src/trinetra/capture.py` already does dark-frame subtraction; keep it as a correction, not the main defence.
+**Take-away [L]:** take the off-frame within a few ms of the on-frame, or make ambient small so the 100 Hz ripple is irrelevant. The existing `src/ayas/capture.py` already does dark-frame subtraction; keep it as a correction, not the main defence.
 
 ### 2.3 Cross-polarisation
 
@@ -325,7 +325,7 @@ The last row is the strongest published case for the find + touch-measure split 
 | Size | Pi + HAT stack + display + battery + 2 cameras: a "brick" handle [L] | Phone-sized + nose [L] |
 | Cost | Pi 5 8GB already owned; now $80 → $95 → $125 [H] then +$50 Apr 2026 [H]. AI HAT+ "from $70" [H]; 26 TOPS ₹14,999 at Probots Bengaluru (team's parts doc, 19 Oct) | Phone not priced here; accessory BOM is LEDs, optics, MCU [L] |
 | Camera and light control | Picamera2 full manual control on CSI; GPIO LED sequencing; GS external trigger [H] | Manual exposure is device-dependent; external UVC is OEM-optional and not for manual control [H]; accessory needs its own MCU [L] |
-| 4-week dev risk | Reuse `src/trinetra` Python (capture with dark frames, photometric stereo, rules, JSON, Llama wrapper). HEF compile and `.pte` export need an x86 Linux host [H] | New Kotlin app + ExecuTorch AAR (LlamaDemo as a base) + accessory firmware + per-phone camera quirks |
+| 4-week dev risk | Reuse `src/ayas` Python (capture with dark frames, photometric stereo, rules, JSON, Llama wrapper). HEF compile and `.pte` export need an x86 Linux host [H] | New Kotlin app + ExecuTorch AAR (LlamaDemo as a base) + accessory firmware + per-phone camera quirks |
 | Brief fit | "Pi 5 + AI HAT+" path; HailoRT and ExecuTorch pipelines documented separately | "Arm Android phone" path; no Hailo |
 
 **Verdict:** Pi 5 + AI HAT+ for the 23 Nov PoC. The Android phone + USB-C nose (optics + LEDs + MCU, using the phone's own camera) is a strong product/scale-up path, not a 4-week task.
@@ -363,7 +363,7 @@ All are fine for a non-commercial challenge demo. None is handheld, room-light, 
 
 ---
 
-## 7. Recommended architecture: "TriNetra-Handheld" (find + touch-measure), 4-week PoC
+## 7. Recommended architecture: "Ayas-Handheld" (find + touch-measure), 4-week PoC
 
 ### 7.1 Concept
 One handheld body (pistol-grip or "torch" style) with two heads looking the same way:
@@ -377,7 +377,7 @@ This is the published "vision then touch" pattern. On Boeing panels, a whole pan
 ```
             ┌──────────────────────────── Pi 5 8GB ─────────────────────────────┐
  CM3 ──CSI0─┤ vision_svc (Python): Picamera2 → HailoRT (find YOLO / nose seg)    │
- HQ  ──CSI1─┤    + OpenCV metrology (µm), photometric slopes (trinetra/shape.py) │
+ HQ  ──CSI1─┤    + OpenCV metrology (µm), photometric slopes (ayas/shape.py) │
  LEDs ─GPIO─┤ rules.py → verdict + severity → JSON v2.x ──┐                      │
  AI HAT+ ─PCIe   (Hailo-8 runs NNs only)                   │                      │
             │ advisor_svc (C++/Python): ExecuTorch llama_main, Llama 3.2 1B      │

@@ -103,7 +103,7 @@ The pipeline has 6 steps:
 
 **Contact:** tech-queries@armbharatchallenge.com
 
-## What this means for TriNetra (decided 14 Nov)
+## What this means for Ayas (decided 14 Nov)
 
 - **Application:** steel and metal surfaces. The user's added requirement is that it **works irrespective of the lighting conditions**.
 - **Priority order:**

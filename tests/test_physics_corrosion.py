@@ -4,7 +4,7 @@ import math
 
 import pytest
 
-from trinetra.physics import corrosion as C
+from ayas.physics import corrosion as C
 
 
 def test_power_law_matches_iso9224_table3():

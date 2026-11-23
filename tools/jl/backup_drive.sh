@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Back up TriNetra twin data from the JarvisLabs instance to the user's Google Drive (rclone remote `gdrive`).
-# Instance copy: /home/trinetra_jobs/backup_drive.sh   (repo copy: tools/jl/backup_drive.sh)
+# Back up Ayas twin data from the JarvisLabs instance to the user's Google Drive (rclone remote `gdrive`).
+# Instance copy: /home/ayas_jobs/backup_drive.sh   (repo copy: tools/jl/backup_drive.sh)
 #
 # Run it tracked, from the Mac:
-#   jl run --on <id> --json --yes -- sh -lc 'bash /home/trinetra_jobs/backup_drive.sh --what renders'
+#   jl run --on <id> --json --yes -- sh -lc 'bash /home/ayas_jobs/backup_drive.sh --what renders'
 #
 # Why tar bundles: rclone's shared Google client id is throttled per file. A file-by-file copy of the
 # ~10k render files stalled at bytes/s after ~300 files (15 Nov), while one 100 MB file went at 14 MiB/s.
@@ -26,8 +26,8 @@
 #   --jobs "A B C"             job dirs under --data          ("twin_matrix jepa_train twin_train")
 #   --post-dirs "P Q"          post dir names for --what post (default: every post_* dir of each job)
 #   --tag T                    Drive folder                    (render_2026-11-15)
-#   --root NAME                top Drive folder                ("TriNetra twin data (rclone)"; with a NEW client id and
-#                              scope drive.file the old folder is invisible, so use "TriNetra twin data")
+#   --root NAME                top Drive folder                ("Ayas twin data (rclone)"; with a NEW client id and
+#                              scope drive.file the old folder is invisible, so use "Ayas twin data")
 #   --chunk N                  scenes per work tar             (50, about 2.5 GB)
 #   --parallel N               tars built/uploaded at a time   (3)
 #   --chunk-size S             Drive upload chunk              (256M: 4x fewer API requests than 64M)
@@ -42,7 +42,7 @@
 set -uo pipefail
 
 RCLONE=/home/bin/rclone; CONF=/home/.config/rclone/rclone.conf
-DEST_ROOT="gdrive:TriNetra twin data (rclone)"
+DEST_ROOT="gdrive:Ayas twin data (rclone)"
 WHAT=renders; TAG=render_2026-11-15; DATA=/home/data; JOBS="twin_matrix jepa_train twin_train"; POST_DIRS=""
 CHUNK=50; PAR=3; TMPD=""; CHUNK_SIZE=256M; ATTEMPTS=6; UP_TIMEOUT=40m
 while [ $# -gt 0 ]; do
@@ -68,7 +68,7 @@ case "$WHAT" in renders|post|logs) ;; *) echo "--what must be renders, post or l
 [ -s "$CONF" ] || { echo "no $CONF: upload it from the Mac first (see the header)"; exit 3; }
 TMPD=${TMPD:-$DATA/.backup_tmp}
 STATE=$DATA/logs/backup_state/$TAG                      # the default root keeps its original state path
-[ "$DEST_ROOT" = "gdrive:TriNetra twin data (rclone)" ] || \
+[ "$DEST_ROOT" = "gdrive:Ayas twin data (rclone)" ] || \
   STATE=$DATA/logs/backup_state/$(printf '%s' "${DEST_ROOT#gdrive:}" | tr -c 'A-Za-z0-9._-' '_')/$TAG
 LISTS=$STATE/lists
 mkdir -p "$TMPD" "$STATE" "$LISTS"
@@ -154,7 +154,7 @@ wait
 
 # manifest: md5/size/name of every finished tar + the per-tar file lists
 fail=0; man="$TMPD/MANIFEST_$WHAT.txt"
-{ echo "# TriNetra twin data backup, tag $TAG, what=$WHAT, $(date -u +%FT%TZ)"
+{ echo "# Ayas twin data backup, tag $TAG, what=$WHAT, $(date -u +%FT%TZ)"
   echo "# md5  bytes  tar   (restore: rclone copy the tars back, then tar -C <job dir> -xf <tar>)"
   for t in "${TASKS[@]}"; do
     name=${t%%|*}; ok="$STATE/${name//\//__}.ok"

@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "trinetra.inspection",
-  "title": "TriNetra inspection report",
-  "description": "Output of the vision pipeline and rules engine: a surface inspection (3 cameras x white lights, 3D shape), a red-dye penetrant check, or (2.1, domain aerospace) a handheld inspection of a riveted aluminium coupon with fastener findings and a draft NCR. 2.1 only adds optional fields, so every 2.0 report stays valid. The LLM reads a compact copy of this; it never changes verdict, severity or disposition. 3.0 (steel and metal surfaces, DESIGN_STEEL.md F) is a separate record: a report whose schema is trinetra.inspection/3.0 is checked against $defs v3 (the same as inspection.v3.schema.json), every other report against $defs v2.",
+  "$id": "ayas.inspection",
+  "title": "Ayas inspection report",
+  "description": "Output of the vision pipeline and rules engine: a surface inspection (3 cameras x white lights, 3D shape), a red-dye penetrant check, or (2.1, domain aerospace) a handheld inspection of a riveted aluminium coupon with fastener findings and a draft NCR. 2.1 only adds optional fields, so every 2.0 report stays valid. The LLM reads a compact copy of this; it never changes verdict, severity or disposition. 3.0 (steel and metal surfaces, DESIGN_STEEL.md F) is a separate record: a report whose schema is ayas.inspection/3.0 is checked against $defs v3 (the same as inspection.v3.schema.json), every other report against $defs v2.",
   "if": {
     "properties": {
       "schema": {
-        "const": "trinetra.inspection/3.0"
+        "const": "ayas.inspection/3.0"
       }
     },
     "required": [
@@ -40,8 +40,8 @@
       "properties": {
         "schema": {
           "enum": [
-            "trinetra.inspection/2.0",
-            "trinetra.inspection/2.1"
+            "ayas.inspection/2.0",
+            "ayas.inspection/2.1"
           ]
         },
         "mode": {
@@ -291,7 +291,7 @@
         ],
         "properties": {
           "schema": {
-            "const": "trinetra.inspection/2.1"
+            "const": "ayas.inspection/2.1"
           }
         }
       },
@@ -832,7 +832,7 @@
       ],
       "properties": {
         "schema": {
-          "const": "trinetra.inspection/3.0"
+          "const": "ayas.inspection/3.0"
         },
         "domain": {
           "const": "steel_surface"

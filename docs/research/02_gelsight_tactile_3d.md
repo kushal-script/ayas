@@ -26,7 +26,7 @@ Status: COMPLETE, last updated 20 Oct 2026 after the µm-level analysis and the 
 3. **A 4-week DIY build can realistically reach about 10–30 µm depth error, with 5–8 µm/px lateral sampling, on scratches, dents and pits 20–200 µm deep.**
    - **≤ 10 µm is a stretch.** It needs multi-direction sequential lighting, close-focus optics at ≤ 5 µm/px, uncompressed frames, controlled press force, small-ball calibration and local detrending (§4.4).
    - **Sub-µm is not achievable** in this timeframe.
-4. **Best fit with your brief and TriNetra.** Use the gel probe as an optional "measure" mode:
+4. **Best fit with your brief and Ayas.** Use the gel probe as an optional "measure" mode:
    - The camera system finds and classifies defects.
    - The probe measures µm depth on flagged spots. This is the published two-stage pattern: vision-only P 0.62 / R 0.79 vs touch P = R = 1.0 on Boeing panels.
 5. **The probe cannot see closed cracks with no relief, and it gives no surface colour.** Keep the red-dye penetrant and the camera channel for those.
@@ -260,7 +260,7 @@ Taking σ_g ≈ 0.043 (the Wedge figure) and Δx = 5 µm:
    - Add a thin overcoat and cure: about 2 h to 1 day.
 4. **Bond and assemble.** Sil-Poxy (24 h full cure).
 5. **Calibrate.** Ball presses, then fit a LUT or MLP: under 1 h per gel once the tooling exists (gs_sdk).
-6. **Reconstruct.** DST/FFT Poisson. Reuse your `src/trinetra/shape.py: integrate_slopes()` (Frankot–Chellappa FFT).
+6. **Reconstruct.** DST/FFT Poisson. Reuse your `src/ayas/shape.py: integrate_slopes()` (Frankot–Chellappa FFT).
 
 **Total (estimate):** about 1–1.5 weeks to a first calibrated sensor, assuming the materials are already in hand. Expect 2–3 gel iterations.
 
@@ -392,10 +392,10 @@ Not found (search budget): acrylic sheet, precision steel balls, small RGB LEDs,
 | 1 | 21–27 Oct | Order silicone (Fortius) and Smooth-On quotes (ONS/Pearl), 1 µm Al powder and an IMX219 M12 camera. Build the housing. Develop software on a sponge-hack gel. |
 | 2 | 28 Oct–3 Nov | Cast 3–4 gels in parallel, coat, assemble, calibrate with steel balls. Reuse `integrate_slopes`. |
 | 3 | 4–10 Nov | Validate on shim steps and on scratched or dented Al plates. Train the Hailo segmentation model. Build the JSON → Llama step. |
-| 4 | 11–17 Nov | Integrate with TriNetra: the camera flags a defect, the probe measures µm depth. Record the demo video and write the report. |
+| 4 | 11–17 Nov | Integrate with Ayas: the camera flags a defect, the probe measures µm depth. Record the demo video and write the report. |
 | Buffer | to 23 Nov | — |
 
-**Go / no-go on about 3 Nov:** a 50 µm shim step must measure within ±10 µm. If it doesn't, keep the probe as roadmap and ship TriNetra camera-only.
+**Go / no-go on about 3 Nov:** a 50 µm shim step must measure within ±10 µm. If it doesn't, keep the probe as roadmap and ship Ayas camera-only.
 
 **Fit with the brief and your saved preferences**
 - The probe is camera-based, but it is contact and small-area.

@@ -13,8 +13,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 import yaml
-from trinetra import lightproc as LP
-from trinetra.twin import matrix as MX, post as P
+from ayas import lightproc as LP
+from ayas.twin import matrix as MX, post as P
 
 ROOT = Path(__file__).resolve().parents[2]
 a = sys.argv[1:]

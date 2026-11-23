@@ -1,4 +1,4 @@
-# TriNetra: on-device visual QC for steel and metal surfaces
+# Ayas: on-device visual QC for steel and metal surfaces
 
 Raspberry Pi 5 · 5-frame LED burst with a quality gate · YOLOv8n · rules informed by EN 10163-2 / ISO 7788 · Llama 3.2 1B via ExecuTorch on the Arm CPU. **Built with Llama.**
 
@@ -25,7 +25,7 @@ Real-camera validation is Phase 2.
    - The thresholds are illustrative, informed by EN 10163-2 / ISO 7788, ISO 8501 and IS 2062.
    - Confidence is not severity: a detection below 0.5 means HOLD_FOR_QA. A low-confidence crack keeps REJECT only when the inspection's second burst confirms it; otherwise it is held.
    - Open mode never certifies: PASS and CLEAN_AND_REINSPECT become HOLD_FOR_QA until the hood is fitted.
-4. **Record.** Each inspection gives one JSON record (`trinetra.inspection/3.0`), a row in the SQLite log and an overlay image.
+4. **Record.** Each inspection gives one JSON record (`ayas.inspection/3.0`), a row in the SQLite log and an overlay image.
 5. **Advise.** **Llama 3.2 1B Instruct via ExecuTorch** on the CPU works from the JSON record. The rules engine writes the verdict, the measurements and the steps. Llama adds the likely cause and prevention, and answers the operator's follow-up questions.
    - It never changes the verdict.
    - If it is unavailable, a labelled template answers instead.
@@ -73,10 +73,10 @@ Vision (Pipeline A) and Llama (Pipeline B) are **separate pipelines** that excha
 ```bash
 python3.11 -m venv .venv && .venv/bin/pip install -e ".[dev,twin]"
 # models/v8n_burst.onnx: see models/README.md.  Twin bursts in data/twin_demo/bursts/: see DATASETS.md.
-.venv/bin/trinetra-app run --source twin:data/twin_demo/bursts --detector onnx:models/v8n_burst.onnx --advisor mock --count 5
-.venv/bin/trinetra-app run --source twin:data/twin_demo/bursts --detector onnx:models/v8n_burst.onnx --advisor mock --ui --auto 8
+.venv/bin/ayas-app run --source twin:data/twin_demo/bursts --detector onnx:models/v8n_burst.onnx --advisor mock --count 5
+.venv/bin/ayas-app run --source twin:data/twin_demo/bursts --detector onnx:models/v8n_burst.onnx --advisor mock --ui --auto 8
 #   station page: http://127.0.0.1:8080
-.venv/bin/trinetra-app run --source twin:data/twin_demo/bursts --detector onnx:models/v8n_burst.onnx --advisor mock --bench 20
+.venv/bin/ayas-app run --source twin:data/twin_demo/bursts --detector onnx:models/v8n_burst.onnx --advisor mock --bench 20
 .venv/bin/python -m pytest -q
 ```
 
@@ -108,7 +108,7 @@ bash tools/pi/phase1_run.sh            # see its header for the files to copy fi
 ## Repo map
 
 ```
-src/trinetra/
+src/ayas/
   lightproc.py     5-frame burst: ambient subtraction, L/R combination, quality gate
   tiles.py npu.py  tiling, ONNX / Hailo / torch detectors, seam merge
   rules.py         severity and verdict (steel spec)
@@ -117,7 +117,7 @@ src/trinetra/
   anomaly.py       ONNX patch-anomaly scorer (experimental, not in the verdict)
   physics/         optics model, PINN depth, baselines (twin experiments)
   twin/            Blender digital twin: sampler, textures, lighting, rig, render, post, matrix
-  app/             trinetra-app: sources, pipeline, advisor, station UI, benchmarks
+  app/             ayas-app: sources, pipeline, advisor, station UI, benchmarks
   sim.py penetrant.py shape.py golden.py ...   the October 3-camera design, kept for reference
 training/          YOLO per capture arm, export, eval_lighting, the JEPA experiment
 tools/             jl/ (GPU-box jobs), pi/phase1_run.sh, make_demo_video.py

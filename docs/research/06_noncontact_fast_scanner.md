@@ -31,7 +31,7 @@ This supersedes the touch-measure proposal in `05_...`. Sources for the facts us
 | **Large depth of field instead of autofocus** | Fixed focus at f/4–5.6. A ToF distance sensor beeps when the scanner is in range; blurred frames are dropped automatically | DOF about ±1.3 mm (f/4) to ±2.3 mm (f/5.6) |
 | **Laser line + (optional) bandpass** | The blue line is far brighter than room light in its own band | About 200× room light (radiometric), about 2,000× with a 450 nm bandpass |
 
-## 3. The device: "TriNetra-Scan"
+## 3. The device: "Ayas-Scan"
 
 | Part | Choice | Why |
 |---|---|---|

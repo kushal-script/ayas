@@ -46,8 +46,8 @@ def scene_job(args):
     scene_dir, variants, jitter, seed = args
     import torch
     torch.set_num_threads(1)
-    from trinetra.physics import depth_pinn as DP, twin_eval as TE
-    from trinetra.twin import textures as TX
+    from ayas.physics import depth_pinn as DP, twin_eval as TE
+    from ayas.twin import textures as TX
     scene_dir = Path(scene_dir)
     plan = json.loads((scene_dir / "plan.json").read_text())
     if int(plan.get("seed", 0)) >= 900000:

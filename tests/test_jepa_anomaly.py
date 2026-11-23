@@ -1,9 +1,9 @@
-"""trinetra.anomaly: the inference-side heat map helpers (numpy + cv2; no torch)."""
+"""ayas.anomaly: the inference-side heat map helpers (numpy + cv2; no torch)."""
 
 import numpy as np
 import pytest
 
-from trinetra import anomaly as A
+from ayas import anomaly as A
 
 
 def test_window_starts_cover_and_end_flush():

@@ -8,12 +8,12 @@
 #     training/jepa/jl_train.sh fresh --data <local grid dir> [<dir> ...] [--spot] \
 #         [--config training/jepa/configs/smoke.yaml] [--name jepa-smoke] [--max-min 15] [-- <train.py args>]
 #   on     run on an EXISTING, RUNNING instance whose disk already holds the renders (the shared
-#          "trinetra-render" box: resume it yourself first; this script never resumes, and never
+#          "ayas-render" box: resume it yourself first; this script never resumes, and never
 #          destroys an instance it did not create). No dataset upload. The code goes up with
-#          tools/jl/sync_code.sh (-> /home/trinetra). Python: /home/venvs/jepa, a Python 3.11 venv
-#          (uv, kept under /home like /home/venvs/trinetra) with a CUDA torch wheel (--torch,
+#          tools/jl/sync_code.sh (-> /home/ayas). Python: /home/venvs/jepa, a Python 3.11 venv
+#          (uv, kept under /home like /home/venvs/ayas) with a CUDA torch wheel (--torch,
 #          --torch-index; cu130 works with the L4 driver 595.58.03), timm, onnx, onnxruntime and the
-#          project installed --no-deps; /home/venvs/trinetra is never touched.
+#          project installed --no-deps; /home/venvs/ayas is never touched.
 #     training/jepa/jl_train.sh on --machine <id> --remote-data /home/data/jepa_train/post_final [<dir> ...] \
 #         [--config training/jepa/configs/full.yaml] [--name jepa-full] [--max-min 120] \
 #         [--eval-test /home/data/twin_matrix/post_final] [--export] [--after none|pause] [-- <train.py args>]
@@ -67,7 +67,7 @@ case "$GPU" in L4) ;; *) echo "refusing GPU $GPU: this runner is capped at L4" >
 
 STAMP="$(date +%Y%m%d_%H%M%S)"
 NAME="${NAME:-jepa-$MODE}"
-[[ "$MODE" == "fresh" && "$NAME" == "trinetra-render" ]] && { echo "refusing: a fresh instance may not take the render box's name" >&2; exit 2; }
+[[ "$MODE" == "fresh" && "$NAME" == "ayas-render" ]] && { echo "refusing: a fresh instance may not take the render box's name" >&2; exit 2; }
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/jepa_jl.XXXXXX")"
 ART_BASE="${JEPA_ARTIFACTS:-$ROOT/artifacts/jarvislabs}"   # override only for offline tests
 ART="$ART_BASE/${NAME}_pending_${STAMP}"                   # renamed to <instance-name>_<run_id> once known
@@ -113,7 +113,7 @@ print(json.dumps({"running_instances": r.get("running_instances"), "paused_insta
 say "code bundle"
 ( cd "$ROOT" && COPYFILE_DISABLE=1 tar czf "$ART/code.tgz" --no-mac-metadata --no-xattrs \
     --uid 0 --gid 0 --uname root --gname root --exclude '__pycache__' --exclude '*.pyc' \
-    pyproject.toml src/trinetra/__init__.py src/trinetra/anomaly.py training/jepa configs/twin.yaml )
+    pyproject.toml src/ayas/__init__.py src/ayas/anomaly.py training/jepa configs/twin.yaml )
 ( cd "$WORK" && mkdir code && tar xzf "$ART/code.tgz" -C code && cd code && \
   find . -type f -print0 | sort -z | xargs -0 shasum -a 256 > "$ART/code_sha256.txt" )
 
@@ -136,7 +136,7 @@ else
   STATUS="$(echo "$GJ" | jget status)"; INST_NAME="$(echo "$GJ" | jget name)"; INST_NAME="${INST_NAME:-machine$MACHINE}"
   echo "{\"machine_id\": \"$MACHINE\", \"name\": \"$INST_NAME\", \"status\": \"$STATUS\"}" > "$ART/instance_before.json"
   [[ "$STATUS" == "Running" ]] || { echo "instance $MACHINE ($INST_NAME) is '$STATUS': resume it first (jl resume; use the id it returns)" >&2; exit 2; }
-  REMOTE="/home/jepa_runs/${NAME}_${STAMP}"; REPO="/home/trinetra"; RUN_OUT="$REMOTE"
+  REMOTE="/home/jepa_runs/${NAME}_${STAMP}"; REPO="/home/ayas"; RUN_OUT="$REMOTE"
   RDATA_ARGS=("${RDATA[@]}")
   for d in "${RDATA[@]}" "${EVAL[@]:-}"; do
     [[ -n "$d" ]] || continue
@@ -239,13 +239,13 @@ if [[ "$MODE" == "fresh" ]]; then
 else
   echo "$MACHINE" > "$ART/machine_id"
   if [[ $SYNC -eq 1 ]]; then
-    say "code sync: sh tools/jl/sync_code.sh $MACHINE (-> /home/trinetra)"
+    say "code sync: sh tools/jl/sync_code.sh $MACHINE (-> /home/ayas)"
     echo "sh tools/jl/sync_code.sh $MACHINE" >> "$ART/commands.txt"
     sh "$ROOT/tools/jl/sync_code.sh" "$MACHINE" >> "$LOG" 2>&1 || { say "code sync failed"; exit 1; }
   fi
-  # /home/venvs/jepa: Python 3.11 from uv (as bootstrap.sh makes /home/venvs/trinetra), CUDA torch,
+  # /home/venvs/jepa: Python 3.11 from uv (as bootstrap.sh makes /home/venvs/ayas), CUDA torch,
   # timm, onnx/onnxruntime, the project --no-deps; versions of the shared packages from constraints-mac.txt
-  SETUP="mkdir -p $REMOTE; . /home/trinetra_jobs/env.sh; export HF_HOME=/home/.cache/huggingface \
+  SETUP="mkdir -p $REMOTE; . /home/ayas_jobs/env.sh; export HF_HOME=/home/.cache/huggingface \
 UV_PYTHON_INSTALL_DIR=/home/.uv/python UV_CACHE_DIR=/home/.cache/uv; cd $REPO; \
 [ -x /home/.uvtool/bin/uv ] || { python3 -m venv /home/.uvtool && /home/.uvtool/bin/pip install -q uv; }; \
 [ -x /home/venvs/jepa/bin/python ] || { /home/.uvtool/bin/uv python install 3.11 && /home/.uvtool/bin/uv venv --python 3.11 --seed /home/venvs/jepa; }; \

@@ -25,9 +25,9 @@ import numpy as np
 import pytest
 import yaml
 
-from trinetra import tiles as T
-from trinetra.twin import frames as F
-from trinetra.twin import post as P
+from ayas import tiles as T
+from ayas.twin import frames as F
+from ayas.twin import post as P
 
 ROOT = Path(__file__).resolve().parents[1]
 MPP, BORDER = 0.08, 5.0
@@ -155,7 +155,7 @@ def make_plan(roll=0.0, tilt=(0.0, 0.0), mode="surface", seed=7, scene_id="s0000
     x0, y0 = (np.floor(c.min(0)) - 48).astype(int)
     x1, y1 = (np.ceil(c.max(0)) + 48).astype(int)
     plan = {
-        "schema": "trinetra.twin.scene/2", "scene_id": scene_id, "seed": seed, "split": split,
+        "schema": "ayas.twin.scene/2", "scene_id": scene_id, "seed": seed, "split": split,
         "mode": mode, "source": "fixture",
         "plate": {"size_mm": [W, H], "thickness_mm": 3.0, "material": {"kind": "ms_cold_rolled"}},
         "sheets": sheets or [],
@@ -594,7 +594,7 @@ def test_process_scene_labels_the_steel_classes_in_the_right_tiles(tmp_path, rol
     plan, work, _ = make_scene(tmp_path, roll=roll, tilt=tilt)
     out = tmp_path / "out"
     sc = P.process_scene(work, out, cfg)
-    assert sc["schema"] == "trinetra.twin.sidecar/2" and sc["scene_id"] == "s000007" and sc["plate"] == "s000007"
+    assert sc["schema"] == "ayas.twin.sidecar/2" and sc["scene_id"] == "s000007" and sc["plate"] == "s000007"
     assert sc["condition"] == "C1_office" and sc["lux"] == 450.0 and sc["device_mode"] == "open"
     assert sc["part"] == {"material": "ms_cold_rolled", "thickness_mm": 3.0, "size_mm": list(SIZE)}
     geom = P.grid_geometry(plan, cfg["grid"])
@@ -675,7 +675,7 @@ def test_test_split_writes_full_grids_per_arm_with_sidecars(tmp_path):
             assert img.shape[:2] == geom["shape"]
             grids[arm, k] = img
             g = json.loads(png.with_suffix(".json").read_text())
-            assert g["schema"] == "trinetra.twin.grid/1" and g["arm"] == arm and g["k"] == k
+            assert g["schema"] == "ayas.twin.grid/1" and g["arm"] == arm and g["k"] == k
             assert g["scene_id"] == "s000007" and g["plate"] == "s000007" and g["split"] == "test"
             assert g["condition"] == "C4_side_lamp" and g["device_mode"] == "hood" and g["matrix"]["row"] == "C4h"
             assert g["gate"] in ("PASS", "PASS_FLAGGED", "RETAKE") and g["gated"] is (arm == "burst")
@@ -766,7 +766,7 @@ def test_save_bursts_writes_the_pi_demo_npz(tmp_path):
     assert labels["D1"]["bbox_grid"] == {d["id"]: d for d in sc["defects"]}["D1"]["bbox_grid"]
     assert meta["sequence"][0] == "B1" and meta["k"] == 0.5                 # the Burst meta (exposure k)
     tw = meta["twin"]
-    assert tw["schema"] == "trinetra.twin.burst/1" and tw["k"] == 0 and tw["scene_id"] == "s000007"
+    assert tw["schema"] == "ayas.twin.burst/1" and tw["k"] == 0 and tw["scene_id"] == "s000007"
     assert tw["gate"]["gate"] == "PASS" and tw["lux"] == 900.0 and tw["part"]["material"] == "ms_cold_rolled"
     assert not list((out / "bursts").glob("*.part*"))
 
@@ -846,8 +846,8 @@ def test_cli_post(tmp_path, capsys):
 # ---- pipeline and CLI (Blender stubbed: render_batch writes the numpy fixture EXR) -----------
 
 def _stub_blender(monkeypatch, calls: list) -> None:
-    from trinetra.twin import render as RN
-    from trinetra.twin import textures as TX
+    from ayas.twin import render as RN
+    from ayas.twin import textures as TX
 
     def render_batch(works, cfg=None, device=None, samples=None, res_scale=None, timeout_s=None,
                      overview=False, overview_samples=None):
@@ -877,7 +877,7 @@ def _plan_files(folder: Path, specs) -> list[Path]:
 
 
 def test_pipeline_run_plans_resumable_disk_guarded_with_bursts_and_overview(tmp_path, monkeypatch):
-    from trinetra.twin import pipeline as PL
+    from ayas.twin import pipeline as PL
 
     calls: list = []
     _stub_blender(monkeypatch, calls)
@@ -903,7 +903,7 @@ def test_pipeline_run_plans_resumable_disk_guarded_with_bursts_and_overview(tmp_
 
 
 def test_pipeline_run_forces_condition_mode_split(tmp_path, monkeypatch):
-    from trinetra.twin import pipeline as PL
+    from ayas.twin import pipeline as PL
 
     calls, seen = [], {}
     _stub_blender(monkeypatch, calls)
@@ -925,9 +925,9 @@ def test_pipeline_run_forces_condition_mode_split(tmp_path, monkeypatch):
 
 
 def test_cli_run_and_matrix_pass_the_options(tmp_path, monkeypatch, capsys):
-    from trinetra.twin import cli as C
-    from trinetra.twin import matrix as MX
-    from trinetra.twin import pipeline as PL
+    from ayas.twin import cli as C
+    from ayas.twin import matrix as MX
+    from ayas.twin import pipeline as PL
 
     got = {}
     monkeypatch.setattr(PL, "run", lambda cfg, **kw: got.update(kw) or {"done": 0})
@@ -961,7 +961,7 @@ def test_cli_run_and_matrix_pass_the_options(tmp_path, monkeypatch, capsys):
 
 def test_cli_matrix_plans_only_with_the_real_matrix(tmp_path, capsys):
     """The real twin.matrix + sampler write one plan per (condition, device mode) row."""
-    from trinetra.twin import cli as C
+    from ayas.twin import cli as C
 
     C.main(["matrix", "--config", str(ROOT / "configs" / "twin.yaml"), "--n", "1", "--out", str(tmp_path),
             "--plans-only", "--conditions", "C0_dark", "C1_office", "C6_sun", "--hood-conditions", "C6_sun"])
@@ -975,8 +975,8 @@ def test_matrix_condition_subset_keeps_only_its_hood_rows(tmp_path, capsys):
     twin.matrix.rows_for, because the default hood rows C4/C6 were not among the conditions.
     The hood rows are now the default hood conditions that were asked for: every one of them
     since device v2 (the hood head is the product configuration)."""
-    from trinetra.twin import cli as C
-    from trinetra.twin import pipeline as PL
+    from ayas.twin import cli as C
+    from ayas.twin import pipeline as PL
 
     cfg = yaml.safe_load((ROOT / "configs" / "twin.yaml").read_text())
     assert PL.run_matrix(cfg, 1, tmp_path / "a", conditions=["C0_dark", "C1_office"], plans_only=True)["plans"] == 4
@@ -991,7 +991,7 @@ def test_matrix_condition_subset_keeps_only_its_hood_rows(tmp_path, capsys):
 
 
 def test_overview_needs_render_support(monkeypatch):
-    from trinetra.twin import pipeline as PL
+    from ayas.twin import pipeline as PL
 
     monkeypatch.setattr(PL.render, "render_batch", lambda works, cfg=None, device=None, samples=None, res_scale=None: [])
     with pytest.raises(SystemExit, match="overview"):
@@ -1006,9 +1006,9 @@ def test_process_scene_with_the_real_capture_modules(tmp_path, monkeypatch):
     scaled to physical radiance (rho * E_led / pi, E_led from lighting.led_irradiance on two
     LED lights), so the real burst simulator's exposure is right. Only the contract is checked
     (arms, gate values, files), not the thresholds."""
-    LP = pytest.importorskip("trinetra.lightproc")
-    B = pytest.importorskip("trinetra.twin.burst")
-    L = pytest.importorskip("trinetra.twin.lighting")
+    LP = pytest.importorskip("ayas.lightproc")
+    B = pytest.importorskip("ayas.twin.burst")
+    L = pytest.importorskip("ayas.twin.lighting")
     monkeypatch.setattr(P, "capture_modules", lambda: (LP, B))
     cfg = twin_cfg(variants_per_scene=1)
     cap = LP.load_capture_config(str(ROOT / "configs" / "capture.yaml"))
@@ -1043,7 +1043,7 @@ def test_process_scene_with_the_real_capture_modules(tmp_path, monkeypatch):
 
 
 def test_lux_ranges_match_the_lighting_module():
-    L = pytest.importorskip("trinetra.twin.lighting")
+    L = pytest.importorskip("ayas.twin.lighting")
     post = twin_cfg()["post"]
     assert set(L.CONDITIONS) == set(P.LUX_RANGES) == set(post["amb_sweep"]["lux"])
     spec = getattr(L, "SPEC", None)

@@ -7,10 +7,10 @@ import numpy as np
 import pytest
 import yaml
 
-from trinetra.twin import frames as F
-from trinetra.twin import geometry as G
-from trinetra.twin import rig as RIG
-from trinetra.twin import sampler as S
+from ayas.twin import frames as F
+from ayas.twin import geometry as G
+from ayas.twin import rig as RIG
+from ayas.twin import sampler as S
 
 ROOT = Path(__file__).resolve().parents[1]
 CFG = yaml.safe_load((ROOT / "configs" / "twin.yaml").read_text())
@@ -88,7 +88,7 @@ def stub_lighting(calls: list | None = None):
 def lighting():
     """The real twin/lighting.py when it imports with the agreed API, else the stub (monkeypatched)."""
     try:
-        import trinetra.twin.lighting as real
+        import ayas.twin.lighting as real
         ok = all(hasattr(real, k) for k in ("CONDITIONS", "ambient_for", "hood_for"))
     except Exception:
         real, ok = None, False
@@ -122,7 +122,7 @@ def test_plan_is_deterministic_and_round_trips():
     b = S.make_plan(CFG, 42, "train")
     assert a == b
     assert json.loads(json.dumps(a)) == a
-    assert a["scene_id"] == "s000042" and a["seed"] == 42 and a["schema"] == "trinetra.twin.scene/2"
+    assert a["scene_id"] == "s000042" and a["seed"] == 42 and a["schema"] == "ayas.twin.scene/2"
     assert S.make_plan(CFG, 43, "train") != a
     # forcing the mode only overrides the choice; the plate and the view stay the same
     p = S.make_plan(CFG, 42, "train", mode="penetrant", source="random")

@@ -1,7 +1,7 @@
 """Plate-level evaluation of a detector on full rectified test grids: the numbers we report.
 
 For each test grid (<grids>/*.png|jpg, e.g. out/grids/test from realdata, or twin grids)
-and its sidecar JSON, run trinetra.npu.detect_grid (the same tiling and seam merge as the
+and its sidecar JSON, run ayas.npu.detect_grid (the same tiling and seam merge as the
 Pi) and match the detections to the ground-truth objects (defects and fasteners).
 
 Matching rule (same class only). A detection matches a ground-truth object when
@@ -20,7 +20,7 @@ Counting:
   (several boxes on one object are all TPs and are also counted as duplicates).
   Detections on objects with visible: false are ignored (neither TP nor FP).
 - Clean plates: grids with no labelled defect. FP per clean plate = unmatched
-  defect-class detections (every class in trinetra.tiles.CLASSES except fastener
+  defect-class detections (every class in ayas.tiles.CLASSES except fastener
   classes, if a model has any) per clean grid; the false-reject rate is the share of
   clean grids with at least one such detection.
 - Confusion: per object, the class of the best-overlapping detection of any class under
@@ -48,8 +48,8 @@ from typing import Any
 import cv2
 import numpy as np
 
-from trinetra.npu import detect_grid, load_detector
-from trinetra.tiles import CLASSES, Det
+from ayas.npu import detect_grid, load_detector
+from ayas.tiles import CLASSES, Det
 
 FASTENER_CLASSES = ("rivet", "open_hole")      # only in the old aero class list; holes are not YOLO classes now
 FASTENER_IDS = tuple(i for i, c in enumerate(CLASSES) if c in FASTENER_CLASSES)

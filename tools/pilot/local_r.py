@@ -5,7 +5,7 @@ the share of plate blocks with r_loc > 4, 8, 16 and the global median ratio.
 import json, sys
 from pathlib import Path
 import cv2, numpy as np, yaml
-from trinetra.twin import matrix as MX, post as P
+from ayas.twin import matrix as MX, post as P
 
 ROOT = Path(__file__).resolve().parents[2]
 mx, keep = Path(sys.argv[1]), Path(sys.argv[2])

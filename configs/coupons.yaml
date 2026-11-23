@@ -5,7 +5,7 @@
 # structure of DESIGN section 3 (plate, sheets, holes, rivets, defects, distractors) plus:
 #   name, role (train | test | calib), make (ordered fabrication steps),
 #   expect (rule findings the coupon is designed to trigger; checked by
-#           `python -m trinetra.twin.coupons validate`, see EXPECT_TYPES in twin/coupons.py).
+#           `python -m ayas.twin.coupons validate`, see EXPECT_TYPES in twin/coupons.py).
 # No footprints, no `near`, no `label`: the sampler computes them. No material dicts:
 # the sampler randomises appearance. Keys not in DESIGN 3 (tool, note, grows_from, datum,
 # distractor ids) are optional extras that consumers must not require.
@@ -34,7 +34,7 @@
 #   mid x1 0.80/0.35  mid x2 0.85/0.37  mid x3 0.90/0.40
 #   high x1 1.00/0.45 high x2 1.05/0.47 high x3 1.10/0.50
 
-schema: trinetra.twin.coupons/1
+schema: ayas.twin.coupons/1
 fastener_d_mm: 4.0
 
 defaults:

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from trinetra.rules import judge_defect, judge_part, load_spec, zone_for
+from ayas.rules import judge_defect, judge_part, load_spec, zone_for
 
 SPEC = load_spec(Path(__file__).resolve().parents[1] / "configs" / "spec.yaml")
 

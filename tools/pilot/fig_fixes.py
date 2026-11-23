@@ -10,8 +10,8 @@ reproducible from the current outputs.
 import json, sys
 from pathlib import Path
 import cv2, numpy as np, yaml
-from trinetra import lightproc as LP
-from trinetra.twin import post as P
+from ayas import lightproc as LP
+from ayas.twin import post as P
 
 ROOT = Path(__file__).resolve().parents[2]
 old_crop, mx, keep, outp = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3]), Path(sys.argv[4])

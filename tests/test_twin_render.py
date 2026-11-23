@@ -1,7 +1,7 @@
 """Blender/Cycles twin renderer on hand-made scenes (skipped when Blender is missing).
 
 The first Metal render on a machine compiles the Cycles kernels (about 200 s, once).
-The lighting tests render one plate under conditions from trinetra.twin.lighting with the
+The lighting tests render one plate under conditions from ayas.twin.lighting with the
 real rig LEDs (power from capture.yaml lumens): DESIGN_STEEL C, D.
 """
 
@@ -17,10 +17,10 @@ import numpy as np
 import pytest
 import yaml
 
-from trinetra.twin import frames as F
-from trinetra.twin import lighting as Lt
-from trinetra.twin import render
-from trinetra.twin import rig as RIG
+from ayas.twin import frames as F
+from ayas.twin import lighting as Lt
+from ayas.twin import render
+from ayas.twin import rig as RIG
 
 pytest.importorskip("OpenEXR")
 pytestmark = pytest.mark.skipif(render.find_blender() is None, reason="Blender not installed")
@@ -84,7 +84,7 @@ def write_fixture(work: Path, res_mm: float = 0.2, samples: int = 96, *, size=(1
     mat = {"base_color": [0.91, 0.92, 0.92], "roughness": 0.35, "anisotropy": 0.3, "aniso_rotation": 0.0,
            "grain_amp_um": 0.0, "grain_dir_deg": 0.0, **(material or {})}
     plan = {
-        "schema": "trinetra.twin.scene/1", "scene_id": work.name, "seed": 7, "split": "train",
+        "schema": "ayas.twin.scene/1", "scene_id": work.name, "seed": 7, "split": "train",
         "mode": "surface", "source": "fixture",
         "plate": {"size_mm": [W, H], "thickness_mm": 3.0, "edge_bevel_mm": 0.3, "finish": "brushed",
                   "material": mat},
@@ -562,9 +562,9 @@ COND_SCENES = {"C0": ("C0_dark", "open", 11, "steel", 0), "C3": ("C3_window", "o
 
 def lighting_fixture(work: Path, cond: str, mode: str, seed: int, kind: str, hood_seed: int | None = None,
                      samples: int = 16) -> dict:
-    """A flat 100 x 100 plate, 200 mm straight down, the real rig LEDs, ambient and hood from trinetra.twin.lighting."""
+    """A flat 100 x 100 plate, 200 mm straight down, the real rig LEDs, ambient and hood from ayas.twin.lighting."""
     plan = write_fixture(work, res_mm=0.5, samples=samples, square=None, holes=[], rivets=[], **FIX[kind])
-    plan["schema"] = "trinetra.twin.scene/2"
+    plan["schema"] = "ayas.twin.scene/2"
     plan["extras"]["gloves"] = []
     rig = RIG.load_rig(TWIN_CFG, ROOT)
     plan["lights"] = RIG.lights_world(rig, plan["camera"]["R"], plan["camera"]["t"])
@@ -699,7 +699,7 @@ def test_overview_png_renders(conditions):
 
 
 def test_ambient_scene_matches_lighting_geometry(tmp_path):
-    """No render: area/sun/spot lights, the arm box and the hood land where trinetra.twin.lighting puts them."""
+    """No render: area/sun/spot lights, the arm box and the hood land where ayas.twin.lighting puts them."""
     work = tmp_path / "amb_geo"
     plan = lighting_fixture(work, "C4_side_lamp", "hood", 21, "steel")
     rng = np.random.default_rng(5)

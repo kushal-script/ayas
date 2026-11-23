@@ -1,4 +1,4 @@
-"""Lighting conditions, hood and LED calibration (trinetra.twin.lighting, DESIGN_STEEL C, D). No Blender.
+"""Lighting conditions, hood and LED calibration (ayas.twin.lighting, DESIGN_STEEL C, D). No Blender.
 
 The irradiance checks use their own brute-force integration here, independent of the module's
 light_irradiance_w, so a wrong solver cannot agree with itself.
@@ -14,9 +14,9 @@ import numpy as np
 import pytest
 import yaml
 
-from trinetra.twin import frames as F
-from trinetra.twin import lighting as Lt
-from trinetra.twin import rig as RIG
+from ayas.twin import frames as F
+from ayas.twin import lighting as Lt
+from ayas.twin import rig as RIG
 
 ROOT = Path(__file__).resolve().parents[1]
 CFG = yaml.safe_load((ROOT / "configs" / "twin.yaml").read_text())
@@ -438,7 +438,7 @@ def test_ring_groups_split_at_the_image_centre():
 
 
 def test_sampler_hood_plans_use_the_ring_and_open_plans_the_pods():
-    from trinetra.twin import sampler as S
+    from ayas.twin import sampler as S
 
     for seed in range(4):
         h = S.make_plan(CFG, seed, "train", condition="C0_dark", device_mode="hood")

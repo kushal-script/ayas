@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from trinetra.report import (SCHEMA_ID_STEEL, VERDICT_INSTRUCTION_STEEL, build_steel_record, capture_block,
+from ayas.report import (SCHEMA_ID_STEEL, VERDICT_INSTRUCTION_STEEL, build_steel_record, capture_block,
                              capture_from_metrics, compact_for_llm, validate_record)
-from trinetra.rules import (STEEL_VERDICTS, VERDICTS, judge_part, judge_steel, judge_steel_defect, load_spec,
+from ayas.rules import (STEEL_VERDICTS, VERDICTS, judge_part, judge_steel, judge_steel_defect, load_spec,
                             steel_part, worst)
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -62,7 +62,7 @@ def test_every_spec_reference_is_whitelisted():
 
 
 def test_spec_texts_contain_no_banned_phrase():
-    from trinetra.llm import _negated, _phrase_re
+    from ayas.llm import _negated, _phrase_re
 
     texts = [SPEC["disclaimer"], *SPEC["references"].values(), *VERDICT_INSTRUCTION_STEEL.values(),
              SPEC["modifiers"]["low_confidence"]["action"], SPEC["capture_advice"]["PASS_FLAGGED"],
@@ -361,14 +361,14 @@ def test_combined_schema_embeds_the_v3_schema():
 
 
 def test_combined_schema_keeps_2x_checks():
-    report = {"schema": "trinetra.inspection/2.0", "mode": "surface", "part_id": "P", "timestamp": "t",
+    report = {"schema": "ayas.inspection/2.0", "mode": "surface", "part_id": "P", "timestamp": "t",
               "part": {"name": "plate", "material": "al"}, "verdict": "PASS", "verdict_instruction": "ok",
               "summary": {"defect_count": 0, "by_type": {}}, "defects": [], "actions": [],
               "models": {"classifier": "x", "golden_parts": None}, "timing_ms": {}}
     assert _errors(report, COMBINED)            # no rig
     report["rig"] = {"kind": "handheld", "camera": "imx500", "detector": "yolo"}
     assert _errors(report, COMBINED) == []
-    assert _errors(dict(report, domain="aerospace", schema="trinetra.inspection/2.1"), COMBINED)  # aero needs more
+    assert _errors(dict(report, domain="aerospace", schema="ayas.inspection/2.1"), COMBINED)  # aero needs more
 
 
 class FakeGate:

@@ -9,8 +9,8 @@ import types
 import numpy as np
 import pytest
 
-from trinetra import lightproc as LP
-from trinetra.twin import burst as BU
+from ayas import lightproc as LP
+from ayas.twin import burst as BU
 
 CFG = LP.load_capture_config()
 SENSOR = CFG["sensor"]
@@ -154,9 +154,9 @@ def test_led_irradiance_comes_from_lighting_lazily(monkeypatch):
         calls.append(tuple(groups))
         return 12.5
 
-    mod = types.ModuleType("trinetra.twin.lighting")
+    mod = types.ModuleType("ayas.twin.lighting")
     mod.led_irradiance = fake
-    monkeypatch.setitem(sys.modules, "trinetra.twin.lighting", mod)
+    monkeypatch.setitem(sys.modules, "ayas.twin.lighting", mod)
     b = BU.simulate_burst(card(), plan(), np.random.default_rng(0), CFG)
     assert calls == [("L", "R")] and b.meta["E_led"] == 12.5
     assert b.frames["B1"].mean() == pytest.approx(CFG["burst"]["ref_full_scale"] * E / 12.5, abs=0.003)
@@ -200,8 +200,8 @@ def test_with_sampler_plan_and_lighting():
     """Integration with the other twin modules: a sampler plan, the analytic LED irradiance of
     twin/lighting.py, passes at 1/8 of the ROI resolution (px_per_mm follows the pass size)."""
     yaml = pytest.importorskip("yaml")
-    lighting = pytest.importorskip("trinetra.twin.lighting")
-    from trinetra.twin import sampler
+    lighting = pytest.importorskip("ayas.twin.lighting")
+    from ayas.twin import sampler
     cfg = yaml.safe_load(open(LP.ROOT / "configs" / "twin.yaml"))
     try:
         pl = sampler.make_plan(cfg, 3, "train")

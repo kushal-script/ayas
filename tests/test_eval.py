@@ -10,7 +10,7 @@ import numpy as np
 import pytest
 import yaml
 
-from trinetra.tiles import CLASSES, Det
+from ayas.tiles import CLASSES, Det
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "training"))
@@ -41,7 +41,7 @@ def test_wilson_known_values():
 
 def sidecar():
     return {
-        "schema": "trinetra.twin.sidecar/1", "scene_id": "x", "plate": "P5", "face": "A",
+        "schema": "ayas.twin.sidecar/1", "scene_id": "x", "plate": "P5", "face": "A",
         "H_grid_plate": [[12.5, 0, 62.5], [0, 12.5, 62.5], [0, 0, 1]],
         "fasteners": [{"id": "H9", "cls": "open_hole", "centre_px": [1200, 1200], "d_px": 50}],   # aero class only
         "defects": [
@@ -294,7 +294,7 @@ def test_ablation_dry_run_and_report(tmp_path, capsys):
     (runs / "datasets" / "real_only").mkdir(parents=True)
     (runs / "datasets" / "real_only" / "manifest.json").write_text(json.dumps({"counts": {"train": 860}}))
     (runs / "train" / "real_only").mkdir(parents=True)
-    (runs / "train" / "real_only" / "trinetra_train.json").write_text(
+    (runs / "train" / "real_only" / "ayas_train.json").write_text(
         json.dumps({"epochs": 7, "test": {"map50": 0.4321}}))
     ev = {"per_class": {"dent": {"recall_physical": {"k": 13, "n": 15, "value": 13 / 15, "ci95": [0.62, 0.96]}},
                         "all_defects": {"precision": {"k": 9, "n": 10, "value": 0.9, "ci95": [0.6, 0.98]}}},
@@ -412,7 +412,7 @@ def lighting_matrix(root: Path, rows=ROWS6, washed=(("C6_sun", "open"),), retake
                 if layout == "grid":
                     refused = arm == "burst" and (cond, mode) in retake
                     (d / f"{scene}_v0.json").write_text(json.dumps(dict(
-                        base, schema="trinetra.twin.grid/1", stem=f"{scene}_v0", arm=arm, k=0, plate=plate,
+                        base, schema="ayas.twin.grid/1", stem=f"{scene}_v0", arm=arm, k=0, plate=plate,
                         condition=cond, device_mode=mode, lux=lux, part=part, gated=arm == "burst",
                         matrix={"plate": plate, "condition": cond, "device_mode": mode},
                         gate="RETAKE" if refused else "PASS", gate_message=TOO_BRIGHT if refused else "",
@@ -565,7 +565,7 @@ def test_oracle_detects_what_each_grid_shows_and_mad_is_zero_on_identical_grids(
 
 
 def test_lighting_with_the_real_steel_rules(tmp_path):
-    from trinetra import rules
+    from ayas import rules
 
     spec_path = ROOT / "configs" / "spec_steel.yaml"
     if not hasattr(rules, "judge_steel") or not spec_path.exists():
@@ -721,7 +721,7 @@ THIN = {"H_grid_plate": H_GRID, "plate_size_mm": [PLATE_MM, PLATE_MM], "grid": {
 def test_thin_defects_measured_like_the_training_labels():
     """A perfect detector outputs the label boxes (padded to label.min_box_px), so measuring the
     ground-truth mask box unpadded gave it a different verdict: a silent failure with no error."""
-    from trinetra import rules
+    from ayas import rules
 
     spec_path = ROOT / "configs" / "spec_steel.yaml"
     if not hasattr(rules, "judge_steel") or not spec_path.exists():
@@ -806,7 +806,7 @@ def test_dark_room_retakes_fail_the_hood_and_are_reported_open(tmp_path):
 
 
 def test_evaluate_matrix_loads_the_steel_spec_by_default(tmp_path):
-    from trinetra import rules
+    from ayas import rules
 
     if not (ROOT / "configs" / "spec_steel.yaml").exists():
         pytest.skip("spec_steel.yaml not there yet")
@@ -837,7 +837,7 @@ def test_measure_app_uses_the_on_device_measures(tmp_path):
     """--measure box gives a diagonal 0.16 mm scratch the width of its box (24 mm); the app measures
     the defect's own pixels. measure=app must use the app's numbers, and the truth then defaults to
     the analytic (sidecar) measures."""
-    pytest.importorskip("trinetra.app.pipeline")
+    pytest.importorskip("ayas.app.pipeline")
     g = np.full((625, 625, 3), 128, np.uint8)
     cv2.line(g, (150, 150), (450, 450), (30, 30, 30), 2)
     d = tmp_path / "grids" / "burst" / "test"
@@ -879,10 +879,10 @@ def test_measure_app_uses_the_on_device_measures(tmp_path):
 def test_true_ground_truth_is_the_canonical_gt_verdict():
     """--gt-measure true converts the sidecar labels exactly as twin.records.gt_verdict does,
     plan params included (pitted rust is critical; the sidecar alone does not say so)."""
-    from trinetra import rules
+    from ayas import rules
 
     spec_path = ROOT / "configs" / "spec_steel.yaml"
-    records = pytest.importorskip("trinetra.twin.records")
+    records = pytest.importorskip("ayas.twin.records")
     if not hasattr(records, "gt_verdict") or not spec_path.exists():
         pytest.skip("twin.records.gt_verdict / spec_steel.yaml not there yet")
     spec = rules.load_spec(spec_path)

@@ -8,7 +8,7 @@ C0 hood row (no ambient: no leak to test, copied from the pilot by the caller) a
 import copy, json, sys
 from pathlib import Path
 import numpy as np
-from trinetra.twin import lighting as LT, matrix as MX
+from ayas.twin import lighting as LT, matrix as MX
 
 src, out, gap = Path(sys.argv[1]), Path(sys.argv[2]), float(sys.argv[3])
 conds = sys.argv[4:]

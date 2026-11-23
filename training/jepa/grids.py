@@ -1,7 +1,7 @@
 """Grid index, canonical plate orientation and masks (numpy + cv2; no torch).
 
 Post writes one full rectified grid per (scene, variant, arm): grids/<arm>/<split>/<scene>_v<k>.{png,jpg}
-with a sidecar .json next to it (schema trinetra.twin.grid/1). Within one device mode a plate's
+with a sidecar .json next to it (schema ayas.twin.grid/1). Within one device mode a plate's
 rows share the camera pose, so their grids are pixel-aligned (checked on the pilot: hood rows
 within 0.02 px of C0h, accepted open rows within ~0.3 px of C0o). Between the open and hood
 rows the grid can be rotated by k x 90 deg (the grid follows the image's corner order: the
@@ -113,7 +113,7 @@ def index_grids(roots: Iterable[str | Path], arms: Sequence[str] | None = None,
                 meta = json.loads(meta_path.read_text())
             except (OSError, json.JSONDecodeError):
                 continue                  # a file being rewritten by post right now
-            if not str(meta.get("schema", "")).startswith("trinetra.twin.grid"):
+            if not str(meta.get("schema", "")).startswith("ayas.twin.grid"):
                 continue
             rec = rec_from_meta(meta_path, meta)
             if rec is not None:

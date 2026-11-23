@@ -1,4 +1,4 @@
-# Synthetic-data "digital twin" pipeline (Blender 4.2.1 + BlenderProc 2.8.0 on an Apple M3 or a cheap cloud GPU) that outputs COCO/YOLO labels for aircraft-skin-style defect detection on the TriNetra handheld (Pi 5 + AI HAT+ 2 Hailo-10H + IMX500 AI Camera)
+# Synthetic-data "digital twin" pipeline (Blender 4.2.1 + BlenderProc 2.8.0 on an Apple M3 or a cheap cloud GPU) that outputs COCO/YOLO labels for aircraft-skin-style defect detection on the Ayas handheld (Pi 5 + AI HAT+ 2 Hailo-10H + IMX500 AI Camera)
 
 (Research, 5 Nov 2026. Every finding carries its source; UNVERIFIED and (calc) are marked.)
 

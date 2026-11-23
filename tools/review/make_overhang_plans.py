@@ -10,7 +10,7 @@ import copy, json, math, sys
 from pathlib import Path
 import numpy as np
 import yaml
-from trinetra.twin import frames as F, lighting as LT, matrix as MX, sampler as S
+from ayas.twin import frames as F, lighting as LT, matrix as MX, sampler as S
 
 ROOT = Path(__file__).resolve().parents[2]
 src, out, shift = Path(sys.argv[1]), Path(sys.argv[2]), float(sys.argv[3])

@@ -1,4 +1,4 @@
-# TriNetra handheld enclosure (F1-wheel style)
+# Ayas handheld enclosure (F1-wheel style)
 
 A 3D-printable, two-hand housing, held by the grips like an F1 steering wheel.
 
@@ -19,17 +19,17 @@ These images are from the Fusion model. The back and inside views include Wavesh
 
 | File | What |
 |---|---|
-| `trinetra_handheld_fusion.py` | The generator. **Every dimension is a parameter in `P` at the top.** Change them and re-run to get a new design. |
+| `ayas_handheld_fusion.py` | The generator. **Every dimension is a parameter in `P` at the top.** Change them and re-run to get a new design. |
 | `out/*.stl` | One STL per printed part, in mm |
-| `out/TriNetra_handheld.step` | The whole assembly, including the reference dummies, for any CAD tool |
-| `out/TriNetra_handheld.f3d` | Fusion archive (File → Open → Open from my computer) |
+| `out/Ayas_handheld.step` | The whole assembly, including the reference dummies, for any CAD tool |
+| `out/Ayas_handheld.f3d` | Fusion archive (File → Open → Open from my computer) |
 | `../../docs/research/2026-11-05_enclosure_*.md` | Sourced dimensions and design rules the model is built from |
 
 **To regenerate in Fusion**, run in Utilities → Scripts, or through the Fusion MCP:
 
 ```python
 g = {}
-exec(open('<repo>/hardware/enclosure/trinetra_handheld_fusion.py').read(), g)
+exec(open('<repo>/hardware/enclosure/ayas_handheld_fusion.py').read(), g)
 g['build']()     # new design + interference check + export to out/
 ```
 

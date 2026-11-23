@@ -33,7 +33,7 @@ def _H(datum: str, size_px: int = SIZE) -> list[list[float]]:
 
 
 def _meta(datum: str = "TL", defects=None, **kw) -> dict:
-    m = {"schema": "trinetra.twin.grid/1", "plate_size_mm": [20.0, 20.0],
+    m = {"schema": "ayas.twin.grid/1", "plate_size_mm": [20.0, 20.0],
          "grid": {"mm_per_px": MMPP, "border_mm": BORDER, "size_px": [SIZE, SIZE], "plate_mm": [20.0, 20.0],
                   "datum_corner": datum},
          "H_grid_plate": _H(datum), "defects": defects or [], "features": [], "distractors": []}

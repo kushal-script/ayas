@@ -32,13 +32,13 @@ from pathlib import Path
 
 import yaml
 
-from trinetra.tiles import CLASSES
+from ayas.tiles import CLASSES
 
 ROOT = Path(__file__).resolve().parents[1]
 
 ROWS = ("real_only", "real_25", "synth_only", "synth_then_real", "mixed")
 IMG_EXT = {".jpg", ".jpeg", ".png", ".bmp"}
-TILE_SUFFIX = re.compile(r"_r\d+c\d+$")      # trinetra.tiles.Tile.name at the end of a tile stem
+TILE_SUFFIX = re.compile(r"_r\d+c\d+$")      # ayas.tiles.Tile.name at the end of a tile stem
 COUPON = re.compile(r"^([A-Za-z]+\d+)")
 
 
@@ -83,7 +83,7 @@ def subsample_captures(images: list[Path], frac: float, seed: int) -> list[Path]
 
 
 def check_names(root: Path | None) -> None:
-    """If a tree has a data.yaml, its class names must be trinetra.tiles.CLASSES."""
+    """If a tree has a data.yaml, its class names must be ayas.tiles.CLASSES."""
     if root is None or not (Path(root) / "data.yaml").exists():
         return
     names = yaml.safe_load((Path(root) / "data.yaml").read_text()).get("names")

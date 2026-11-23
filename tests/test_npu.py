@@ -6,8 +6,8 @@ import numpy as np
 import onnxruntime
 import pytest
 
-from trinetra import npu
-from trinetra.tiles import CLASSES, Det
+from ayas import npu
+from ayas.tiles import CLASSES, Det
 
 NC = len(CLASSES)
 DENT, SCRATCH, CORROSION = (CLASSES.index(c) for c in ("dent", "scratch", "corrosion"))
@@ -241,8 +241,8 @@ def test_hailo_detector_batches_pads_and_parses(monkeypatch):
 def test_hailo_detector_classes_from_model_json_or_explicit(monkeypatch, tmp_path):
     mod, _ = fake_hailo(lambda buf: [np.zeros((0, 5), np.float32)] * 2)
     monkeypatch.setitem(sys.modules, "hailo_platform", mod)
-    hef = tmp_path / "trinetra_v8n.hef"
-    (tmp_path / "trinetra_v8n.json").write_text('{"classes": ["pit", "stain"]}')
+    hef = tmp_path / "ayas_v8n.hef"
+    (tmp_path / "ayas_v8n.json").write_text('{"classes": ["pit", "stain"]}')
     det = npu.HailoDetector(hef)
     assert det.n_classes == 2 and det.names == ["pit", "stain"]
     stock = npu.HailoDetector(tmp_path / "yolov8n_stock.hef", n_classes=80)      # COCO check on the Pi

@@ -1,8 +1,8 @@
-# JEPA image models for TriNetra (cross-lighting I-JEPA, anomaly map)
+# JEPA image models for Ayas (cross-lighting I-JEPA, anomaly map)
 
 Status, 15 Nov 2026: **phase 1 of 2.** The pipeline is built and proven end to end, both on the Mac and on one paid JarvisLabs L4 smoke run. Every number in this file is a **SMOKE number, NOT A RESULT**: the model was trained on 2 low-resolution training plates. The full training waits for the paired training renders (section 4).
 
-Contract: `docs/twin/DESIGN_STEEL.md`. Code: `training/jepa/` (training side) and `src/trinetra/anomaly.py` (inference side; not wired into the app). Tests: `tests/test_jepa.py` and `tests/test_jepa_anomaly.py`. The torch tests skip in `.venv`; run them with `.venv-train`. Reports: `reports/jepa_anomaly.md` and `.json`, `reports/jepa_onnx.md`.
+Contract: `docs/twin/DESIGN_STEEL.md`. Code: `training/jepa/` (training side) and `src/ayas/anomaly.py` (inference side; not wired into the app). Tests: `tests/test_jepa.py` and `tests/test_jepa_anomaly.py`. The torch tests skip in `.venv`; run them with `.venv-train`. Reports: `reports/jepa_anomaly.md` and `.json`, `reports/jepa_onnx.md`.
 
 ## 1. Why JEPA here, mapped to the brief
 
@@ -75,7 +75,7 @@ loss = smooth-L1(ŷ, h): hidden targets weight 1; context-visible targets weight
   - The memory bank is built from training plates only.
   - The test matrix is never trained, tuned or calibrated on. **Its plates must have seeds ≥ 900100**: the capture gate was tuned on 900000–900068, and `eval_anomaly.py --min-test-seed` defaults to 900100.
   - The pilot plates (900011, 900027, 900028, 900068) are used for the smoke evaluation only, with `--min-test-seed 900000`. They are tuning plates, so they can never give a result.
-- **`trinetra-twin matrix --start-seed 100000` does NOT work.** `twin/matrix.py` raises for any start seed below 900000, on purpose: the matrix is the test set. `training/jepa/pairs.py` writes the same rows for training seeds instead. It uses `sampler.make_plan` with the condition and device overrides, checks that plate, defects and distractors are identical across rows, and renders through `pipeline.run_plans` with a config copy that writes compact grids:
+- **`ayas-twin matrix --start-seed 100000` does NOT work.** `twin/matrix.py` raises for any start seed below 900000, on purpose: the matrix is the test set. `training/jepa/pairs.py` writes the same rows for training seeds instead. It uses `sampler.make_plan` with the condition and device overrides, checks that plate, defects and distractors are identical across rows, and renders through `pipeline.run_plans` with a config copy that writes compact grids:
   - plan split `jepa_train`, which is post's only grid split here;
   - no YOLO tiles;
   - burst arm (add `--arms burst naive` for the baseline arm);
@@ -89,13 +89,13 @@ loss = smooth-L1(ŷ, h): hidden targets weight 1; context-visible targets weight
 **Recommendation: K = 48 paired training plates**, seeds 100000–100047, with all 14 rows (7 conditions × open/hood). This is the default of the render tooling:
 
 ```bash
-# on the Mac, with trinetra-render RUNNING (tools/jl/README.md)
-jl run --on <id> --json --yes -- sh -lc 'sh /home/trinetra_jobs/render_all.sh --jobs jepa --jepa-n 48'
-jl run --on <id> --json --yes -- sh -lc 'sh /home/trinetra_jobs/render_all.sh --stage post --jobs jepa --jepa-n 48 --post-tag final'
+# on the Mac, with ayas-render RUNNING (tools/jl/README.md)
+jl run --on <id> --json --yes -- sh -lc 'sh /home/ayas_jobs/render_all.sh --jobs jepa --jepa-n 48'
+jl run --on <id> --json --yes -- sh -lc 'sh /home/ayas_jobs/render_all.sh --stage post --jobs jepa --jepa-n 48 --post-tag final'
 #   -> /home/data/jepa_train/pairs_manifest.json, plans/, work/ (EXRs kept), post_final/grids/burst/jepa_train/*.jpg + .json
 ```
 
-- `trinetra-twin matrix --start-seed 100000 --n K` does **not** work: `twin/matrix.py` refuses any start seed below 900000. `render_all.sh` writes the plans with `python training/jepa/pairs.py --n K --start-seed 100000 --out /home/data/jepa_train --arms burst` instead. It renders through `tools/jl/twin_jobs.py` with the EXRs kept and post deferred, then posts with `pairs.jepa_config`.
+- `ayas-twin matrix --start-seed 100000 --n K` does **not** work: `twin/matrix.py` refuses any start seed below 900000. `render_all.sh` writes the plans with `python training/jepa/pairs.py --n K --start-seed 100000 --out /home/data/jepa_train --arms burst` instead. It renders through `tools/jl/twin_jobs.py` with the EXRs kept and post deferred, then posts with `pairs.jepa_config`.
 - Add `--jepa-arms "burst naive"` if the naive-arm memory bank is wanted (section 5); it adds about 1.1 MB per scene.
 - **Why 48.**
   - At least 4–5 plates of each of the rarest materials (ss_2b and galvanised, 10 % each).
@@ -111,7 +111,7 @@ jl run --on <id> --json --yes -- sh -lc 'sh /home/trinetra_jobs/render_all.sh --
 
 | Item | Measured / estimated |
 |---|---|
-| Render time, L4 (render job, `artifacts/jarvislabs/trinetra-render_setup/MANIFEST.md`) | 6.6–8.7 s/scene inside Blender per process, 3 processes per L4. Their estimate for **40–60 plates × 14 rows: 1.25–1.9 h, ₹55–82**. **K = 48: 672 scenes ≈ 1.5 h ≈ ₹66.** The post pass is CPU only, about 5–7 min |
+| Render time, L4 (render job, `artifacts/jarvislabs/ayas-render_setup/MANIFEST.md`) | 6.6–8.7 s/scene inside Blender per process, 3 processes per L4. Their estimate for **40–60 plates × 14 rows: 1.25–1.9 h, ₹55–82**. **K = 48: 672 scenes ≈ 1.5 h ≈ ₹66.** The post pass is CPU only, about 5–7 min |
 | Render time, Mac M3 | 17–20 s/scene full resolution (STATUS_STEEL), 23–37 s/scene in the render job's comparison. K = 48 would be 672 × (20–30 s + about 5 s post) ≈ 4.7–6.5 h. The smoke render here (0.5× scale, 32 spp, under contention from another Blender job): 28 scenes in 817 s including post |
 | Disk per scene, compact (what JEPA reads) | Burst-arm JPEG q95 grids: 0.56 MB per 100×100 mm grid at full resolution (pilot PNG re-encoded), 0.47–0.52 MB at 0.5× (smoke). 2 variants + grid JSONs (11 kB each) + sidecar (25 kB) + plan (18 kB) ≈ **1.2 MB/scene**; 2.3 MB with the naive arm. **K = 48: ≈ 0.8 GB** (1.6 GB with naive) |
 | Disk per scene, default post | PNG grids for both arms: 2 × 2 × 2.9 MB ≈ 11.6 MB/scene, plus bursts (`--save-bursts`) at 32 MB/scene. The pilot was 1.0 GB for 56 scenes |
@@ -125,7 +125,7 @@ jl run --on <id> --json --yes -- sh -lc 'sh /home/trinetra_jobs/render_all.sh --
 .venv/bin/python training/jepa/pairs.py --n 48 --start-seed 100000 --out data/jepa_train --render   # Mac, ~5-6 h
 ```
 
-The test data for the evaluation is the lighting matrix the render job makes: `render_all.sh --jobs matrix` (15 test plates × 14 rows, both arms, PNG grids, posted to `/home/data/twin_matrix/post_final`). It is never trained on. **It must start at seed 900100** (`trinetra-twin matrix --start-seed 900100`), because 900000–900068 tuned the gate. `eval_anomaly.py` ignores test plates below `--min-test-seed` (default 900100) and stops if none are left.
+The test data for the evaluation is the lighting matrix the render job makes: `render_all.sh --jobs matrix` (15 test plates × 14 rows, both arms, PNG grids, posted to `/home/data/twin_matrix/post_final`). It is never trained on. **It must start at seed 900100** (`ayas-twin matrix --start-seed 900100`), because 900000–900068 tuned the gate. `eval_anomaly.py` ignores test plates below `--min-test-seed` (default 900100) and stops if none are left.
 
 ## 5. Training and evaluation commands
 
@@ -147,23 +147,23 @@ training/jepa/jl_train.sh fresh --data $SCRATCH/jepa/train_pairs --gpu L4 --name
     -- --steps 2000 --batch 64 --workers 6
 ```
 
-**JarvisLabs full run (on the render instance `trinetra-render`; the data is already there, nothing is uploaded but code)**:
+**JarvisLabs full run (on the render instance `ayas-render`; the data is already there, nothing is uploaded but code)**:
 
 ```bash
 # 0. the lead resumes the instance (this runner never resumes it) and passes the id `jl resume` printed
 # 1. train + evaluate on the test matrix + export ONNX, then collect, verify and leave the instance running
-training/jepa/jl_train.sh on --machine <trinetra-render id> \
+training/jepa/jl_train.sh on --machine <ayas-render id> \
     --remote-data /home/data/jepa_train/post_final \
     --eval-test /home/data/twin_matrix/post_final --export \
     --config training/jepa/configs/full.yaml --name jepa-full --max-min 120
 # 2. latency of the final ONNX on the Mac (and later on the Pi): copy run_out/onnx from the artifacts dir
-.venv-train/bin/python training/jepa/export_onnx.py --ckpt x --train x --out artifacts/jarvislabs/trinetra-render_<run_id>/run_out/onnx \
+.venv-train/bin/python training/jepa/export_onnx.py --ckpt x --train x --out artifacts/jarvislabs/ayas-render_<run_id>/run_out/onnx \
     --name jepa --bench-only --runs 40 --report reports/jepa_onnx.md
 ```
 
 What `on` mode does on that box, and why:
-- **Code.** It runs `sh tools/jl/sync_code.sh <id>`, the render job's sync, to `/home/trinetra` (`--no-sync` skips it). docs/, reports/ and artifacts/ are not synced and not needed. The runner also keeps its own `code.tgz` and sha256 of `training/jepa` + `src/trinetra/anomaly.py` in the artifacts, as the code record.
-- **Python.** The pytorch template's system Python is 3.10, and the project needs ≥ 3.11. `/home/venvs/trinetra` (3.11) has no torch and is never touched. So the job makes `/home/venvs/jepa`:
+- **Code.** It runs `sh tools/jl/sync_code.sh <id>`, the render job's sync, to `/home/ayas` (`--no-sync` skips it). docs/, reports/ and artifacts/ are not synced and not needed. The runner also keeps its own `code.tgz` and sha256 of `training/jepa` + `src/ayas/anomaly.py` in the artifacts, as the code record.
+- **Python.** The pytorch template's system Python is 3.10, and the project needs ≥ 3.11. `/home/venvs/ayas` (3.11) has no torch and is never touched. So the job makes `/home/venvs/jepa`:
   - uv Python 3.11 under `/home/.uv`, exactly as `bootstrap.sh` does, so it survives pause;
   - `torch==2.11.0` + torchvision from the cu130 index (`--torch` / `--torch-index` to change). That is the CUDA 13 build the JarvisLabs template shipped in the smoke run, and the L4 driver 595.58.03 supports it;
   - timm 1.0.31, onnx 1.23.2, onnxruntime, opencv, numpy and scikit-learn pinned by `tools/jl/constraints-mac.txt`;
@@ -171,7 +171,7 @@ What `on` mode does on that box, and why:
 
   This is idempotent, and later jobs reuse the venv. timm downloads its weights to `HF_HOME=/home/.cache/huggingface`.
 - **Data.** `--remote-data` and `--eval-test` point at the post dirs that hold `grids/`. The job stops with exit 3 if one has no grid JSON. The runner refuses an instance that is not `Running`, refuses `--after destroy`, and leaves the instance running by default; `--after pause` pauses only after the artifacts verify. If the verification fails, the instance stays running and the runner says so, so that nothing is lost.
-- **Artifacts** go to `artifacts/jarvislabs/trinetra-render_<run_id>/` (instance name + run id) with `MANIFEST.md`.
+- **Artifacts** go to `artifacts/jarvislabs/ayas-render_<run_id>/` (instance name + run id) with `MANIFEST.md`.
 
 - `full.yaml`: 30000 steps × 128 crops, AdamW 1e-3 cosine with 1500 warm-up steps, wd 0.05, EMA 0.996→1, predictor depth 6, `crops_per_group` 16 (consecutive crops share a grid group, so the loader decodes few grids per batch), 8 workers.
 - Estimate: the smoke run reached 932 img/s on the L4 (batch 64, bf16), so 3.84 M crops take about 70 min if the loader keeps up. Then `eval_anomaly.py` runs on the instance; the test grids and heat maps stay there, and the report, figures and JSON come back. `export_onnx.py` writes the ONNX files there (no benchmark). In total about 2 h, or ≈ ₹85.
@@ -249,10 +249,10 @@ Measured on the Mac M3 (onnxruntime 1.31.1 CPU EP, batch 1, 224×224). Other Ble
 - **What it would take** to be safe: INT8 (CPU) or the Hailo HEF (about 7 ms per crop), scale 2 only, and measuring on the Pi itself:
 
   ```bash
-  .venv/bin/python -c "from trinetra.anomaly import OnnxPatchScorer; import numpy as np, time; s=OnnxPatchScorer('jepa_knn_int8.onnx', 4); x=np.zeros((448,448,3),np.uint8); s.patch_scores(x); t=time.perf_counter(); [s.patch_scores(x) for _ in range(20)]; print((time.perf_counter()-t)/20*1e3, 'ms')"
+  .venv/bin/python -c "from ayas.anomaly import OnnxPatchScorer; import numpy as np, time; s=OnnxPatchScorer('jepa_knn_int8.onnx', 4); x=np.zeros((448,448,3),np.uint8); s.patch_scores(x); t=time.perf_counter(); [s.patch_scores(x) for _ in range(20)]; print((time.perf_counter()-t)/20*1e3, 'ms')"
   ```
 
-  `trinetra.anomaly` needs only numpy, cv2 and onnxruntime, so it runs in the Pi venv without torch. On the Mac, the dev venv ran it on a full pilot grid: 9 windows in 1.6 s with fp32 on 4 threads, under load.
+  `ayas.anomaly` needs only numpy, cv2 and onnxruntime, so it runs in the Pi venv without torch. On the Mac, the dev venv ran it on a full pilot grid: 9 windows in 1.6 s with fp32 on 4 threads, under load.
 
 **Hailo-10H (AI HAT+ 2) notes.**
 - **Supported architecture.** Hailo Model Zoo v5.1.0 lists **vit_tiny for Hailo-10H**: 137 FPS at batch 1, 2.2 GOPs, top-1 75.5 float / 74.6 on hardware. That table was compiled with **DFC 5.1.0**, the version this project pins (`hailo/README.md`: the Pi's HailoRT 5.1.1; never compile with 5.5). vit_small runs at 113 FPS. So the ViT-Tiny encoder is in the compiler's comfort zone: conv patch-embed, MatMul attention, Softmax, LayerNorm, GELU.
@@ -268,10 +268,10 @@ Measured on the Mac M3 (onnxruntime 1.31.1 CPU EP, batch 1, 224×224). Other Ble
 
 The anomaly head runs **after the alert** in the same advisor-thread slot, never delaying the verdict. Its regions that no YOLO box covers go into the record as `anomaly.unexplained`. The verdict is **not** changed in phase 1: an unexplained region makes the advisor say "a person should look at x, y". A rules change (anomaly → HOLD_FOR_QA) is a phase-2 decision after the gate.
 
-**Record field** (`trinetra.inspection/3.0`; the v3 schema has no `additionalProperties: false`, so the field is additive; `report.build_steel_record(..., extra=...)` already merges extra keys):
+**Record field** (`ayas.inspection/3.0`; the v3 schema has no `additionalProperties: false`, so the field is additive; `report.build_steel_record(..., extra=...)` already merges extra keys):
 
 ```jsonc
-"anomaly": {"schema": "trinetra.anomaly/1", "model": "jepa_knn vit_tiny s2 (coreset 4096)", "threshold": 3.0,
+"anomaly": {"schema": "ayas.anomaly/1", "model": "jepa_knn vit_tiny s2 (coreset 4096)", "threshold": 3.0,
             "score_max": 4.71, "score_p99": 2.10, "area_mm2_above": 18.4, "n_regions": 2,
             "regions": [{"x_mm": 41.2, "y_mm": 63.0, "w_mm": 4.1, "h_mm": 3.3, "area_mm2": 9.6, "peak": 4.71,
                          "box_px": [...]}],
@@ -282,8 +282,8 @@ The anomaly head runs **after the alert** in the same advisor-thread slot, never
 `llm.check_reply` already allows any number that is in the record, so the advisor can quote these numbers without changing the guardrail.
 
 ```diff
---- a/src/trinetra/app/pipeline.py
-+++ b/src/trinetra/app/pipeline.py
+--- a/src/ayas/app/pipeline.py
++++ b/src/ayas/app/pipeline.py
 @@ class InspectionPipeline:
      def __init__(self, capture_cfg: Mapping[str, Any], grid_cfg: Mapping[str, Any], detector, spec: Mapping[str, Any],
                   part: Mapping[str, Any] | None = None, advisor=None, *, log: AppLog | None = None,
@@ -293,7 +293,7 @@ The anomaly head runs **after the alert** in the same advisor-thread slot, never
 +                 anomaly=None):
          self.capture_cfg, self.grid_cfg = dict(capture_cfg), dict(grid_cfg or {})
          self.detector, self.spec, self.part = detector, dict(spec), dict(part or {})
-+        self.anomaly = anomaly            # trinetra.anomaly.OnnxPatchScorer or None (docs/JEPA.md section 7)
++        self.anomaly = anomaly            # ayas.anomaly.OnnxPatchScorer or None (docs/JEPA.md section 7)
 @@ def inspect(self, item, meta: Mapping[str, Any] | None = None) -> Inspection:
          judged: list[dict[str, Any]] = []
          verdict = "RETAKE"
@@ -315,7 +315,7 @@ The anomaly head runs **after the alert** in the same advisor-thread slot, never
          with self.lock:
 @@
 +    def _anomaly(self, record: dict[str, Any], grid_u8: np.ndarray, gm) -> None:
-+        from trinetra import anomaly as AN
++        from ayas import anomaly as AN
 +        t0 = time.perf_counter()
 +        mask = gm.grid.plate_mask()
 +        ys, xs = np.nonzero(mask)
@@ -334,12 +334,12 @@ The anomaly head runs **after the alert** in the same advisor-thread slot, never
 (The advisor job is queued after `_anomaly` on the same single advisor thread, so the explanation already sees `record["anomaly"]`. The `AppLog` row update that stores the advice must also store `record["anomaly"]`: the JSONL line written at alert time does not have it yet, and that is correct, because the alert never waits for the anomaly map.)
 
 ```diff
---- a/src/trinetra/app/cli.py
-+++ b/src/trinetra/app/cli.py
+--- a/src/ayas/app/cli.py
++++ b/src/ayas/app/cli.py
 @@ def build(args, advise: str) -> tuple[InspectionPipeline, object, dict]:
 +    anomaly = None
 +    if getattr(args, "anomaly", None):
-+        from trinetra.anomaly import OnnxPatchScorer
++        from ayas.anomaly import OnnxPatchScorer
 +        anomaly = OnnxPatchScorer(repo_path(args.anomaly.split(":", 1)[-1]),
 +                                  threads=int((cfg.get("anomaly") or {}).get("threads", 4)))
      pipe = InspectionPipeline(cfg["_capture"], cfg["_grid"], detector, spec, cfg["part"], advisor, log=log,
@@ -360,8 +360,8 @@ The anomaly head runs **after the alert** in the same advisor-thread slot, never
 ```
 
 ```diff
---- a/src/trinetra/llm.py
-+++ b/src/trinetra/llm.py
+--- a/src/ayas/llm.py
++++ b/src/ayas/llm.py
 @@ def explain_steel(report: dict[str, Any], spec: dict[str, Any] | None = None) -> str:
      lines += [_steel_line(d) for d in defects]
 +    an = (report.get("anomaly") or {}).get("unexplained") or []
@@ -376,8 +376,8 @@ The anomaly head runs **after the alert** in the same advisor-thread slot, never
 (`system_prompt` gets one sentence for the Llama backend: "anomaly.unexplained lists surface areas that no defect class explains; mention them as 'look here', never as a defect type, severity or reason to pass".)
 
 ```diff
---- a/src/trinetra/app/ui.py
-+++ b/src/trinetra/app/ui.py
+--- a/src/ayas/app/ui.py
++++ b/src/ayas/app/ui.py
 @@ def summarise(rec: Mapping[str, Any], key: Any = None) -> dict[str, Any]:
          "timing_ms": rec.get("timing_ms") or {}, "source": rec.get("source") or {},
          "advice": rec.get("advice"), "backend": rec.get("backend") or {},
@@ -403,7 +403,7 @@ The overlay JPEG gets dashed purple boxes for `unexplained` regions, drawn in `o
 - **Twin-only.** Twin surfaces are procedural textures. Real mill scale, brushed grain and real anomalies (inclusions, laminations, weld spatter) are not in the twin, so "detects anomalies outside the 6 classes" can only be shown here on unlabelled twin marks: distractors, unlabelled defects, held-out kinds. That says nothing about real parts. Phase 2 needs real captures of normal plates for the bank.
 - **No out-of-class twin defects yet.** A clean test of (a) needs test plates carrying a defect kind that YOLO was never trained on, e.g. a held-out `kind` or a new texture such as weld spatter. Post's labels make "YOLO misses" measurable, but "outside the 6 classes" is only approximated by YOLO's misses and the distractors.
 - **The kNN bank grows with material diversity.** A 4096-patch coreset from 48 plates may under-cover rare finishes (galvanised spangle), which would give false alarms on a new spangle pattern. More plates or a per-material bank fix that; the material is known from the part config.
-- **Gate 1 is not computable yet.** It needs the trained YOLO burst model. `eval_anomaly.py` already gives each defect's region score; the missing join is about 50 lines: run `trinetra.npu.detect_grid` on each test grid, apply the `eval_plates` matching, then count the missed defects whose region score exceeds z\*. It will be added when `models/v8n_burst.onnx` exists. The linear probe (c) is also not built yet.
+- **Gate 1 is not computable yet.** It needs the trained YOLO burst model. `eval_anomaly.py` already gives each defect's region score; the missing join is about 50 lines: run `ayas.npu.detect_grid` on each test grid, apply the `eval_plates` matching, then count the missed defects whose region score exceeds z\*. It will be added when `models/v8n_burst.onnx` exists. The linear probe (c) is also not built yet.
 - **Depth is still not measured.** An anomaly score is not a severity. The record keeps them separate, and the advisor text says so.
 - **Determinism** is per (seed, index) on the data side. GPU kernels (flash-attention backward on the L4, MPS) are not bit-exact.
 - **Phase-1 smoke artifacts.** The first JarvisLabs smoke run (r_25fe5b78) used the runner version before the standing artifact rule. Its `last.pt` (the optimiser-state resume checkpoint) and the raw `jl-runs` folder were not kept. The full `output.log`, `encoder.pt` (the full model), metrics, config, summary and a rebuilt code bundle are kept and verified in `artifacts/jarvislabs/jepa-smoke_r_25fe5b78/`.
@@ -414,10 +414,10 @@ The overlay JPEG gets dashed purple boxes for `unexplained` regions, drawn in `o
 |---|---|---|
 | Training render | `pairs.py --n 2 --start-seed 100000 --render --res-scale 0.5 --samples 32` in the scratch dir | 2 training plates (s100000 ss_2b with 2 stains, a pit and a crack; s100001 ss_brushed with a dent and a scratch) × 14 rows × 2 variants = 56 burst grids. 9 RETAKE, all open-mode stainless; 47 accepted. 817 s including post; 29 MB of JPEG grids |
 | Local training | `train.py` smoke.yaml, MPS, 300 steps × 32 | loss 0.413 → 0.086; `tgt_spread` 0.03–0.04 (no collapse); 26 img/s with the Mac shared with Blender |
-| **JarvisLabs smoke** | `jl_train.sh fresh`, **run r_25fe5b78**, machine 574712 (`jepa-smoke`, L4 on demand, IN2) | 2000 steps × 64 in 137.5 s, **932 img/s** (bf16, torch 2.11.0+cu130). Loss 0.421 → 0.059; hidden 0.058, visible-cross 0.065. **Instance up for 226 s → ≈ ₹2.6** (balance 1,038.83 → 1,036.24). **Destroyed: yes**; afterwards `jl status`: running_instances 0 (the only instance listed is `trinetra-render`, paused, not created here). Artifacts: `artifacts/jarvislabs/jepa-smoke_r_25fe5b78/`, verified (`MANIFEST.md`: encoder.pt loads and runs) |
+| **JarvisLabs smoke** | `jl_train.sh fresh`, **run r_25fe5b78**, machine 574712 (`jepa-smoke`, L4 on demand, IN2) | 2000 steps × 64 in 137.5 s, **932 img/s** (bf16, torch 2.11.0+cu130). Loss 0.421 → 0.059; hidden 0.058, visible-cross 0.065. **Instance up for 226 s → ≈ ₹2.6** (balance 1,038.83 → 1,036.24). **Destroyed: yes**; afterwards `jl status`: running_instances 0 (the only instance listed is `ayas-render`, paused, not created here). Artifacts: `artifacts/jarvislabs/jepa-smoke_r_25fe5b78/`, verified (`MANIFEST.md`: encoder.pt loads and runs) |
 | Anomaly + invariance eval | `eval_anomaly.py --smoke` with the JarvisLabs checkpoint, bank from the 47 training grids, test = the pilot (4 plates × 14 rows × 2 variants × 2 arms = 224 grids, a frozen copy, because another job re-posts `data/twin_pilot`) | `reports/jepa_anomaly.md` and `.json`, `reports/figures/jepa/*.jpg`; one heat map per grid in the scratch dir. Highlights below |
 | ONNX + latency | `export_onnx.py` | `reports/jepa_onnx.md`: encoder, knn, knn_head, pred and INT8 graphs; ONNX vs torch max error ≤ 3e-5 (fp32); latency in section 6 |
-| Inference side without torch | `trinetra.anomaly.OnnxPatchScorer` in `.venv` on a pilot grid | 9 windows at scale 2 in 1.6 s (fp32, 4 threads, Mac under load). The smoke bank's z is wildly off (z ≈ 111 everywhere), the expected result of a bank built at 0.5× resolution and scored at full resolution |
+| Inference side without torch | `ayas.anomaly.OnnxPatchScorer` in `.venv` on a pilot grid | 9 windows at scale 2 in 1.6 s (fp32, 4 threads, Mac under load). The smoke bank's z is wildly off (z ≈ 111 everywhere), the expected result of a bank built at 0.5× resolution and scored at full resolution |
 
 **Smoke eval highlights (SMOKE, NOT A RESULT: 2 low-resolution training plates for the JEPA and the bank, 4 test plates, defect counts are captures, not physical defects).**
 - **The pipeline runs end to end.** 185 test grids were scored (39 burst-arm RETAKE skipped), 5 methods × 2 scales, with one heat map per grid, every table and 4 example figures. On the Mac, under heavy shared load, it took 39 min.
@@ -457,7 +457,7 @@ The overlay JPEG gets dashed purple boxes for `unexplained` regions, drawn in `o
 - 1,344 paired grids of 48 training plates; 836 grids were accepted by the gate.
 - Final loss 0.113 (hidden 0.113, visible-cross 0.098). `tgt_spread` rose 0.04 → 0.068: no collapse.
 - Then `eval_anomaly.py` on the test matrix: 15 plates from seed 900100, 698 grids scored, 142 burst RETAKEs skipped. Then ONNX export.
-- Artifacts: `artifacts/jarvislabs/trinetra-render_r_dd9195e8/` (VERIFY OK; encoder.pt and last.pt load and run).
+- Artifacts: `artifacts/jarvislabs/ayas-render_r_dd9195e8/` (VERIFY OK; encoder.pt and last.pt load and run).
 - Report: `reports/jepa_anomaly.md` and `.json`. The smoke report is kept as `reports/jepa_anomaly_smoke.md`.
 
 Region AUROC on the burst arm (the product arm):

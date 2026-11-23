@@ -6,10 +6,10 @@ import cv2
 import numpy as np
 import pytest
 
-from trinetra.twin import textures as T
+from ayas.twin import textures as T
 
 RES = 0.04
-LOGGER = "trinetra.twin.textures"
+LOGGER = "ayas.twin.textures"
 
 
 # ----------------------------------------------------------------------------- hand-made plans
@@ -92,7 +92,7 @@ def make_plan(defects=(), distractors=(), size=(60.0, 40.0), seed=5, penetrant=N
            "grain_amp_um": 0.5, "grain_dir_deg": 0.0}
     mat.update(material or {})
     plan = {
-        "schema": "trinetra.twin.scene/1", "scene_id": f"t{seed}", "seed": seed, "split": "train",
+        "schema": "ayas.twin.scene/1", "scene_id": f"t{seed}", "seed": seed, "split": "train",
         "mode": "penetrant" if penetrant else "surface", "source": "fixture",
         "plate": {"size_mm": list(size), "thickness_mm": 3.0, "edge_bevel_mm": 0.3, "finish": finish, "material": mat},
         "sheets": [],
@@ -463,7 +463,7 @@ GEOM_KINDS = [   # non-trivial angles so that a u/v or sign flip leaves the foot
 def test_kinds_stay_inside_geometry_footprints(caplog):
     """Contract with the sampler's footprints (geometry.footprint): every kind renders inside them,
     nothing is clipped (same maps without footprints) and no overflow warning is logged."""
-    G = pytest.importorskip("trinetra.twin.geometry")
+    G = pytest.importorskip("ayas.twin.geometry")
     caplog.set_level(logging.WARNING, logger=LOGGER)
     plan = make_plan(GEOM_KINDS, footprints=False)
     for d in plan["defects"]:
@@ -605,7 +605,7 @@ def steel_plan(kind, defects=(), distractors=(), size=(40.0, 30.0), seed=5, with
     plan = make_plan(defects, distractors, size=size, seed=seed, finish=finish, material=mat, footprints=False)
     plan["holes"], plan["rivets"] = [], []
     if with_footprints:
-        G = pytest.importorskip("trinetra.twin.geometry")
+        G = pytest.importorskip("ayas.twin.geometry")
         for d in plan["defects"]:
             d["footprint"] = G.footprint(d, plan)
     return plan
@@ -746,7 +746,7 @@ def test_open_crack_is_dark_with_raised_lips_and_through_scale_scratch_is_bright
     pts = [[3.0, 10.0], [6.0, 10.4], [9.0, 9.8], [12.0, 10.3], [15.0, 10.0]]
     plan = steel_plan("ss_2b", [defect(1, "crack", "open", pts_mm=pts, width_mm=0.3, start="free")], size=(20.0, 20.0))
     m, c = T.render_maps(plan), T.render_maps(plan, clean=True)
-    G = pytest.importorskip("trinetra.twin.geometry")
+    G = pytest.importorskip("ayas.twin.geometry")
     q = texel_centres(changed(m, c))
     dist = min_dist(q, bezier_free_polyline(pts))
     assert dist.max() <= 0.15 + G.crack_lip_mm(0.3) + 0.06
@@ -806,7 +806,7 @@ def test_mill_scale_keeps_the_base_hue_outside_flakes():
 def test_label_residue_stays_inside_the_sampler_cover_outline(angle):
     """The sampler keeps label residue (it paints over what is below) off labelled defects using
     sampler._cover_outline; the texture must never reach past that outline."""
-    S = pytest.importorskip("trinetra.twin.sampler")
+    S = pytest.importorskip("ayas.twin.sampler")
     p = {"u": 20.0, "v": 15.0, "w_mm": 24.0, "h_mm": 10.0, "angle_deg": angle, "strength": 1.0}
     plan = steel_plan("ss_2b", distractors=[{"kind": "label_residue", "params": p}], size=(40.0, 30.0))
     diff = changed(T.render_maps(plan), T.render_maps(steel_plan("ss_2b", size=(40.0, 30.0))))
@@ -839,7 +839,7 @@ def test_blend_grinds_through_mill_scale_and_zinc(kind):
 @pytest.mark.parametrize("kind", ["ms_hot_rolled", "galvanised"])
 def test_full_steel_plate_timing(kind):
     """The slowest finishes with every steel kind, 100 x 100 mm at 0.04 mm: < 15 s (DESIGN budget)."""
-    G = pytest.importorskip("trinetra.twin.geometry")
+    G = pytest.importorskip("ayas.twin.geometry")
     big = [
         defect(1, "corrosion", "rust", u=30.0, v=30.0, r_mm=25.0, coverage=0.8, pitted=True, aspect=1.2, angle_deg=10.0),
         defect(2, "corrosion", "rust_streak", u0=100.0, v0=80.0, angle_deg=180.0, length_mm=40.0, width_mm=6.0,

@@ -2,8 +2,8 @@
 
   .venv-train/bin/python training/jepa/train.py --config training/jepa/configs/smoke.yaml \
       --data <pairs dir> --out runs/jepa/smoke
-  python training/jepa/train.py --config training/jepa/configs/full.yaml --data /home/trinetra/data/jepa_train \
-      --out /home/trinetra/runs/jepa/full --device cuda            # JarvisLabs (jl_train.sh)
+  python training/jepa/train.py --config training/jepa/configs/full.yaml --data /home/ayas/data/jepa_train \
+      --out /home/ayas/runs/jepa/full --device cuda            # JarvisLabs (jl_train.sh)
 
 Outputs in --out: config.yaml (resolved), metrics.jsonl (one line per log step), last.pt (resume:
 model + optimiser + step), encoder.pt (EMA target encoder + predictor + cfg, what eval and

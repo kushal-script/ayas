@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="140mm" height="221.2mm" viewBox="0 0 140 221.2" font-family="Helvetica, Arial, sans-serif">
-<title>P3A Dents and scratches - TriNetra coupon template (1:1)</title>
+<title>P3A Dents and scratches - Ayas coupon template (1:1)</title>
 <defs><pattern id="hatch-corrosion" patternUnits="userSpaceOnUse" width="0.8" height="0.8" patternTransform="rotate(45)"><path d="M0 0.4H0.8" stroke="#b35a00" stroke-width="0.15"/></pattern><pattern id="hatch-scratch" patternUnits="userSpaceOnUse" width="0.8" height="0.8" patternTransform="rotate(0)"><path d="M0 0.4H0.8" stroke="#1f5fbf" stroke-width="0.15"/></pattern><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="1.4" markerHeight="1.4" orient="auto"><path d="M0 0L10 5L0 10z" fill="#8e24aa"/></marker></defs>
 <rect x="0" y="0" width="140" height="221.2" fill="#ffffff"/>
 <text x="20" y="7.5" font-size="4.2" fill="#000" text-anchor="start" font-weight="bold">P3A  Dents and scratches</text>
-<text x="20" y="12" font-size="2" fill="#000" text-anchor="start" font-weight="normal">role: train  |  plate 100 x 100 x 3 mm  |  drill Ø4.1 for Ø4 fasteners  |  TriNetra aircraft-representative coupon (commercial alloy)</text>
+<text x="20" y="12" font-size="2" fill="#000" text-anchor="start" font-weight="normal">role: train  |  plate 100 x 100 x 3 mm  |  drill Ø4.1 for Ø4 fasteners  |  Ayas aircraft-representative coupon (commercial alloy)</text>
 <g transform="translate(20 22)">
 <line x1="0" y1="-0.6" x2="0" y2="-2.6" stroke="#999999" stroke-width="0.12"/>
 <text x="0" y="-3.6" font-size="1.6" fill="#999999" text-anchor="middle" font-weight="normal">0</text>

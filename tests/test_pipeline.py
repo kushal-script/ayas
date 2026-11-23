@@ -6,10 +6,10 @@ import numpy as np
 import pytest
 from conftest import capture
 
-from trinetra.calibration import calibrate
-from trinetra.capture import bright_view
-from trinetra.config import VIEWS
-from trinetra.sim import DEFECT_KINDS, SimDefect, SimRig
+from ayas.calibration import calibrate
+from ayas.capture import bright_view
+from ayas.config import VIEWS
+from ayas.sim import DEFECT_KINDS, SimDefect, SimRig
 
 SCHEMA = Path(__file__).resolve().parents[1] / "schemas" / "inspection.schema.json"
 
@@ -87,7 +87,7 @@ def test_room_light_change_is_removed_by_the_dark_frame(sim_cfg, inspector, rig)
 @pytest.mark.parametrize("kind", ["dent", "bump", "scratch", "stain", "crack"])
 def test_three_light_arch_still_classifies(arch_only_cfg, kind):
     """Only the 3 arch lights: the 3D map falls back to slope-only, shading tells dent from bump."""
-    from trinetra.pipeline import Inspector
+    from ayas.pipeline import Inspector
 
     insp = Inspector(arch_only_cfg)
     assert insp.setup.mode == "slope-only"

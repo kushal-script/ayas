@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "trinetra.inspection/3.0",
-  "title": "TriNetra inspection record 3.0 (steel and metal surfaces)",
+  "$id": "ayas.inspection/3.0",
+  "title": "Ayas inspection record 3.0 (steel and metal surfaces)",
   "description": "docs/twin/DESIGN_STEEL.md F. Also embedded in inspection.schema.json ($defs v3*); keep both copies identical (tests/test_steel_rules.py checks it).",
   "$ref": "#/$defs/v3",
   "$defs": {
@@ -24,7 +24,7 @@
       ],
       "properties": {
         "schema": {
-          "const": "trinetra.inspection/3.0"
+          "const": "ayas.inspection/3.0"
         },
         "domain": {
           "const": "steel_surface"

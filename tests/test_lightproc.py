@@ -10,8 +10,8 @@ import cv2
 import numpy as np
 import pytest
 
-from trinetra import lightproc as LP
-from trinetra.twin import burst as BU
+from ayas import lightproc as LP
+from ayas.twin import burst as BU
 
 CFG = LP.load_capture_config()
 MSG = CFG["gate"]["messages"]

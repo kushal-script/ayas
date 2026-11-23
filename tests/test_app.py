@@ -1,4 +1,4 @@
-"""On-device app (src/trinetra/app, DESIGN_STEEL.md H): sources, pipeline, advisor, UI, bench, CLI.
+"""On-device app (src/ayas/app, DESIGN_STEEL.md H): sources, pipeline, advisor, UI, bench, CLI.
 
 Synthetic bursts only (numpy frames written in twin/post.save_burst's npz layout); the Pi camera,
 GPIO and the executorch TextLLMRunner are fakes injected into sys.modules; the llama_main runner
@@ -21,17 +21,17 @@ import cv2
 import numpy as np
 import pytest
 
-from trinetra.llm import CAUSE_LABEL
+from ayas.llm import CAUSE_LABEL
 
-from trinetra import lightproc as LP
-from trinetra import report as RP
-from trinetra import rules
-from trinetra.app import advisor as AD
-from trinetra.app import bench as BE
-from trinetra.app import cli as CLI
-from trinetra.app import pipeline as PL
-from trinetra.app import sources as SR
-from trinetra.app import ui as UI
+from ayas import lightproc as LP
+from ayas import report as RP
+from ayas import rules
+from ayas.app import advisor as AD
+from ayas.app import bench as BE
+from ayas.app import cli as CLI
+from ayas.app import pipeline as PL
+from ayas.app import sources as SR
+from ayas.app import ui as UI
 
 CFG = PL.load_app_config()
 SPEC = CFG["_spec"]
@@ -77,7 +77,7 @@ def write_npz(path: Path, amb: float = 0.01, seed: int = 0, scratch: bool = True
     labels = [scratch_label()] if scratch else []
     b = LP.Burst(plate_frames(amb, seed, scratch, leds),
                  {"material": "ms_cold_rolled", "sequence": list(LP.SEQUENCE),
-                  "twin": {"schema": "trinetra.twin.burst/1", "scene_id": path.stem.split("_v")[0], "k": 0,
+                  "twin": {"schema": "ayas.twin.burst/1", "scene_id": path.stem.split("_v")[0], "k": 0,
                            "split": "test", "condition": "C1_office", "device_mode": "open",
                            "part": {"material": "ms_cold_rolled", "thickness_mm": 3.0, "size_mm": [100, 100]}}})
     extra = dict(sequence=np.array(LP.SEQUENCE), plate_size_mm=np.array([100.0, 100.0]),
@@ -239,7 +239,7 @@ def test_full_run_gives_a_3_0_record_timings_and_a_log_row(tmp_path):
     rec = pipe.run(*SR.TwinSource(path.parent, loop=False).next())
 
     assert RP.validate_record(rec) == []
-    assert rec["schema"] == "trinetra.inspection/3.0" and rec["verdict"] in rules.RECORD_VERDICTS
+    assert rec["schema"] == "ayas.inspection/3.0" and rec["verdict"] in rules.RECORD_VERDICTS
     assert rec["capture"]["mode"] == "burst5" and rec["capture"]["gate"] in ("PASS", "PASS_FLAGGED")
     (d,) = rec["defects"]
     assert d["type"] == "scratch" and d["id"] == "D1" and d["measured_by"] == "mask"
@@ -259,7 +259,7 @@ def test_full_run_gives_a_3_0_record_timings_and_a_log_row(tmp_path):
     assert seen[0] == ("inspection", None)                   # the alert went out before any advice
     assert [e for e, _ in seen] == ["inspection", "advice_start", "advice_done"]
 
-    db = sqlite3.connect(tmp_path / "log" / "trinetra.db")
+    db = sqlite3.connect(tmp_path / "log" / "ayas.db")
     (row,) = db.execute("SELECT part_id, verdict, defect_count, report_json FROM inspections").fetchall()
     assert row[:3] == ("s1_v0", rec["verdict"], 1) and json.loads(row[3])["advice"] == rec["advice"]
     assert db.execute("SELECT role FROM chats").fetchall() == [("assistant",)]
@@ -352,7 +352,7 @@ def test_advisor_error_is_never_credited_to_a_model(tmp_path):
     adv.ask = lambda q: boom()
     res = pipe.ask(insp, "why")
     assert res.error == "template crashed" and res.backend == AD.NO_ANSWER and "Advisor failed" in res.text
-    bad = svc.explain({"schema": "trinetra.inspection/3.0"}, key="bad")  # a record the prompt builder cannot use
+    bad = svc.explain({"schema": "ayas.inspection/3.0"}, key="bad")  # a record the prompt builder cannot use
     assert bad.error and bad.backend == AD.NO_ANSWER
     pipe.close()
 
@@ -674,7 +674,7 @@ def test_ui_server_serves_the_station(tmp_path):
         assert i["defects"][0]["type"] == "scratch" and "Gate" in i["capture_line"]
         assert st["acked"] is (i["verdict"] not in UI.ALERT_VERDICTS)
         assert _http(base + "api/image.jpg")[:2] == b"\xff\xd8"
-        assert _http(base + "api/record")["schema"] == "trinetra.inspection/3.0"
+        assert _http(base + "api/record")["schema"] == "ayas.inspection/3.0"
         assert _http(base + "api/ask", {"kind": "why"}) == {"queued": True}
         st = wait_for(lambda: (s := _http(base + "api/latest"))["advice"]["kind"] == "ask"
                       and s["advice"]["status"] == "done" and s)
@@ -749,7 +749,7 @@ def test_page_is_self_contained_and_offline_check():
 
 
 def test_app_imports_no_network_client():
-    code = ("import sys, json; import trinetra.app.cli, trinetra.app.ui, trinetra.app.bench; "
+    code = ("import sys, json; import ayas.app.cli, ayas.app.ui, ayas.app.bench; "
             "bad = ('requests', 'urllib3', 'httpx', 'aiohttp', 'websockets', 'paramiko', 'boto3', 'ftplib', 'smtplib'); "
             "print(json.dumps(sorted(m for m in sys.modules if m.split('.')[0] in bad or m == 'urllib.request')))")
     out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True).stdout
@@ -789,7 +789,7 @@ def test_cli_console_run_and_bench(tmp_path, capsys):
                      "--log-dir", str(log), "--quiet"]) == 0
     lines = (log / "inspections.jsonl").read_text().splitlines()
     assert [json.loads(x)["part_id"] for x in lines] == ["s1_v0", "s2_v0"]
-    assert all(json.loads(x)["schema"] == "trinetra.inspection/3.0" for x in lines)
+    assert all(json.loads(x)["schema"] == "ayas.inspection/3.0" for x in lines)
     assert CLI.main(["run", "--source", f"twin:{d}", "--detector", "fake", "--advisor", "mock", "--log-dir",
                      str(log), "--bench", "2", "--warmup", "0", "--reports", str(tmp_path / "rep"), "--quiet"]) == 0
     assert len(list((tmp_path / "rep").glob("bench_*.json"))) == 1
@@ -798,8 +798,8 @@ def test_cli_console_run_and_bench(tmp_path, capsys):
 
 def test_reads_bursts_written_by_post_save_burst(tmp_path):
     """Contract check with the twin's own writer (twin/post.save_burst + twin/burst.simulate_burst)."""
-    from trinetra.twin import burst as BU
-    from trinetra.twin import post as P
+    from ayas.twin import burst as BU
+    from ayas.twin import post as P
 
     if not (hasattr(P, "save_burst") and hasattr(BU, "toy_scene")):
         pytest.skip("twin post.save_burst / burst.toy_scene not available")

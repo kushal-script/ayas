@@ -108,7 +108,7 @@ defects:
 # plain aluminium plate, so these profiles are templates: choose the one your customer
 # or drawing specifies and replace the numbers with your own acceptance limits.
 penetrant:
-  profile: asme_app8          # default; override with `trinetra penetrant --profile ...`
+  profile: asme_app8          # default; override with `ayas penetrant --profile ...`
   relevant_mm: 1.6            # 1/16 in: smaller indications are non-relevant (logged only)
   profiles:
     asme_app8:

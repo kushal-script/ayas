@@ -1,5 +1,5 @@
 {
- "schema": "trinetra.lighting_matrix/1",
+ "schema": "ayas.lighting_matrix/1",
  "created": "2026-11-15T10:32:59",
  "criterion": {
   "reference": {
@@ -68082,7 +68082,7 @@
   "naive": "/home/data/yolo_runs/models/v8n_naive.onnx",
   "burst": "/home/data/yolo_runs/models/v8n_burst.onnx"
  },
- "spec": "/home/trinetra/configs/spec_steel.yaml",
+ "spec": "/home/ayas/configs/spec_steel.yaml",
  "conf": 0.25,
  "figures": [
   "/home/data/yolo_runs/reports/figures/lighting_s900100.png",

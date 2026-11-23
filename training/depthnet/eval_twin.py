@@ -44,10 +44,10 @@ def main():
     ap.add_argument("scenes", nargs="+")
     a = ap.parse_args()
     import onnxruntime as ort
-    from trinetra import rules
-    from trinetra.app import pipeline as PL, sources as SR, surface3d as S3
-    from trinetra.physics import depth_pinn as DP, twin_eval as TE
-    from trinetra.twin import textures as TX
+    from ayas import rules
+    from ayas.app import pipeline as PL, sources as SR, surface3d as S3
+    from ayas.physics import depth_pinn as DP, twin_eval as TE
+    from ayas.twin import textures as TX
     sess = ort.InferenceSession(a.onnx, providers=["CPUExecutionProvider"])
     cfg = PL.load_app_config("configs/app.yaml")
     pipe = PL.InspectionPipeline(cfg["_capture"], cfg["_grid"], PL.FakeDetector(), rules.load_spec("configs/spec_steel.yaml"),
@@ -75,10 +75,10 @@ def main():
 def refine_compare(argv=None):
     """Network -> short grid fit, vs the fast PINN, on the same twin crops (depth error and time)."""
     import onnxruntime as ort
-    from trinetra import rules
-    from trinetra.app import pipeline as PL, sources as SR, surface3d as S3
-    from trinetra.physics import depth_pinn as DP, twin_eval as TE
-    from trinetra.twin import textures as TX
+    from ayas import rules
+    from ayas.app import pipeline as PL, sources as SR, surface3d as S3
+    from ayas.physics import depth_pinn as DP, twin_eval as TE
+    from ayas.twin import textures as TX
     import torch
     torch.set_num_threads(1)
     ap = argparse.ArgumentParser()

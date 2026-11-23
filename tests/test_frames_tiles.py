@@ -4,8 +4,8 @@ import numpy as np
 import pytest
 import yaml
 
-from trinetra import tiles as T
-from trinetra.twin import frames as F
+from ayas import tiles as T
+from ayas.twin import frames as F
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRATCH, DENT = T.CLASSES.index("scratch"), T.CLASSES.index("dent")

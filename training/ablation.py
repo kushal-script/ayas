@@ -29,7 +29,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from trinetra.tiles import CLASSES
+from ayas.tiles import CLASSES
 
 ROOT = Path(__file__).resolve().parents[1]
 HERE = Path(__file__).resolve().parent
@@ -118,8 +118,8 @@ def report(a: argparse.Namespace) -> str:
                     if m1 and m2 else DATA_DESC[row])
         else:
             data = f"{DATA_DESC[row]} ({man['counts']['train']})" if man else DATA_DESC[row]
-        tr = _load(p["runs"] / row / "trinetra_train.json")
-        tr1 = _load(p["runs"] / "synth_then_real_s1" / "trinetra_train.json") if row == "synth_then_real" else None
+        tr = _load(p["runs"] / row / "ayas_train.json")
+        tr1 = _load(p["runs"] / "synth_then_real_s1" / "ayas_train.json") if row == "synth_then_real" else None
         epochs = (f"{tr1['epochs']} + {tr['epochs']}" if tr1 and tr else str(tr["epochs"]) if tr else "n/a")
         ev = _load(p["reports"] / row / "eval.json")
         pc = ev["per_class"] if ev else {}

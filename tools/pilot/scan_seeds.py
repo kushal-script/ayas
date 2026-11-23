@@ -4,7 +4,7 @@
 import sys, yaml
 from pathlib import Path
 from collections import Counter
-from trinetra.twin import sampler
+from ayas.twin import sampler
 cfg = yaml.safe_load(Path("configs/twin.yaml").read_text())
 for seed in range(900010, 900200):
     p = sampler.make_plan(cfg, seed, "test", mode="surface", source="random", condition="C0_dark", device_mode="hood")

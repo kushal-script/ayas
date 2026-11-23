@@ -5,11 +5,11 @@ from pathlib import Path
 
 import pytest
 
-from trinetra.llm import CAUSE_LABEL, answer_steel
+from ayas.llm import CAUSE_LABEL, answer_steel
 
-from trinetra.llm import Advisor, ExecuTorchBackend, MockBackend, clean_runner_output, format_llama3
-from trinetra.report import compact_for_llm
-from trinetra.rules import load_spec
+from ayas.llm import Advisor, ExecuTorchBackend, MockBackend, clean_runner_output, format_llama3
+from ayas.report import compact_for_llm
+from ayas.rules import load_spec
 
 SPEC = load_spec(Path(__file__).resolve().parents[1] / "configs" / "spec.yaml")
 
@@ -166,10 +166,10 @@ def test_penetrant_report_in_template_mode():
 
 # ---- steel mode (record 3.0, spec_steel.yaml) -----------------------------------------------------
 
-from trinetra.llm import (SYSTEM_PROMPT, SYSTEM_PROMPT_AERO, check_reply, explain_shift, shift_summary,  # noqa: E402
+from ayas.llm import (SYSTEM_PROMPT, SYSTEM_PROMPT_AERO, check_reply, explain_shift, shift_summary,  # noqa: E402
                           shift_summary_text, system_prompt)
-from trinetra.report import build_steel_record  # noqa: E402
-from trinetra.rules import judge_steel  # noqa: E402
+from ayas.report import build_steel_record  # noqa: E402
+from ayas.rules import judge_steel  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 STEEL = load_spec(ROOT / "configs" / "spec_steel.yaml")
@@ -260,7 +260,7 @@ def test_steel_hindi_answer():
     ("The plate is compliant with IS 2062.", "banned phrase"),
     ("Approved: move on.", "banned phrase"),
     ("The camera measures depth here.", "banned phrase"),
-    ("TriNetra works in any lighting.", "banned phrase"),
+    ("Ayas works in any lighting.", "banned phrase"),
     ("You will get zero defects.", "banned phrase"),
     ("This result is guaranteed.", "banned phrase"),
     ("The verdict is REJECT.", "contradicts the verdict"),
@@ -483,7 +483,7 @@ def test_advisor_keeps_the_prompt_inside_the_context():
 
 # ---- 22 Nov: guardrail checks from the first Pi run (3 of 7 Llama answers had factual slips) ----
 
-from trinetra.llm import steel_brief  # noqa: E402
+from ayas.llm import steel_brief  # noqa: E402
 
 
 def crack_record():
@@ -608,7 +608,7 @@ def test_one_guarded_rewrite_before_the_template(tmp_path):
 
 
 def test_cause_note_covers_one_defect_type():
-    from trinetra.llm import cause_brief, cause_opening
+    from ayas.llm import cause_brief, cause_opening
     ds = [steel_defect("scratch", "D1", 20.0, 20.0, width_mm=0.6, length_mm=20.0),
           steel_defect("corrosion", "D2", 60.0, 60.0, conf=0.4, area_mm2=10.0, diameter_mm=3.6)]
     rec = steel_record(ds)

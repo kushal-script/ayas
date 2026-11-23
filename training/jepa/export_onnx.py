@@ -3,7 +3,7 @@
 Graphs (opset 17, batch 1, 1 x 3 x 224 x 224 ImageNet-normalised RGB in):
 - <name>_encoder.onnx     EMA target encoder -> (1, 196, D) patch embeddings (the NPU candidate)
 - <name>_knn.onnx         encoder + PatchCore head: z = (min_k ||e - bank_k|| - mu) / sigma -> (1, 14, 14)
-                          (the coreset is a constant; this is what trinetra.anomaly.OnnxPatchScorer loads)
+                          (the coreset is a constant; this is what ayas.anomaly.OnnxPatchScorer loads)
 - <name>_knn_head.onnx    the head alone, (1, 196, D) -> (1, 14, 14) (CPU part if the encoder runs on Hailo)
 - <name>_pred.onnx        predictor-error head: 1 target pass + 4 masked context passes + 4 predictor passes
 - *_int8.onnx             onnxruntime dynamic INT8 (MatMul/Gemm weights) of encoder and knn

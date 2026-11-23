@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # JarvisLabs job: Drive training renders -> real-domain crops -> fine-tune the depth network.
-# Needs /home/.config/rclone/rclone.conf (uploaded by the user), /home/trinetra (code), /home/venv,
+# Needs /home/.config/rclone/rclone.conf (uploaded by the user), /home/ayas (code), /home/venv,
 # /home/depthnet/{data,run1} (synthetic shards and the synthetic model).
 set -euo pipefail
 RC="/home/bin/rclone --config /home/.config/rclone/rclone.conf"
-SRC="gdrive:TriNetra twin data (rclone)/render_2026-11-15/twin_train"
+SRC="gdrive:Ayas twin data (rclone)/render_2026-11-15/twin_train"
 D=/home/data; mkdir -p $D/tars $D/work
-. /home/venv/bin/activate; export PYTHONPATH=/home/trinetra/src; cd /home/trinetra
+. /home/venv/bin/activate; export PYTHONPATH=/home/ayas/src; cd /home/ayas
 echo "== $(date -Is) download"
 $RC copy "$SRC" $D/tars --include "work_s*.tar" --transfers 4 --checkers 8 --drive-chunk-size 64M --stats 60s --stats-one-line 2>&1 | { grep -v NOTICE || true; }
 ls -la $D/tars | tail -3

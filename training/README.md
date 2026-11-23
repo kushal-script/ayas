@@ -1,13 +1,13 @@
 # Training, the lighting experiment and evaluation of the surface-defect detector
 
-YOLOv8n, 6 steel classes (`scratch, dent, pit, corrosion, crack, stain` = `trinetra.tiles.CLASSES`, ids 0-5), trained on **640 px tiles cut from the rectified 0.08 mm/px plate grid**. Tiles are never resized, here or on the Pi. The binding contract is `docs/twin/DESIGN_STEEL.md` (section G for the lighting experiment), with `docs/twin/DESIGN.md` for frames and tiles. No script hard-codes the class list: they read `trinetra.tiles.CLASSES` or the model's own names.
+YOLOv8n, 6 steel classes (`scratch, dent, pit, corrosion, crack, stain` = `ayas.tiles.CLASSES`, ids 0-5), trained on **640 px tiles cut from the rectified 0.08 mm/px plate grid**. Tiles are never resized, here or on the Pi. The binding contract is `docs/twin/DESIGN_STEEL.md` (section G for the lighting experiment), with `docs/twin/DESIGN.md` for frames and tiles. No script hard-codes the class list: they read `ayas.tiles.CLASSES` or the model's own names.
 
 All scripts run with the training venv and have `--help` (`eval_lighting.py` and `eval_plates.py` also run in the dev venv with an `.onnx` model):
 
 | Script | Does |
 |---|---|
 | `train_arms.py` | **Phase 1.** One YOLOv8n per capture arm (`naive` = old single frame, `burst` = new 5-frame method) from the same twin plans; export; optional lighting evaluation |
-| `eval_lighting.py` | **Phase 1.** The lighting experiment on the test matrix (`trinetra.twin.matrix`): P/R/F1, retakes, silent failures, verdict agreement, SSIM vs C0, PASS/FAIL; `reports/lighting_matrix.{md,json}` + `reports/figures/` |
+| `eval_lighting.py` | **Phase 1.** The lighting experiment on the test matrix (`ayas.twin.matrix`): P/R/F1, retakes, silent failures, verdict agreement, SSIM vs C0, PASS/FAIL; `reports/lighting_matrix.{md,json}` + `reports/figures/` |
 | `build_datasets.py` | Image lists for the 5 sim-to-real ablation rows: `runs/datasets/<row>/{train,val,test}.txt` + `data.yaml` + `manifest.json` |
 | `train.py` | Ultralytics training with the native-scale settings; `--test` adds tile mAP50 on the real test tiles |
 | `export_onnx.py` | `best.pt` -> `models/<name>.onnx` + `<name>.json` (class names); checks onnxruntime against PyTorch and the Hailo cut nodes |
@@ -24,18 +24,18 @@ The claim to test: **the inspector works in different lighting**, because of the
    ```bash
    .venv/bin/python training/train_arms.py --write-naive-config runs/twin_naive.yaml
    for s in $(seq 0 100 1400); do
-     .venv/bin/python -m trinetra.twin.cli run --n 100 --start-seed $s --out data/twin/arm_burst --keep-work
-     .venv/bin/python -m trinetra.twin.cli post --work data/twin/arm_burst/work --out data/twin/arm_naive --config runs/twin_naive.yaml
+     .venv/bin/python -m ayas.twin.cli run --n 100 --start-seed $s --out data/twin/arm_burst --keep-work
+     .venv/bin/python -m ayas.twin.cli post --work data/twin/arm_burst/work --out data/twin/arm_naive --config runs/twin_naive.yaml
      rm -rf data/twin/arm_burst/work
    done
    ```
 
    Training seeds are always below 900000.
-2. **The test matrix.** Every test plate under every condition with the open device and with the hood head (device v2, DESIGN_STEEL C2): 14 rows per plate. The plate, defects and distractors are identical across a plate's rows; seeds start at 900000 and are refused by `train_arms.py` and `calib_set.py`. At least a quarter of the plates are defect-free (`--min-clean` of `python -m trinetra.twin.matrix`; research: 2-3 of 8-10), so false rejects of clean parts are measured too:
+2. **The test matrix.** Every test plate under every condition with the open device and with the hood head (device v2, DESIGN_STEEL C2): 14 rows per plate. The plate, defects and distractors are identical across a plate's rows; seeds start at 900000 and are refused by `train_arms.py` and `calib_set.py`. At least a quarter of the plates are defect-free (`--min-clean` of `python -m ayas.twin.matrix`; research: 2-3 of 8-10), so false rejects of clean parts are measured too:
 
    ```bash
-   .venv/bin/python -m trinetra.twin.cli matrix --n 10 --start-seed 900100 --out data/twin_matrix --overview   # 10 x 14 rows
-   # (= python -m trinetra.twin.matrix --n 10 --out data/twin_matrix --render --overview)
+   .venv/bin/python -m ayas.twin.cli matrix --n 10 --start-seed 900100 --out data/twin_matrix --overview   # 10 x 14 rows
+   # (= python -m ayas.twin.matrix --n 10 --out data/twin_matrix --render --overview)
    ```
 
    Post must have `eval_arms: [burst, naive]` (the default) so that it writes `grids/<arm>/test/<scene>_v<k>.png` for both arms. Cost: 140 renders at about 41 s each (full resolution, 96 samples) is about 1.6 h on the M3, plus post. **Start at seed 900100 or later**: the device v2 gate recalibration (14 Nov, `configs/capture.yaml`) used a pilot on matrix seeds 900000-900004, and the full-resolution pilot (15 Nov, `reports/pilot_lighting.md`) tuned the closure, coarse-closure and local-ambient gate rules on seeds 900011, 900027, 900028 and 900068, so those plates are no longer untouched test plates.
@@ -66,7 +66,7 @@ The claim to test: **the inspector works in different lighting**, because of the
 
 Two ways to turn boxes into mm (`--measure`):
 - `box` (default): detections and ground-truth boxes are measured the same way (`box_defect`): every box is padded to `label.min_box_px` (8 px) per side first, as post pads every training label, so a perfect detector gets the ground-truth verdict. This isolates what the lighting does to detection. A box only bounds a thin defect, so a diagonal 0.1 mm scratch gets the width of its box on both sides: the verdicts are consistent, not physical.
-- `app`: detections are measured exactly as the on-device app measures them (`trinetra.app.pipeline.detection_record`: sizes from the defect's own pixels in the grid, so the lighting can change them), and the truth uses the analytic measures (`--gt-measure true`, converted as `twin.records.gt_verdict` does, plan params such as pitted rust included). This is the verdict the device would really show against the physical truth; run it as well and quote both.
+- `app`: detections are measured exactly as the on-device app measures them (`ayas.app.pipeline.detection_record`: sizes from the defect's own pixels in the grid, so the lighting can change them), and the truth uses the analytic measures (`--gt-measure true`, converted as `twin.records.gt_verdict` does, plan params such as pitted rust included). This is the verdict the device would really show against the physical truth; run it as well and quote both.
 
 A defect counts as ground truth when post found it visible in the plate's C0 (dark-room) capture with the same device (`--gt-visibility c0`; the ring and the pods show different defects), so a defect that glare hides in sun is a miss, not "invisible".
 
@@ -113,22 +113,22 @@ Or all five rows at once: `$P training/ablation.py --test-grids <realdata out>/g
 **Colab (T4/L4).** Zip `src/ training/ configs/ pyproject.toml requirements-train.txt` and the two YOLO trees to Drive, then:
 
 ```bash
-!cd /content && unzip -q /content/drive/MyDrive/trinetra_train.zip -d trinetra
-!cd /content/trinetra && pip install -q ultralytics==8.4.202 onnx==1.23.2 onnxruntime==1.31.1 onnxslim==0.1.99 && pip install -q -e . --no-deps
-!cd /content/trinetra && python training/ablation.py --epochs 150 --test-grids <grids> --device 0
+!cd /content && unzip -q /content/drive/MyDrive/ayas_train.zip -d ayas
+!cd /content/ayas && pip install -q ultralytics==8.4.202 onnx==1.23.2 onnxruntime==1.31.1 onnxslim==0.1.99 && pip install -q -e . --no-deps
+!cd /content/ayas && python training/ablation.py --epochs 150 --test-grids <grids> --device 0
 ```
 
-Keep Colab's CUDA torch if it is 2.15.x; otherwise note the version (every run records it in `trinetra_train.json`). Copy `runs/`, `models/` and `reports/` back to Drive before the session ends.
+Keep Colab's CUDA torch if it is 2.15.x; otherwise note the version (every run records it in `ayas_train.json`). Copy `runs/`, `models/` and `reports/` back to Drive before the session ends.
 
 **JarvisLabs GPU (`jl` CLI).** Use a bundle rather than a directory run, so the venvs and `data/` are not rsynced:
 
 ```bash
-tar czf /tmp/trinetra_train.tgz src training configs pyproject.toml requirements-train.txt data/twin/yolo data/real/yolo
+tar czf /tmp/ayas_train.tgz src training configs pyproject.toml requirements-train.txt data/twin/yolo data/real/yolo
 jl create --gpu L4 --storage 50 --yes --json                       # note the machine_id
-jl upload <id> /tmp/trinetra_train.tgz /home/trinetra_train.tgz
-jl run --on <id> --json --yes -- sh -lc 'mkdir -p /home/trinetra && cd /home/trinetra && tar xzf ../trinetra_train.tgz && pip install -q ultralytics==8.4.202 onnx==1.23.2 onnxruntime==1.31.1 onnxslim==0.1.99 && pip install -q -e . --no-deps && python training/ablation.py --epochs 150 --device 0'
+jl upload <id> /tmp/ayas_train.tgz /home/ayas_train.tgz
+jl run --on <id> --json --yes -- sh -lc 'mkdir -p /home/ayas && cd /home/ayas && tar xzf ../ayas_train.tgz && pip install -q ultralytics==8.4.202 onnx==1.23.2 onnxruntime==1.31.1 onnxslim==0.1.99 && pip install -q -e . --no-deps && python training/ablation.py --epochs 150 --device 0'
 jl run logs <run_id> --tail 50                                     # poll every few minutes
-jl download <id> /home/trinetra/runs ./runs -r && jl download <id> /home/trinetra/reports ./reports -r
+jl download <id> /home/ayas/runs ./runs -r && jl download <id> /home/ayas/reports ./reports -r
 jl pause <id> --yes --json                                         # stop billing
 ```
 
@@ -157,11 +157,11 @@ jl pause <id> --yes --json                                         # stop billin
 
 ## Evaluation rule (`eval_plates.py`)
 
-Full rectified grids go through `trinetra.npu.detect_grid` (same tiling and seam merge as the Pi). A detection matches a same-class object if IoU with its box is at least 0.25, or the box covers at least 50 % of the object's mask (thin scratches and cracks have sliver boxes, so IoU alone is unfair). Duplicates on one object are true positives and are counted separately. Detections on `visible: false` defects are ignored. Clean plates are grids with no labelled defect.
+Full rectified grids go through `ayas.npu.detect_grid` (same tiling and seam merge as the Pi). A detection matches a same-class object if IoU with its box is at least 0.25, or the box covers at least 50 % of the object's mask (thin scratches and cracks have sliver boxes, so IoU alone is unfair). Duplicates on one object are true positives and are counted separately. Detections on `visible: false` defects are ignored. Clean plates are grids with no labelled defect.
 
 ## Pitfalls seen so far
 
-- Ultralytics reads numpy images as **BGR**; every `trinetra.npu` detector takes **RGB** tiles (convert after `cv2.imread`).
+- Ultralytics reads numpy images as **BGR**; every `ayas.npu` detector takes **RGB** tiles (convert after `cv2.imread`).
 - Ultralytics writes label caches (`labels/<split>.cache`) next to the label folders.
 - With an untrained model, ONNX and PyTorch detections can differ at very low `conf` because dozens of anchors tie at the same score; the raw-output check is what matters (measured max differences: 2e-6 score, 6e-4 px).
 - Disk is tight: never use `cache=disk`; `calib_set.py` for 1,024 tiles needs about 1.9 GB (`--no-npy` saves 1.26 GB).

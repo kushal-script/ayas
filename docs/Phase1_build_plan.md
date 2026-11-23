@@ -1,4 +1,4 @@
-# TriNetra Phase 1: what to build and what to do (5 → 23 Nov 2026)
+# Ayas Phase 1: what to build and what to do (5 → 23 Nov 2026)
 
 **Context:**
 - Bharat AI SoC Challenge 2026-27, problem statement PS5 (Manufacturing & Industry 4.0).
@@ -18,7 +18,7 @@ The sourced research behind every number is in `docs/research/2026-11-05_*.md`.
 
 ## 0. The solution in one paragraph
 
-**TriNetra** is a bench-top, AI-assisted visual QC station for flat metal parts. The demo part is a 100 × 100 × 3 mm aluminium plate. The **Raspberry Pi AI Camera** looks straight down from 20 cm, inside a black cloth shroud on an open frame.
+**Ayas** is a bench-top, AI-assisted visual QC station for flat metal parts. The demo part is a 100 × 100 × 3 mm aluminium plate. The **Raspberry Pi AI Camera** looks straight down from 20 cm, inside a black cloth shroud on an open frame.
 
 **Lighting.** Four low-angle blue light bars (N, E, S and W) light the plate one at a time. A white, a blue and a UV light at 40° complete the set. Grazing light makes scratches, dents, pits and cracks glow or cast shadows, and the bar that lights a defect gives its direction and relief. A lights-off frame is subtracted from every frame.
 
@@ -48,8 +48,8 @@ The sourced research behind every number is in `docs/research/2026-11-05_*.md`.
 | Lighting conditions tested (twin) | C0 dark · C1 office · C2 warm bulb · C3 window · C4 side lamp + moving shadow · C5 lamp reflected in the plate · C6 direct sun (open and hood) |
 | Pass criterion | C0–C5: F1 ≥ F1(C0) − 0.05 and verdict agreement ≥ 95 %. All conditions: 0 % silent failures. C6 with the hood passes |
 | Severity | `configs/spec_steel.yaml`, rule-based, informed by EN 10163-2 / ISO 7788, ISO 8501-1 / IS 9954, ISO 8501-3 and IS 2062 (Part 1) cl. 7. Thresholds are illustrative; the camera does not measure depth |
-| Hand-off | One JSON record `trinetra.inspection/3.0` (defect, severity, confidence, box, mm, capture quality) → Llama 3.2 1B via ExecuTorch → alert + SQLite log |
-| On the Pi | `trinetra-app`: twin bursts or the camera → lightproc → Hailo/ONNX YOLOv8n → rules → record → Llama → web UI on the 5" display. Benchmarks: P/R/F1, FPS, latency, memory, power, TTFT, tok/s |
+| Hand-off | One JSON record `ayas.inspection/3.0` (defect, severity, confidence, box, mm, capture quality) → Llama 3.2 1B via ExecuTorch → alert + SQLite log |
+| On the Pi | `ayas-app`: twin bursts or the camera → lightproc → Hailo/ONNX YOLOv8n → rules → record → Llama → web UI on the 5" display. Benchmarks: P/R/F1, FPS, latency, memory, power, TTFT, tok/s |
 
 **Plan to 22 Nov:**
 
@@ -70,7 +70,7 @@ The sourced research behind every number is in `docs/research/2026-11-05_*.md`.
 
 **Decision.** The team adopted the aircraft framing and a digital twin.
 
-**Problem statement.** TriNetra is a **handheld AI visual-inspection assistant for riveted aluminium aerostructure details at Tier-2/3 aerospace suppliers**. The Bengaluru cluster includes HAL, Dynamatic, Aequs and TASL. It is human-in-the-loop decision support: it flags, measures and documents, and a qualified inspector decides.
+**Problem statement.** Ayas is a **handheld AI visual-inspection assistant for riveted aluminium aerostructure details at Tier-2/3 aerospace suppliers**. The Bengaluru cluster includes HAL, Dynamatic, Aequs and TASL. It is human-in-the-loop decision support: it flags, measures and documents, and a qualified inspector decides.
 
 The research behind every rule and number is in `docs/research/2026-11-05_aero_*.md`.
 
@@ -108,7 +108,7 @@ The twin gets **at most about 4 person-days (Fri 6 to Thu 12)**.
 
 ### 1.1 Must do (to qualify; from the rules and the PS5 brief)
 
-| # | Requirement | How TriNetra meets it | Proof for the judges |
+| # | Requirement | How Ayas meets it | Proof for the judges |
 |---|---|---|---|
 | M1 | Llama-family model for the advisory part, **on the device, through ExecuTorch** | Llama 3.2 1B-Instruct (SpinQuant INT4) `.pte`, run by ExecuTorch's `TextLLMRunner` on the Cortex-A76 | Video: Wi-Fi off and Ethernet unplugged, advice streaming. Report: versions, export recipe, tokens/s table |
 | M1b | *(our own must)* **Export the `.pte` ourselves** by Tue 10 | A third-party `.pte` is within the rules, but weak on originality and on "use of Arm tools". Section 8.4 | Export YAML, command and log in the repo |
@@ -170,7 +170,7 @@ These move to section 15:
 3. **Hugging Face:** every member requests access to `meta-llama/Llama-3.2-1B-Instruct-SpinQuant_INT4_EO8` and `meta-llama/Llama-3.2-1B-Instruct`. Approval is manual and can take days.
 4. **Hailo Developer Zone** (hailo.ai): register for free. Check that the **Dataflow Compiler 5.1.0** wheel can still be downloaded. If not, post on community.hailo.ai today.
 5. **Watch** the challenge page and the commits on `arm-education/Arm-Developer-Labs` every day. The deadline has already moved once (30 → 23 Nov).
-6. Whole team: watch the 5-minute PS5 video at https://www.youtube.com/watch?v=AsISV9eDakY. Its reference architecture is camera → vision model → structured defect record → Llama → alert + log, and TriNetra follows it.
+6. Whole team: watch the 5-minute PS5 video at https://www.youtube.com/watch?v=AsISV9eDakY. Its reference architecture is camera → vision model → structured defect record → Llama → alert + log, and Ayas follows it.
 7. **Buy the small parts in person on SP Road today or tomorrow** (section 3.4). Deepavali falls on Sun 8 Nov, and **Balipadyami (Tue 10 Nov) is a Karnataka holiday**, so online orders may arrive late. Plan Sun 8 and Tue 10 at half capacity.
 
 ---
@@ -375,7 +375,7 @@ each channel:  Pi GPIO --100 Ω-- gate [logic-level N-MOSFET] drain -- (−) of 
 
 ```
             PIPELINE A: VISION (HailoRT on Hailo-10H)               PIPELINE B: ADVISOR (ExecuTorch on Cortex-A76)
- process: trinetra-vision (system Python 3.13 + apt picamera2,      process: trinetra-advisor (venv: executorch 1.5.1,
+ process: ayas-vision (system Python 3.13 + apt picamera2,      process: ayas-advisor (venv: executorch 1.5.1,
           python3-h10-hailort, OpenCV)                                       torch 2.14.0 CPU build)
 
  GPIO lights + AI Camera (Picamera2, SRGGB10 raw, AE/AWB off)
@@ -389,7 +389,7 @@ each channel:  Pi GPIO --100 Ω-- gate [logic-level N-MOSFET] drain -- (−) of 
    -> SQLite + JSON + images                                  -> instruction / cause / prevention, Q&A,
    <=========== streamed tokens to the touchscreen ==========    shift summary (streamed)
 
- UI: FastAPI in trinetra-vision -> Chromium kiosk on the touchscreen
+ UI: FastAPI in ayas-vision -> Chromium kiosk on the touchscreen
 ```
 
 **Why separate processes:**
@@ -417,7 +417,7 @@ each channel:  Pi GPIO --100 Ω-- gate [logic-level N-MOSFET] drain -- (−) of 
      "location_mm": {"x": 30.2, "y": 64.0}, "size": {"area_mm2": 1.9}, "disposition": "HOLD_FOR_QA"}
   ],
   "history": {"last_n": 20, "same_type_count": 3, "same_location_count": 2},
-  "backend": {"vision": "hailo10h:yolov8n_trinetra.hef", "advisor": "executorch-1.5.1:Llama-3.2-1B-Instruct-SpinQuant-TriNetra.pte"}
+  "backend": {"vision": "hailo10h:yolov8n_ayas.hef", "advisor": "executorch-1.5.1:Llama-3.2-1B-Instruct-SpinQuant-Ayas.pte"}
 }
 ```
 
@@ -618,7 +618,7 @@ hf download software-mansion/Llama-3.2-ExecuTorch 1b/xnnpack/llama_3_2_1b_xnnpac
 
 ### 8.2 The advisor service
 
-New file `src/trinetra/advisor_svc.py`, run in the `et15` venv:
+New file `src/ayas/advisor_svc.py`, run in the `et15` venv:
 
 ```python
 from executorch.extension.llm.custom_ops import custom_ops      # registers custom ops
@@ -678,7 +678,7 @@ hf download meta-llama/Llama-3.2-1B-Instruct-SpinQuant_INT4_EO8 --local-dir ~/ll
 # config: examples/models/llama/config/llama_xnnpack_spinquant.yaml from the release/1.5 branch
 python -m executorch.extension.llm.export.export_llm --config llama_xnnpack_spinquant.yaml \
   +base.model_class=llama3_2 +base.checkpoint=$HOME/llama/1b-sq/consolidated.00.pth \
-  +base.params=$HOME/llama/1b-sq/params.json +export.output_name=Llama-3.2-1B-Instruct-SpinQuant-TriNetra.pte
+  +base.params=$HOME/llama/1b-sq/params.json +export.output_name=Llama-3.2-1B-Instruct-SpinQuant-Ayas.pte
 ```
 
 - **The name must start with "Llama"** (Llama 3.2 licence).
@@ -710,7 +710,7 @@ python -m executorch.extension.llm.export.export_llm --config llama_xnnpack_spin
 ## 9. The application, alerts and logs
 
 **Stack:**
-- FastAPI and plain HTML/JS, served by `trinetra-vision`, shown in Chromium kiosk mode on the touchscreen.
+- FastAPI and plain HTML/JS, served by `ayas-vision`, shown in Chromium kiosk mode on the touchscreen.
 - MJPEG live view.
 - Server-Sent Events for Llama streaming.
 
@@ -729,10 +729,10 @@ python -m executorch.extension.llm.export.export_llm --config llama_xnnpack_spin
 - **Buzzer:** 1 short beep for PASS, 2 for REWORK or CLEAN, 3 long for REJECT or HOLD.
 
 **Logs:**
-- `trinetra.db`: inspections, defects, chat turns and sign-offs. Open one SQLite connection per thread; `store.py` currently isn't thread-safe.
+- `ayas.db`: inspections, defects, chat turns and sign-offs. Open one SQLite connection per thread; `store.py` currently isn't thread-safe.
 - JSON and an overlay PNG per part.
 - CSV export.
-- **`trinetra replay <dir>`** runs the whole pipeline on recorded sequences, so judges can run it without the rig.
+- **`ayas replay <dir>`** runs the whole pipeline on recorded sequences, so judges can run it without the rig.
 
 ---
 
@@ -890,11 +890,11 @@ NOTICE             Llama 3.2 Community License + "Built with Llama"; Ultralytics
 DATASETS.md        own data description; public datasets only via download scripts, with licences
 docs/              Phase1_build_plan.md, report source, diagrams, wiring photo, research/
 configs/           rig.pi.yaml (single camera, 7 light channels), spec.yaml
-src/trinetra/      vision pipeline, fusion.py, npu.py, advisor_svc.py, app/
+src/ayas/      vision pipeline, fusion.py, npu.py, advisor_svc.py, app/
 tools/             capture_dataset.py, project_labels.py, train_yolo.md, compile_hef.ipynb,
                    bench_llm.py, bench_vision.py, fetch_models.sh (pinned revision + SHA-256)
 models/README.md   how to get the .hef and .pte (no weights committed; never commit the DFC wheel)
-data/real/sample/  a few recorded sequences for `trinetra replay`
+data/real/sample/  a few recorded sequences for `ayas replay`
 ```
 
 **GitHub Release `v1.0-phase1` assets:**

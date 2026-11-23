@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Compile the TriNetra YOLOv8n (6 steel classes) to a Hailo-10H HEF on a JarvisLabs GPU box.
+# Compile the Ayas YOLOv8n (6 steel classes) to a Hailo-10H HEF on a JarvisLabs GPU box.
 # Same steps as hailo/compile_hef_colab.ipynb: DFC 5.1.0 + Model Zoo v5.1.0 (the Pi runs HailoRT 5.1.1).
 # Inputs in $JOB (default /home/hailo_job): hailo_dataflow_compiler-5.1.0-*.whl, best.onnx, calib_640.zip
 # Outputs in $JOB/out: the HEF, its <stem>.json (class names), HARs, compile.log, compile_info.json.
@@ -45,12 +45,12 @@ CFG = pathlib.Path(f"{JOB}/hailo_model_zoo/hailo_model_zoo/cfg")
 net = CFG / "networks" / "yolov8n.yaml"; text = net.read_text()
 alls_name = re.search(r"alls_script:\s*(\S+)", text).group(1)
 alls = sorted(CFG.glob(f"alls/**/{alls_name}")); assert alls, alls_name
-new_yaml = net.with_name("trinetra_yolov8n.yaml")
-new_yaml.write_text(re.sub(r"(alls_script:\s*)\S+", r"\g<1>trinetra_yolov8n.alls", text))
+new_yaml = net.with_name("ayas_yolov8n.yaml")
+new_yaml.write_text(re.sub(r"(alls_script:\s*)\S+", r"\g<1>ayas_yolov8n.alls", text))
 for a in alls:
     lines = [ln for ln in a.read_text().splitlines() if not ln.startswith("model_optimization_config(calibration")]
     lines.append("model_optimization_config(calibration, calibset_size=1024)")
-    new = a.with_name("trinetra_yolov8n.alls"); new.write_text("\n".join(lines) + "\n")
+    new = a.with_name("ayas_yolov8n.alls"); new.write_text("\n".join(lines) + "\n")
     nms = re.search(r'nms_postprocess\("([^"]+)"', new.read_text())
     if nms:
         target = (a.parent / nms.group(1)).resolve()
@@ -67,7 +67,7 @@ PY
 echo "== $(date -Is) compile (hailo10h, 6 classes, no --performance)"
 mkdir -p "$JOB/custom" && cd "$JOB/custom"
 hailomz compile --ckpt "$JOB/best.onnx" --calib-path "$JOB/calib_640" \
-  --yaml "$JOB/hailo_model_zoo/hailo_model_zoo/cfg/networks/trinetra_yolov8n.yaml" \
+  --yaml "$JOB/hailo_model_zoo/hailo_model_zoo/cfg/networks/ayas_yolov8n.yaml" \
   --classes 6 --hw-arch hailo10h \
   --start-node-names images \
   --end-node-names /model.22/cv2.0/cv2.0.2/Conv /model.22/cv3.0/cv3.0.2/Conv /model.22/cv2.1/cv2.1.2/Conv \
@@ -85,7 +85,7 @@ snr = [(a, float(b)) for a, b in re.findall(r"(\S+)\s+SNR:?\s*(-?[\d.]+)\s*dB", 
 hefs = glob.glob(f"{JOB}/custom/*.hef"); assert hefs, "no HEF: read compile.log"
 for f in hefs + glob.glob(f"{JOB}/custom/*.har") + [f"{JOB}/custom/compile.log"]:
     shutil.copy(f, OUT)
-for a in glob.glob(f"{JOB}/hailo_model_zoo/hailo_model_zoo/cfg/**/trinetra_yolov8n.*", recursive=True):
+for a in glob.glob(f"{JOB}/hailo_model_zoo/hailo_model_zoo/cfg/**/ayas_yolov8n.*", recursive=True):
     shutil.copy(a, f"{OUT}/{os.path.basename(os.path.dirname(a))}_{os.path.basename(a)}")
 gpu = subprocess.run(["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"], capture_output=True, text=True).stdout.strip()
 mz = subprocess.run(["git", "-C", f"{JOB}/hailo_model_zoo", "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()

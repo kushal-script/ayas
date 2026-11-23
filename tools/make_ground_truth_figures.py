@@ -1,9 +1,9 @@
 import json, sys
 from pathlib import Path
 import cv2, numpy as np
-from trinetra.app.pipeline import grid_map, rectify
+from ayas.app.pipeline import grid_map, rectify
 ROOT = Path(sys.argv[1]); OUT = ROOT / "reports/figures/scenes"
-B = ROOT / "artifacts/jarvislabs/trinetra-render_574738_final/twin_matrix/post_final/bursts"
+B = ROOT / "artifacts/jarvislabs/ayas-render_574738_final/twin_matrix/post_final/bursts"
 COL = {"scratch": (0, 200, 255), "dent": (255, 120, 0), "pit": (200, 0, 200), "corrosion": (0, 90, 255), "crack": (0, 0, 255), "stain": (0, 200, 0)}
 for name in ("s900100_C0h_v0", "s900101_C0h_v0", "s900100_C6o_v0"):
     z = np.load(B / f"{name}.npz", allow_pickle=True)
