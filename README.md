@@ -1,6 +1,6 @@
 # Ayas · अयस्
 
-*Ayas* (अयस्) is the Vedic word for iron and metal.
+*Every surface, seen true.*
 
 **On-device visual QC for steel and metal surfaces.**
 

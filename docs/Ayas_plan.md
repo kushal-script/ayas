@@ -18,7 +18,7 @@ UV and fluorescent penetrant are on the roadmap only. This plan supersedes BeamT
 
 **Official brief:** https://arm-education.github.io/Arm-Developer-Labs/Bharat_AI_SoC_2026_27.html
 
-**Name.** *Ayas* (अयस्) is the Vedic Sanskrit word for iron and metal. The earlier working name was TriNetra ("three eyes").
+**Name.** *Ayas* (अयस्). Tagline: "Every surface, seen true." The earlier working name was TriNetra.
 
 ---
 
