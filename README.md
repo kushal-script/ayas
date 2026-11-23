@@ -1,4 +1,8 @@
-# Ayas: on-device visual QC for steel and metal surfaces
+# Ayas · अयस्
+
+*Ayas* (अयस्) is the Vedic word for iron and metal.
+
+**On-device visual QC for steel and metal surfaces.**
 
 Raspberry Pi 5 · 5-frame LED burst with a quality gate · YOLOv8n · rules informed by EN 10163-2 / ISO 7788 · Llama 3.2 1B via ExecuTorch on the Arm CPU. **Built with Llama.**
 
