@@ -27,3 +27,8 @@ docs/research/archive/
 tools/save_workflow_reports.py
 reports/pi_phase1_Kushals-Laptop.local_*/
 reports/*.tgz
+# KiCad: regenerable or user-local files
+hardware/pcb/kicad/*/*.step
+hardware/pcb/kicad/*/*-backups/
+hardware/pcb/kicad/*/*.kicad_prl
+hardware/pcb/kicad/*/fp-info-cache

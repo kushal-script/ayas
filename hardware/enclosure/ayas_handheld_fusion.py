@@ -129,6 +129,15 @@ P = dict(
     ring_mods=(('y', 1, -44.0), ('y', 1, 44.0), ('y', -1, -44.0), ('y', -1, 44.0), ('x', 1, 0.0), ('x', -1, 0.0)),
     lip_len=32.0, lip_t=2.0, lip_gap=3.0,   # 45 deg lip over each module hides the LEDs from the camera (26 left the side walls visible)
 
+    # Phase 2 electronics (docs/hardware/pcb_phase2.md): POWER board on the right (+X, beside the bank's
+    # cable slot), LIGHT/IO board on the left, both flat on standoffs above the battery shelf
+    pcb_main_x=(21.0, 67.0),      # |x| extent: clear of the bank cable slot (x 4..18) and the side wall
+    pcb_main_z=(-32.0, 23.0),     # z extent: ends before the LED-pod screw bosses (z >= 23.8 above the board)
+    pcb_low=(52.0, 61.0, 5.0),    # |x| strip under the display posts (x 56.5, 5.9 mm above the board): parts <= 5 mm
+    pcb_t=1.6, pcb_standoff=5.0,  # board thickness; board underside above the shelf
+    pcb_top=12.0, pcb_bot=2.0,    # component height above / below the board
+    pcb_hole_in=3.5,              # M3 hole centres in from the board corners
+
     # cooling
     fan=(30.0, 7.0),              # 30 x 30 x 7 mm 5 V fan, exhausting up through the top vents
 
@@ -693,11 +702,21 @@ def pod_screw_points(d, s):
     return [(s * (xc - 13), d['y_screw']), (s * (xc + 13), d['y_screw'])]
 
 
+def pcb_main_box(d, s):
+    """(x0, x1, z0, z1) of the POWER (s = +1) or LIGHT/IO (s = -1) board outline."""
+    a, b = d['pcb_main_x']
+    x0, x1 = (a, b) if s > 0 else (-b, -a)
+    return x0, x1, d['pcb_main_z'][0], d['pcb_main_z'][1]
+
+
 def elec_points(d):
-    """(x, z) of the bosses standing on the battery shelf: one 30 x 50 perfboard carrier per side
-    (12 V PD trigger, 5 V 5 A buck, MOSFET channels, fuse, bulk capacitor)."""
-    zc = d['bay_zc']
-    return [(sx * x, zc + dz) for sx in (-1, 1) for x in (25.0, 49.0) for dz in (-22.0, 22.0)]
+    """(x, z) of the bosses standing on the battery shelf: the 4 corner holes of each main board
+    (docs/hardware/pcb_phase2.md)."""
+    k, out = d['pcb_hole_in'], []
+    for s in (1, -1):
+        x0, x1, z0, z1 = pcb_main_box(d, s)
+        out += [(x, z) for x in (x0 + k, x1 - k) for z in (z0 + k, z1 - k)]
+    return out
 
 
 def door_screw_points(d):
@@ -777,8 +796,8 @@ def detail_front_centre(comp, body, d):
     # power-electronics carrier bosses on the battery shelf
     ys = d['shelf_y1']
     for (x, z) in elec_points(d):                      # M3 thread-forming screws (no inserts here)
-        adds.append(g.cyl((x, ys - 0.5, z), (x, ys + 7, z), d['m3_boss_d'] / 2))
-        cuts.append(g.cyl((x, ys - 0.4, z), (x, ys + 7.1, z), d['m3_pilot'] / 2))
+        adds.append(g.cyl((x, ys - 0.5, z), (x, ys + d['pcb_standoff'], z), d['m3_boss_d'] / 2))   # board sits on the boss tops
+        cuts.append(g.cyl((x, ys - 0.4, z), (x, ys + d['pcb_standoff'] + 0.1, z), d['m3_pilot'] / 2))
 
     # 30 mm exhaust fan: 4 bosses hanging from the top wall (M3 self-tapping, 24 mm pattern)
     fs, ft = d['fan']
@@ -1256,9 +1275,17 @@ def build_reference(comp, d):
     fs, ft = d['fan']
     items['Fan30'] = g.box(d['fan_cx'] - fs / 2, d['fan_cx'] + fs / 2, d['y_top_in'] - 6 - ft, d['y_top_in'] - 6,
                            d['fan_cz'] - fs / 2, d['fan_cz'] + fs / 2)
-    ys = d['shelf_y1'] + 7
-    items['ElecCarriers'] = g.union([g.box(22.0, 52.0, ys, ys + 13, d['bay_zc'] - 25, d['bay_zc'] + 25),
-                                     g.box(-52.0, -22.0, ys, ys + 13, d['bay_zc'] - 25, d['bay_zc'] + 25)])
+    yb = d['shelf_y1'] + d['pcb_standoff']              # board underside
+    for name, s in (('PcbPower', 1), ('PcbLight', -1)):
+        x0, x1, z0, z1 = pcb_main_box(d, s)
+        la, lb, lh = d['pcb_low']
+        lo0, lo1 = (la, lb) if s > 0 else (-lb, -la)
+        yt = yb + d['pcb_t']
+        tall = g.subtract(g.box(x0 + 1, x1 - 1, yt, yt + d['pcb_top'], z0 + 1, z1 - 1),
+                          g.box(lo0, lo1, yt + lh, yt + d['pcb_top'] + 1, z0, z1))      # low-profile strip
+        items[name] = g.union([g.box(x0, x1, yb, yt, z0, z1),                              # board
+                               tall,
+                               g.box(x0 + 7, x1 - 7, yb - d['pcb_bot'], yb, z0 + 7, z1 - 7)])   # underside parts, clear of the bosses
     for side, s in (('L', 1), ('R', -1)):
         fr, uf = pod_frame(d, s), uv_frame(d, s)
         leds = [g.obox(fr, cx - d['white_w'] / 2, cx + d['white_w'] / 2, d['y_wb'], d['ytop'], -0.8, 5.2)
