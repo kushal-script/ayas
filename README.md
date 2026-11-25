@@ -40,37 +40,202 @@ Real-camera validation is Phase 2.
 
 Vision (Pipeline A) and Llama (Pipeline B) are **separate pipelines** that exchange only the JSON record.
 
-## Results so far (digital twin)
+## Results
 
-15 unseen test plates, 7 lighting set-ups from a dark room to direct sun (~45,000 lux), open and hood, two capture methods: 840 captures in all (`reports/lighting_matrix.md`).
+All accuracy numbers are from the physically based **digital twin** (Blender 5.2 renders with the device's sensor-noise model). Real steel specimens are Phase 2. All timing and memory numbers are **measured on the Raspberry Pi 5**. Full tables: `reports/` and the project report.
 
-| Method | Device | Wrong, no warning | Unsafe | Retakes | F1 |
+### 1. Headline
+
+| What | Result |
+|---|---|
+| Lighting robustness (hood, dark room to direct sun) | Wrong verdict with no warning in **2 of 210** captures, **0 unsafe**; the old single-frame method had 14 of 210 |
+| Defect recall (hood, all 7 conditions) | scratch 1.00 · dent 1.00 · crack 0.98 · corrosion 0.83 · stain 0.80 · pit 0.79 |
+| Camera to verdict on the Pi 5 | **1.7 s p50** with the detector on the Hailo-10H (**47 ms**, 28× faster than the CPU) |
+| Llama 3.2 1B via ExecuTorch on the Pi | First token **5.4 s**, **11 tokens/s**, cause note in 10.3 s; 9 of 9 notes passed the guardrail |
+| 3D dent depth (PINN) | **0.053 mm** error with the L/R LEDs, **0.021 mm** with a 6-sector ring |
+| Device software = evaluated pipeline | **28 / 28** verdicts on the Pi |
+| Product hardware | 13 boards: **ERC 0, DRC 0, 0 unconnected**; **0 interference** across 318 component models in the housing |
+| Tests | **869 passed**, 12 skipped |
+
+### 2. Lighting experiment (pre-registered)
+
+**Set-up:**
+- 15 unseen test plates (seeds ≥ 900100: never trained, tuned or calibrated on), 6 materials, 3 defect-free.
+- 7 lighting conditions: C0 dark room, C1 office (~350 lux), C2 warm bulb close by, C3 window daylight, C4 low side lamp with a hand shadow, C5 a lamp reflected in the plate, C6 direct sun (~45,000 lux).
+- Hood and open device, 2 variants each, 2 capture methods: **840 captures**.
+
+**Pass criterion (fixed before the test):**
+- **Hood (the product), every condition:**
+  - retake ≤ 5 %;
+  - F1 ≥ F1(dark) − 0.05;
+  - verdict agreement with the dark room ≥ 95 %;
+  - **0 silent failures** (the gate accepts and the verdict is wrong).
+- **Open device:** 0 silent failures.
+
+| Method | Device | Wrong, no warning | Unsafe¹ | Retakes | F1 |
 |---|---|---|---|---|---|
-| New (burst) | **hood (product)** | **2 / 210** | **0** | 0 / 210 | 0.83–0.85 |
-| New (burst) | open | 12 / 210 | 2 | 142 / 210 | 0.72–0.89 |
-| Old (one frame) | hood | 14 / 210 | 0 | no gate | 0.91–0.92 |
-| Old (one frame) | open | 16 / 210 | 0 | no gate | 0.80–0.91 |
+| New (5-frame burst + gate) | **hood (product)** | **2 / 210** | **0** | 0 / 210 | 0.83–0.85 |
+| New (5-frame burst + gate) | open | 12 / 210 | 2 | 142 / 210 | 0.72–0.89 |
+| Old (one auto-exposed frame) | hood | 14 / 210 | 0 | no gate | 0.91–0.92 |
+| Old (one auto-exposed frame) | open | 16 / 210 | 0 | no gate | 0.80–0.91 |
+
+¹ Milder than the truth and not held.
+
+**New method, per condition** (P / R / F1 over accepted captures; verdict agreement with the dark room and with the truth; |Δ| = mean image difference from the dark room in sensor counts):
+
+| Condition | Lux | Retakes (main reason) | Precision | Recall | F1 | Verdict = dark | Verdict = truth | Silent (unsafe) | \|Δ\| (DN) |
+|---|---|---|---|---|---|---|---|---|---|
+| C0 dark room, **hood** | 0 | 0/30 | 0.78 | 0.89 | 0.83 | 30/30 | 30/30 | 0 (0) | 0.0 |
+| C1 office, **hood** | 353 | 0/30 | 0.78 | 0.91 | 0.84 | 29/30 | 29/30 | 1 (0) | 2.8 |
+| C2 warm bulb, **hood** | 648 | 0/30 | 0.78 | 0.91 | 0.84 | 30/30 | 30/30 | 0 (0) | 2.7 |
+| C3 window daylight, **hood** | 3,569 | 0/30 | 0.79 | 0.91 | 0.85 | 30/30 | 30/30 | 0 (0) | 2.7 |
+| C4 side lamp + hand shadow, **hood** | 2,005 | 0/30 | 0.79 | 0.91 | 0.85 | 29/30 | 29/30 | 1 (0) | 2.8 |
+| C5 lamp reflected in the plate, **hood** | 514 | 0/30 | 0.78 | 0.91 | 0.84 | 30/30 | 30/30 | 0 (0) | 2.8 |
+| C6 direct sun, **hood** | 44,872 | 0/30 | 0.77 | 0.89 | 0.83 | 30/30 | 30/30 | 0 (0) | 2.7 |
+| C0 dark room, open | 0 | 6/30 (saturated) | 0.81 | 0.82 | 0.82 | 24/24 | 20/24 | 4 (0) | 0.0 |
+| C1 office, open | 353 | 17/30 (changed) | 0.80 | 0.72 | 0.76 | 11/13 | 9/13 | 4 (2) | 2.8 |
+| C2 warm bulb, open | 648 | 13/30 (changed) | 0.77 | 0.85 | 0.81 | 16/17 | 16/17 | 1 (0) | 2.7 |
+| C3 window daylight, open | 3,569 | 26/30 (glare + ambient) | 0.92 | 0.86 | 0.89 | 4/4 | 4/4 | 0 (0) | 3.4 |
+| C4 side lamp + hand shadow, open | 2,005 | 27/30 (changed) | 0.89 | 0.73 | 0.80 | 3/3 | 3/3 | 0 (0) | 3.0 |
+| C5 lamp reflected, open | 514 | 23/30 (glare + ambient) | 0.76 | 0.68 | 0.72 | 7/7 | 4/7 | 3 (0) | 3.1 |
+| C6 direct sun, open | 44,872 | 30/30 (too bright) | – | – | – | – | – | 0 (0) | – |
 
 **With the hood:**
-- Lighting changed nothing beyond sensor noise, in every condition including direct sun. But in the twin the seated hood blocks ambient light by construction, so this tests repeatability; real-world light leakage is untested.
-- The 2 wrong verdicts are a single low-confidence phantom "crack" at a plate edge. It gave REJECT where the truth was HOLD_FOR_QA: stricter than the truth, not unsafe.
-- Verified cause: the model weakly scores unlabelled mill-scale texture at the plate edge as a crack (0.12–0.32 in every hood capture of that plate, including the dark room), and sensor noise sometimes lifts it over the 0.25 threshold.
-- The pre-registered criterion allows **0** such errors, so the strict result is **FAIL by 2 captures**. Adopted fix (22 Nov): two-burst confirmation. A low-confidence detection the second burst does not confirm causes at most HOLD_FOR_QA; it still needs confirming on fresh plates.
+- Every condition from dark to direct sun meets the retake, F1 and agreement limits.
+- False alarms on defect-free plates: **0** (the old method: 0.33 per plate).
+- The processed image differs from the dark room by 2.7–2.8 DN in every condition, about the sensor-noise level, even in direct sun.
+- **Caveat:** in the twin a seated hood is light-tight by construction, so these rows test repeatability, not light leakage. Real-world leakage is the first Phase 2 measurement.
 
-**Without the hood:**
-- The gate refuses most bright scenes.
-- Defects on dark mill scale were missed, twice unsafely. So **the device certifies only with the hood** (adopted 22 Nov): in open mode PASS and CLEAN_AND_REINSPECT become HOLD_FOR_QA with "fit the hood to certify".
+**Strict result: FAIL by 2 captures.**
+- Both are one low-confidence (0.27 / 0.32) false "crack" on unlabelled mill-scale texture at a plate edge. It gave REJECT where the truth is HOLD_FOR_QA: stricter than the truth, not unsafe.
+- The score does not follow the light level (Spearman ρ = 0.15), so the cause is the model, not the lighting.
 
-**The old method** has no gate. In the twin its hood rows reuse one noise draw, which flatters it.
+**Fixes adopted (22 Nov):**
+- **Two-burst confirmation (P1h).** Re-scored on the recorded detections, hood silent failures go to **0 / 210**, with no new unsafe verdict and no change to the 280 captures with real cracks. It still needs confirming on fresh plates.
+- **Hood-only certification.** Without the hood, the gate refuses 142 of 210 bright scenes (every direct-sun capture), and dark mill scale caused 2 unsafe misses. Open mode now never certifies.
 
-**Other results:**
-- **Demo video:** `reports/demo_lighting.mp4`.
-- **JEPA anomaly head:** tried and not adopted (`docs/JEPA.md` §10).
-- **PINN dent depth:** 0.02–0.05 mm error in the twin (`docs/twin/PHYSICS_PINN.md`). Not in the app yet.
-- **On the Raspberry Pi 5** (22 Nov, `reports/pi_phase1_raspberrypi_20261122-170051/`):
-  - the app gave the twin evaluation's verdict for 28 / 28 bursts;
-  - camera to verdict: **1.7 s p50 with the detector on the Hailo-10H** (47 ms per inspection, 28× faster than the CPU's 1.3 s; 2.9 s on the CPU), 0.98 GB; Hailo verdicts match the CPU's on 27/28 bursts;
-  - Llama 3.2 1B SpinQuant via ExecuTorch, 1.4 GB: in the first run, 3 of 7 Llama answers misstated facts, though the verdicts were right. Now the rules engine writes the verdict, the measurements and the steps, and Llama writes the cause-and-prevention note and answers follow-ups, all behind a stricter guardrail. Final run: 9 of 9 notes from Llama passed, advice in 13.5 s, first token after 5.4 s, 11 tokens/s. "How to fix?" and override requests get the rules engine's exact answer; open questions take Llama 30–35 s and are its weakest part.
+### 3. Detection quality (new method, hood, all 7 conditions pooled)
+
+| Class | Recall |
+|---|---|
+| scratch | 126 / 126 = **1.00** |
+| dent | 70 / 70 = **1.00** |
+| crack | 82 / 84 = **0.98** |
+| corrosion | 70 / 84 = 0.83 |
+| stain | 56 / 70 = 0.80 |
+| pit | 77 / 98 = 0.79 |
+
+- **Precision** is 0.77–0.79 (the old method: 0.90). Part of the gap is detections of real defects that the ground truth marks "not visible" and counts as false positives.
+- **Detector:** YOLOv8n trained from COCO for 150 epochs on 5,176 / 430 tiles from 800 twin scenes. ONNX and PyTorch agree to 0.0013 on the raw output.
+
+### 4. On the Raspberry Pi 5
+
+| Metric | Pi 5 + Hailo-10H | Pi 5, CPU only (ONNX Runtime) | Mac M3 CPU (reference) |
+|---|---|---|---|
+| Camera to verdict, p50 / p95 | **1,665 / 2,106 ms** | 2,856 / 3,331 ms | 617 / 716 ms |
+| Detector per inspection | **47 ms** | 1,329 ms | – |
+| Throughput | 0.57 inspections/s | 0.39 inspections/s | 1.8 inspections/s |
+| Peak memory (app) | 0.98 GB | 1.08 GB | 1.7 GB |
+| Verdicts equal to the twin evaluation | 27 / 28¹ | **28 / 28** | 28 / 28 |
+| CPU temperature | 51–67 °C, no throttling | | |
+
+¹ The one difference is the edge false positive of §2, which the INT8 model happens not to fire: a side effect of quantisation, not a fix.
+
+**Vision stages on the CPU, p50 ms** (from the Llama benchmark run, `reports/pi_llm_final4_20261122-183748/`; the Hailo run is in `reports/pi_phase1_raspberrypi_20261122-201042/`):
+
+| Stage | capture | process | rectify | tile | detect | merge | measure | rules | report | image | total |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| ms | 561 | 1,135 | 5.4 | 4.1 | 1,337 | 0.3 | 8.8 | 0.2 | 0.3 | 7.5 | 2,866 |
+
+### 5. Llama 3.2 1B Instruct via ExecuTorch (on the Pi's Cortex-A76)
+
+**Speed** (`reports/pi_llm_final4_20261122-183748/`, 16 inspections):
+
+| Metric | p50 | p95 |
+|---|---|---|
+| Time to first token (model clock) | 5,429 ms | 5,505 ms |
+| First text on screen (wall, incl. 2.5 s load) | 8,029 ms | 8,100 ms |
+| Decode speed | 11.0 tokens/s | 11.4 tokens/s |
+| Prefill speed | 112.5 tokens/s | 113.3 tokens/s |
+| Whole cause note | 10.3 s | 11.1 s |
+| Camera to advice | 13.5 s | 13.9 s |
+| Prompt / generated tokens | 611 / 29 | 611 / 41 |
+| Peak memory of the runner | 1.38 GB | |
+
+**First design against final design:**
+
+| | First design | Final design |
+|---|---|---|
+| Who writes the facts | Llama restates the whole record | The rules engine; Llama writes cause and prevention |
+| Prompt | ~1,340 tokens (JSON) | 611 tokens |
+| First token | 15.8 s | 5.4 s |
+| Decode | 6.7 tokens/s | 11.0 tokens/s |
+| Time per answer | ~54 s | 10.3 s |
+| Answers with a factual error | 3 of 7 | 0 of 9 |
+
+- Every verdict on screen was right in both designs, because the verdict comes from the rules engine.
+- In the final run, the 7 RETAKE and PASS results were answered by the rules engine.
+- "How to fix?" and override requests ("Can I paint over the crack and ship it?") always get the rules engine's exact answer.
+- Open questions take 31–35 s and are general: the weakest part, Phase 2 work.
+
+### 6. 3D depth: physics-informed neural network (PINN)
+
+**Forward model against Blender** (no fitted parameters):
+- **Open pods:** flat metal within 0.1–0.9 % at the median; ball dents within 0.2–1.1 %, pixel correlation ≥ 0.99.
+- **Hood:** the direct model under-predicts flat metal by 2–57 %. A black-hood control closes most of the gap (aluminium 0.85 / 0.76 → 0.96 / 0.94), which shows the cause is the hood's own inter-reflection. A one-bounce hood model reproduces it at dents (correlation 0.88–0.94).
+
+**Depth on 96 twin dents and pits** (6 materials, sensor noise):
+
+| | L/R halves (today) | 3 sectors | 6 sectors |
+|---|---|---|---|
+| PINN, dents, MAE | **0.053 mm** | 0.034 mm | **0.021 mm** |
+| PINN, dents within 0.05 mm | 62 % | 79 % | 92 % |
+| Classical slopes + Poisson, dents, MAE | 0.153 mm | 0.089 mm | 0.071 mm |
+| PINN, pits, MAE (bias) | 0.154 mm (−0.154) | 0.114 mm | 0.107 mm |
+
+- **Against the classical method:** the PINN is 2.1–3.4× better on dents and 1.5–1.8× on pits. Pits are under-estimated (28–88 %) and shown as indicative only.
+- **Lighting-invariant with the hood:** across all 7 conditions, dent depth changes by at most 0.023 mm.
+- **Twin dent plate, dark room to direct sun:** the 0.331 mm dent reads 0.30–0.34 mm, the 0.168 mm dent 0.15–0.16 mm, and a 0.31 mm gouge 0.36 mm.
+- **Severity safety:** under the proposed rule (use a depth only if the fit converged and the 90 % interval is ≤ 0.08 mm), no depth-based decision was more lenient than the decision with the true depth: 0 of 89 coupon decisions and 0 of 7 pilot decisions.
+- **On the Pi:** about 15 s for a plate with 5 relief defects, first surface after about 8 s (it was 55 s before the speed-up).
+
+### 7. Experiments tried and not adopted
+
+**I-JEPA anomaly head** (region AUROC, burst capture):
+
+| Method | Hood | Open |
+|---|---|---|
+| jepa_pred (predictor error) | **0.975** | 0.957 |
+| ResNet18 PatchCore | 0.965 | 0.957 |
+| ViT-Tiny (ImageNet) kNN | 0.919 | 0.923 |
+| Pixels kNN | 0.919 | 0.858 |
+| jepa_knn (EMA target + memory bank) | 0.508 | 0.563 |
+
+- Not adopted. It did not beat ResNet18 by the pre-set +0.02 (+0.010 hood, +0.000 open).
+- It was less lighting-invariant (open retrieval@1: 0.853 against 0.967).
+- It is too slow for the Pi (350–580 ms per crop against a 150 ms budget).
+
+**Depth network:** a U-Net fine-tuned on Blender crops. Dent error 0.149 mm (pit 0.096, scratch 0.041) against 0.022 mm for the PINN: not adopted (`models/depthnet_blender.onnx`).
+
+### 8. Optimisations (measured)
+
+| Technique | Before → after |
+|---|---|
+| Detector: INT8 + Hailo-10H HEF with on-chip NMS | 1,329 → **47 ms** per inspection (28×); camera to verdict 2.86 → 1.67 s |
+| Llama: SpinQuant INT4 + ExecuTorch XNNPACK | 1B model in a 1.08 GB `.pte`, 1.38 GB RAM, 11 tokens/s on the CPU |
+| Llama: facts to the rules engine, a short plain-text prompt | Prompt 1,340 → 611 tokens; first token 15.8 → 5.4 s; answer ~54 → 10.3 s; errors 3/7 → 0/9 |
+| 3D: fast mode, warm worker pool, one defect per core | Plate with 5 defects 55 → 15 s |
+| Capture-side invariance instead of a bigger network | A ~3 M-parameter detector holds across 7 lighting conditions |
+
+### 9. Product hardware (Phase 2)
+
+| Check | Result |
+|---|---|
+| Schematics (ERC), 13 boards | 0 errors, 0 warnings |
+| Layouts (DRC), 13 boards | 0 violations, 0 unconnected pads (LIGHT/IO 6-layer, 0.1 mm rules) |
+| Design consistency (`tests/test_hardware_design.py`) | 43 passed: matched cable pinouts, palindrome flex, no swappable connectors, no dangling nets |
+| Mechanical fit (Fusion 360) | 318 board component models, 0 interference with the housing, buttons, Pi, display, fan or bank; no floating parts |
+| Housing | 268 mm wide, about 900 g of PETG; every service screw into a heat-set insert |
 
 ## Architecture and demo
 
