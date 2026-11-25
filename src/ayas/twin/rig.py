@@ -91,13 +91,14 @@ def led_model_points(fusion: types.ModuleType, p: dict | None = None) -> tuple[l
     p.update(fusion.DISPLAYS[p["display"]])
     d = fusion.layout(p)
     out = []
-    ymid = (d["ytop"] + d["y_wb"]) / 2
+    ymid = fusion.white_module_cy(d) if hasattr(fusion, "white_module_cy") else (d["ytop"] + d["y_wb"]) / 2
+    step = d.get("white_led_pitch", d["white_l"] / 3)
     for s in (1, -1):
         fr = fusion.pod_frame(d, s)
         k = 0
         for cx in fusion.white_columns(d):
-            for j in (-1, 0, 1):                    # 3 LEDs per vertical module, white_l / 3 apart
-                y = ymid + j * d["white_l"] / 3
+            for j in (-1, 0, 1):                    # 3 LEDs per vertical 40 mm module (12 V, 3 x 2835)
+                y = ymid + j * step
                 out.append({"side": s, "kind": "white", "index": k, "pos": _frame_point(fr, cx, y),
                             "dir": np.asarray(fr[3], float)})
                 k += 1

@@ -507,12 +507,12 @@ def test_rig_matches_fusion_check_values():
         return [-p[0], -p[1], p[2]]
 
     xyz = np.array([model(f"WL_L_{k}") for k in range(9)])
-    assert np.allclose(xyz[::3, 0], [29.3, 45.8, 62.2], atol=0.06)
-    assert np.allclose(xyz[::3, 2], [6.3, 10.4, 14.5], atol=0.06)
-    assert np.allclose(xyz[:3, 1], [-18.4, 7.6, 33.6], atol=0.06)
+    assert np.allclose(xyz[::3, 0], [32.17, 45.75, 59.33], atol=0.06)   # 40 mm modules at 14 mm pitch (24 Nov)
+    assert np.allclose(xyz[::3, 2], [12.03, 15.42, 18.81], atol=0.06)   # pod base 8 mm
+    assert np.allclose(xyz[:3, 1], [-0.9, 11.6, 24.1], atol=0.06)     # 3 LEDs 12.5 mm apart
     assert np.allclose(by["WL_L_0"].d_cam, [0.242, 0.0, 0.970], atol=2e-3)
     uv3 = [model(f"UV_L_{k}") for k in range(3)]
-    assert np.allclose(uv3, [[29.9, -49.7, 8.0], [29.2, -59.4, 10.7], [28.5, -69.2, 13.5]], atol=0.06)
+    assert np.allclose(uv3, [[29.86, -49.68, 13.02], [29.18, -59.44, 15.74], [28.5, -69.21, 18.45]], atol=0.06)
 
 
 def test_plan_lights_l_group_on_image_left(plans):
