@@ -1,6 +1,6 @@
 # Ayas electronics for Phase 2: board specification
 
-Status: **schematics and placement done, ERC and DRC clean, fit checked in Fusion; routing pending** (24 Nov 2026). It replaces the Phase 1 module wiring: PD trigger board, buck module, AO3400 MOSFET board, perfboard UV strips and 12 V LED modules with built-in resistors.
+Status: **all 13 boards routed (Freerouting 2.5; flex drawn straight), ERC 0 / DRC 0 / 0 unconnected; LIGHT/IO is 6-layer; fit checked in Fusion with every board's 3D model (318 component models, 0 interference)** (25 Nov 2026). Before fabrication: verify the footprints and the STUSB4500 NVM (section 7), measure the white module (tab pitch, height, current), get the 6-layer quote, and redesign the hood pad to fit the hood collar. It replaces the Phase 1 module wiring: PD trigger board, buck module, AO3400 MOSFET board and perfboard UV strips; the owned 12 V white LED modules are kept, now on screwed carrier boards.
 
 Built in Fusion 360:
 - **Board outlines and 3D fit** come from `hardware/enclosure/ayas_handheld_fusion.py`.
@@ -13,11 +13,13 @@ Built in Fusion 360:
 | `gen_pcb.py` (KiCad Python) | `kicad/<board>/ayas_<board>.kicad_pcb`: outline, holes, placement, pad nets |
 | `gen_pro.py` | `.kicad_pro` with the fab rules (0.15 mm clearance/track, 0.3 mm vias, 0.3 mm edge) |
 
-Status:
-- **POWER:** ERC 0, DRC 0 errors.
-- **LIGHT/IO:** ERC 0, DRC 0 errors.
-- **Not routed yet:** routing uses Freerouting.
-- **Fusion fit:** the real boards, with all component models, are imported at their mounting positions; the interference check finds 0 hits against the shell, bosses, display posts, Pi stack, camera, fan and bank.
+| `route.py` (KiCad Python) | DSN export, Freerouting 2.5, session import, GND pours, minimum-width clean-up |
+
+Status (25 Nov):
+- **All 13 boards:** ERC 0, DRC 0, 0 unconnected (`kicad/<board>/erc.rpt`, `drc.rpt`).
+- **LIGHT/IO:** 6 layers with 0.1 mm track and space and 0.2 mm vias for the RP2040 fan-out (see `gen_pro.py` FINE).
+- **Fusion fit:** `hardware/enclosure/ayas_assembly_fusion.py` imports every board's STEP at its position from `assembly_frames()`; 318 component models, 0 interference with the shell, bosses, display posts, Pi stack, camera, fan, bank and buttons.
+- **Design checks:** `tests/test_hardware_design.py` (cable pinouts, palindromes, keyed connectors, dangling nets).
 
 Parts follow the project rule: genuine brand-name parts, buyable in Bengaluru (element14 India, Mouser India, Robu), assembled by Lion Circuits (Bengaluru).
 
@@ -55,19 +57,21 @@ RING boards ×6 (FR4)              one sector each, in the hood's 78 × 15 mm po
 
 ## 3. Light channels
 
-All channels are one series LED string sunk to ground from the 12 V rail. Each sink is an op-amp, a logic-level N-MOSFET and a sense resistor. The op-amp's set-point comes from an RP2040 PWM through an RC filter, or from a DAC (decision D3). A channel is off when its set-point is 0.
+Each channel is sunk to ground from the 12 V rail. Each sink is an op-amp, a logic-level N-MOSFET and a sense resistor. The op-amp's set-point comes from an RP2040 PWM through an RC filter (full scale 0.206 V). A channel is off when its set-point is 0.
 
-| Ch | Name | Load (per string) | Vf (typ) | Current | Where |
+The white light is the owned off-the-shelf module: 12 V, 3 × 2835 LEDs plus its own resistor, 40 × 10 mm, a screw tab at each end (marked 3609-2835-3LED). Because the module has its own resistor, the firmware sets each channel to about 80 % of the module's own current at 12 V (measured once on the bench). The sink then regulates, so the light is the same from burst to burst whatever the bank voltage.
+
+| Ch | Name | Load | Rsense | Full scale | Where |
 |---|---|---|---|---|---|
-| 0 | WHITE_L | 3 × Samsung LH351H 5000 K CRI 90 (3535) | 3 × 2.9 = 8.7 V | 350 mA | left pod board |
-| 1 | WHITE_R | same | 8.7 V | 350 mA | right pod board |
-| 2 | UV_L | 3 × Seoul Viosys CUN66A1B 365 nm (3535) | 3 × 3.6 = 10.8 V | 250 mA | left pod board |
-| 3 | UV_R | same | 10.8 V | 250 mA | right pod board |
-| 4–9 | RING_1..6 | 3 × Samsung LH351H per 78 × 15 mm sector | 8.7 V | 200 mA | ring boards (hood) |
+| 0 | WHITE_L | 3 white modules in parallel | 1.5 Ω | 137 mA | WHITE-L carrier in the left pod |
+| 1 | WHITE_R | same | 1.5 Ω | 137 mA | WHITE-R carrier in the right pod |
+| 2 | UV_L | 3 strings × 3 plug-in 5 mm 395 nm UV LEDs, 47 Ω each | 3.3 Ω | 62 mA | UV socket board (pod hub), left |
+| 3 | UV_R | same | 3.3 Ω | 62 mA | right |
+| 4–9 | RING_1..6 | 1 white module per hood-ring sector | 3.3 Ω | 62 mA | hood ring, leads into the hood pad board |
 
-- Headroom check: the UV string needs 12.0 − 10.8 − 0.2 V (sense) = 1.0 V across the MOSFET. That is fine with a regulated 12 V PD contract; there is no margin for a 9 V fallback, so UV is disabled at 9 V.
-- Sink dissipation, white: (12 − 8.7 − 0.2) × 0.35 ≈ 1.1 W while on. Bursts are 5 × 33 ms, so the average is low, but each sink still gets a SOT-23 FET with a copper pour, or a PowerPAK if layout allows (D4).
-- Only one white or ring channel is on at a time in a burst, plus the both-pods frames: at most 2 × 0.35 A + logic. The 12 V contract gives 2.5 A.
+- Headroom check: a UV string needs 12.0 − 3 × 3.2 − 47 Ω × 20 mA − 0.2 V ≈ 1.2 V across the MOSFET. That is fine with a regulated 12 V PD contract; UV is disabled at a 9 V fallback.
+- Sink dissipation is under 0.3 W per channel while on, and bursts are 5 × 33 ms.
+- Peak LED current is under 0.3 A (both pods' white at once); the 12 V contract gives 2.5 A.
 - No PWM dimming of the LEDs themselves: the camera's rolling shutter would band. The current is set analogue.
 
 ## 4. Inputs and outputs (RP2040)
@@ -91,12 +95,49 @@ From the enclosure generator. All numbers are in mm; the Fusion fit check is the
 
 | Board | Envelope today | Mounting | Connectors |
 |---|---|---|---|
-| POWER | **46 × 55** (x 21..67, z −32..23), 5 mm above the shelf; strip x 52..61 limited to 5 mm parts (display post) | 4 × M3 bosses at 3.5 mm from the corners | USB-C receptacle (bank), 12 V out (JST-VH 2), 5 V out (to the Pi USB-C lead), I2C/ALERT to LIGHT |
-| LIGHT/IO | **46 × 55** (x −67..−21), same strip | 4 × M3 bosses | link (JST-PH 10); everything else JST-SH 1 mm side-entry (4.25 mm tall, fits under the display post): USB to Pi (4), pods L/R (5 each), hood ring (9: 12 V + 6 sinks + loop-back + GND), triggers (2 + 2), thumbs (5), fan, buzzer; SWD on 4 test pads |
-| POD ×2 | white area 49 × 78 per pod (3 strips of 15); UV block tilted 16° | screws into the pod frame | JST-PH 4 (12 V, WHITE−, UV−, NTC) |
-| RING ×6 | 78 × 15, in the hood pockets | pocket + adhesive pad | 2-wire to the hood harness |
+| POWER | **46 × 55** (x 21..67, z −32..23), 5 mm above the shelf; strip x 52..61 limited to 5 mm parts (display post) | 4 × M3 × 6 into heat-set inserts | USB-C (bank), Pi 5 V (J3), LINK to LIGHT (JST-PH 12), power button (JST-PH 4), charge port (JST-PH 5) |
+| LIGHT/IO | **46 × 55** (x −67..−21), same strip, 6-layer (In1 = GND plane, F, In2–In4 and B for signals) | 4 × M3 × 6 into heat-set inserts | LINK (JST-PH 12), USB to the Pi (JST-PH 4), and JST-SH 1 mm side-entry, each a different pin count: POD-L 6, POD-R 7, HOOD 9, SIDE-L 4, SIDE-R 5, FAN 2. Buzzer on board. SWD on 4 test pads |
+| UV ×2 (pod hub) | **43 × 30.5**, in the pod's tilted UV cavity | 2 × M2 into inserts | 9 plug-in UV LEDs on sockets marked + / −; ZIF 10 (pod flex); JST-PH 2 to the WHITE carrier |
+| WHITE-L / WHITE-R | **50 × 66**, in the pod face, mirror images of each other | inner edge under a lip, 2 × M2 into inserts at the outer edge | 3 module sites: module tabs on M2 × 6 screws into Würth WA-SMSI SMD nuts on the back; module leads into Phoenix PTSM push-in terminals (+ / − marked); JST-PH 2 side-entry to the hub |
+| POD flex ×2 | 11 × 60, 10 straight conductors, no vias | ZIF at both ends | palindrome pinout: either way round |
+| POD DOCK L / R | 28 × 14, behind the body front face | 2 × M2 into inserts | ZIF 10 for the pod flex; JST-SH 6 (L) / 7 (R) to LIGHT/IO |
+| HOOD PAD | 40 × 32, in the hood collar | 2 × M2 into inserts | 9 gold contact pads (face down, onto the dock's spring pins), 6 push-in terminals R1–R6 for the ring modules; HOOD_N tied to GND (the interlock loop) |
+| HOOD DOCK | 34 × 13, under the body top wall | 2 × M2 into inserts | 9 spring pins (Mill-Max 0906, verify) up through the wall; JST-SH 9 to LIGHT/IO |
+| SIDE-L / SIDE-R | 36 × 20, one in each wing | 2 × M2 into inserts | push-in terminals TRIG, UPPER, LOWER for the panel buttons' leads; JST-SH 4 (L) / 5 (R) to LIGHT/IO |
+| CHARGE | **24 × 12.5**, bay corner behind the right side wall | M2 into an insert in a wall rib | USB-C power-only (GCT USB4125) through the wall; JST-PH 5 to POWER J6 |
 
-The real free volume above the shelf allowed 46 × 55 boards (the Fusion check found the LED-pod bosses and the display posts; the boards stop at z = 23 and keep parts under 5 mm in the strip under the posts). LIGHT/IO is 4-layer with small passives on the underside (2 mm clearance there).
+The real free volume above the shelf allowed 46 × 55 boards (the Fusion check found the LED-pod bosses and the display posts; the boards stop at z = 23 and keep parts under 5 mm in the strip under the posts). LIGHT/IO is 6-layer with small passives on the underside (2 mm clearance there). It was 4-layer until 24 Nov, when 24 connections round the RP2040 and the 10 light set-point lines would not route on 46 × 55 mm; 6 layers (1.6 mm; confirm the fab quote) was chosen over switching the set-points to I2C DACs.
+
+## 5a. UV socket boards and flex tails (added 24 Nov)
+
+- **LEDs.** Each pod's 9 UV LEDs (5 mm, 395 nm) plug into individual 2-pin sockets. Pin 1 is the square pad, marked "+" (anode); the other pin is marked "−".
+- **Replacing an LED.** The pod's LED holes now have a 2 mm counterbore on the FRONT. A dead LED pulls straight out from the front and a new one pushes in, with no tools and nothing opened. The dome still stands 5.7 mm proud.
+- **Strings.** Three strings of 3 LEDs, one per column, each with a 47 Ω ballast resistor. The UV sink is set to 62 mA (3 × 20 mA): Rsense 3.3 Ω.
+- **Flex.** Each pod hub reaches its POD DOCK in the body front face over a 60 mm flex: polyimide, 1 oz copper, 0.3 mm at the fingers with a stiffener, straight conductors, no vias. The dock, not the pod, decides the side, so the two pods are identical parts.
+- **Pinout.** The flex pinout is a palindrome, so a flex made either way, or plugged either way round, still connects correctly.
+- **Contact side.** The ZIF connectors (Molex 200528) are bottom-contact: route the flex so its fingers face the board at each end.
+
+## 5b. White modules, buttons and the hood (added 24 Nov)
+
+- **White modules.** 12 in all: 3 per pod (on the WHITE carriers) and 6 round the hood ring, all the same part. To replace one: undo its 2 tab screws, press the terminal buttons, pull the leads, fit the new module, push its stripped leads in (red to +), refit the 2 screws.
+- **Buttons.** The trigger and both thumb buttons of a wing go into that wing's SIDE board. The leads are push-in, so a button changes with no solder. Debounce (1 kΩ + 100 nF) and pull-ups are on LIGHT/IO.
+- **Hood.** It docks on spring pins: thumb screws on, and 12 V, the six ring channels and the interlock loop connect with no cable to plug.
+- **Checked by** `tests/test_hardware_design.py`: both ends of every cable carry the same pinout, flex pinouts are palindromes, and no two different connectors on one board can take the same plug.
+
+## 8. Power button, power hold, charge-through, export
+
+The full behaviour is in `docs/hardware/controls.md`. On the POWER board:
+- **Power on.** Pressing the button puts 5.1 kΩ Rd (through BAT54C diodes) on the bank's CC lines, which wakes the bank. BSS84 Q2 then drives DEVICE_MODE.
+- **Holding power.** The RP2040 drives HOLD over the link and keeps DEVICE_MODE high.
+- **CC router.** A TS5A23157 connects the bank's CC lines to the STUSB4500 in device mode. Otherwise it connects them to the charge port.
+- **Router supply.** It is powered only by DEVICE_MODE or by a plugged-in charger (3V3_CHG). After shutdown the bank therefore sees a clean detach and turns off: no standby drain.
+- **Charge-through.** With the device off and a charger plugged in, back-to-back AO3401A switches (Vgs clamped by a 10 V Zener) pass VBUS to the bank, and the router passes CC for PD negotiation between charger and bank.
+- **Rails.** Two LM2936-3.3 always-on rails: one from the bank, one from the charger.
+- **Housing.**
+  - Power button: 12 mm, top, user's left (x = 45).
+  - Export: USB-A panel port, top, user's right (x = −51).
+  - Charge: USB-C, right side wall by the bay.
+  - The Pi J2 button is removed.
 
 ## 6. Open decisions
 
@@ -104,10 +145,11 @@ The real free volume above the shelf allowed 46 × 55 boards (the Fusion check f
 - **D2.** RP2040 bare chip (QFN-56 plus flash and crystal) or an RP2040 module (Pico / Stamp) if space allows.
 - **D3.** Current set-point: PWM + RC filter (no extra part, about 1 % ripple) or a DAC (MCP4728, 4 ch × 3), for exact repeatability.
 - **D4.** Sink FET package versus heat.
-- **D5.** Hood connector: JST-PH 8, or magnetic pogo pins, which suit a clip-on hood better.
+- **D5.** Hood connector: decided 24 Nov: spring pins on the body (HOOD DOCK), gold pads on the hood (HOOD PAD).
 
 ## 7. Verify before fabrication
 
-- Every custom footprint (STUSB4500 QFN-24, TPS565201 DDC (SOT-23-6 thin; KiCad symbol TPS565208 has the same pinout), INA226 VSSOP-10, USB-C receptacle, LH351H and CUN66A1B 3535 pads) against its manufacturer datasheet and land-pattern drawing.
+- Every custom footprint (STUSB4500 QFN-24, TPS565201 DDC (SOT-23-6 thin; KiCad symbol TPS565208 has the same pinout), INA226 VSSOP-10, USB-C receptacle, WA-SMSI nut and PTSM terminal) against its manufacturer datasheet and land-pattern drawing.
 - The power bank lists 12 V / 2.5 A on its USB-C port (Xiaomi PB1030IN does).
-- Lion Circuits' capability for the aluminium-core pod boards, or fab those separately.
+- The white module's tab-hole pitch (46 mm assumed), height (6 mm) and LED pitch (12.5 mm), with calipers: `WHITE_MOD` in design.py and `white_*` in the enclosure generator.
+- The module's own current at 12 V, for the white and ring set-points.

@@ -94,7 +94,7 @@ P = dict(
     cam_lens_from_far=14.4,
     cam_holes_far=((2.0, 2.0), (23.0, 2.0), (2.0, 14.5), (23.0, 14.5)),
     cam_lens_h=8.0, cam_barrel_d=5.75, cam_set_back=1.0,
-    cam_boss_d=4.5, m2_pilot=1.6,
+    cam_boss_d=5.5, m2_pilot=1.6,     # every service screw goes into a heat-set insert (m2_insert_d / m3_insert_d)
     cam_dfov=78.3,
     hood_l=13.0, hood_screw_dy=21.0,
     tool_hole_d=14.0,             # front-wall hole: the lens tool reaches the barrel with the hood off
@@ -107,13 +107,23 @@ P = dict(
     # LED pods on the body front, either side of the camera
     pod_margin=-2.0,              # negative margin: the pod overhangs the edge fillet a little
     toe_deg=14.0,                 # atan(pod centre offset / 200 mm working distance)
-    pod_base=3.0,
-    white_n=3, white_l=78.0, white_w=15.0, white_gap=2.0,   # CHECK module size
-    white_pocket=1.8,             # room for a 1 mm aluminium strip under each module
+    pod_base=8.0,                 # deep enough at the inner edge for the WHITE carrier pocket (7.6 mm)
+    # white light: 12 V 3 x 2835 LED modules, 40 x 10 mm housing, a screw tab at each end (owned: 3609-2835-3LED)
+    white_n=3, white_l=40.0, white_w=10.0, white_gap=4.0,   # 3 per pod at 14 mm pitch (the WHITE-L/R carrier)
+    white_mod_h=6.0,              # module height on the carrier (VERIFY with calipers)
+    white_hole_pitch=46.0,        # tab hole centres (VERIFY; hardware/pcb/design.py WHITE_MOD)
+    white_led_pitch=12.5,         # LED centres along a module (photo of the owned module; VERIFY)
+    white_pocket=5.0,             # hood ring: module recess depth in the ring wall
+    white_pcb=(50.0, 66.0, 1.6),  # WHITE carrier (u across the face, v down from its top edge)
+    white_pcb_holes=((47.0, 3.5), (47.0, 62.5)),   # 2 x M2 at the OUTER edge (pod frame u); the inner edge
+                                                   # slides under a lip (the pod is thin there)
     uv_n=3, uv_per=3, uv_pitch=10.16, uv_led_d=5.3, uv_col_gap=16.0, uv_skin=3.0,
     uv_board=(30.5, 10.2),        # 12 x 4-hole perfboard per UV strip
     uv_tilt_deg=16.0,             # UV block tilted up toward the image centre
     uv_frame_h=6.0,
+    # UV socket board (hardware/pcb, board 'uv'): LEDs plug in from the FRONT (flange in a 2 mm front counterbore),
+    # legs pass the skin into 2-pin sockets on a 43 x 30.5 board held on two M2 bosses behind the skin
+    uv_sock_h=3.0, uv_pcb=(43.0, 30.5, 1.6), uv_pcb_holes=((-8.0, -10.57), (8.0, -20.73)), uv_boss_d=5.5,
 
     # light-tight inspection hood (device v2, docs/twin/DESIGN_STEEL.md C2): clips over the body front,
     # rests on the part; its LED ring replaces the pods for certified inspection (app.yaml illumination: ring)
@@ -144,13 +154,21 @@ P = dict(
     # buttons and switches
     btn_d=12.2,                   # 12 mm panel push buttons (index-finger triggers)
     thumb_btn_d=7.2,              # 7 mm panel push buttons (thumbs; their nuts fit the arm root)
-    sw_d=12.2,                    # 12 mm main power switch (rated >= 3 A)
-    j2_d=7.0,                     # momentary button wired to the Pi 5 J2 power pads
+    pwr_btn_d=12.2, pwr_btn_x=45.0,   # 12 mm momentary power button with ring LED, top, user's left (POWER J5);
+                                      # x clear of the display post at 56.5 for a 22 mm deep button body
+    usb_a=(7.2, 14.5, 15.0), usb_a_x=-51.0,   # export port: panel-mount USB-A cut-out (x, z), M3 screws at +-15 mm (z);
+                                              # top, user's right, on the flat (clear of the corner radius and the post)
+    # charge-through port: USB-C through the right side wall by the bay (CHARGE board, docs/hardware/controls.md)
+    chg_pcb=(24.0, 12.5, 1.6),    # board u along z, v along -x (mouth edge at the wall)
+    chg_z0=-2.0, chg_y=-48.0,     # board u = 0 at z = chg_z0; board underside at y = chg_y
+    chg_slot=(9.4, 3.8), chg_recess=(12.5, 7.0, 1.4),   # receptacle opening; outside recess for the plug overmould
 
     # fasteners (CNC Kitchen / ruthex heat-set inserts)
     m3_insert_d=4.0, m3_insert_l=6.7, m3_boss_d=7.6,
     m3_clear=3.4, m3_head_d=6.2, m3_cs_d=6.4, m3_pilot=2.5,
     m2_clear=2.4,
+    m2_insert_d=3.2, m2_insert_l=4.0, m2_boss_d=5.5,   # ruthex M2 heat-set inserts
+    btn_pcb_x=104.0, btn_pcb_y=12.0, btn_pcb_z=-1.0,   # SIDE board centre in the wing (|x|, model y, slab z')
 )
 
 
@@ -409,8 +427,9 @@ def layout(p):
     d['pod_face_w'] = (d['pod_x1'] - d['pod_x0']) / math.cos(math.radians(p['toe_deg']))
     # pod rows, top to bottom
     d['ytop'] = d['pod_y1'] - 5.4                      # top of the white strips (wire slots above)
-    d['y_wb'] = d['ytop'] - p['white_l']               # bottom of the white strips (wire slots below)
-    d['y_screw'] = d['y_wb'] - 7.5                     # pod screws
+    d['y_wtop'] = d['ytop'] + 3.0                      # WHITE carrier top edge (v = 0)
+    d['y_wb'] = d['y_wtop'] - p['white_pcb'][1]        # carrier bottom edge
+    d['y_screw'] = d['ytop'] - 78.0 - 7.5              # pod screws (fixed: the UV block and the body windows stay put)
     d['y_uv'] = d['y_screw'] - 3.1 - 0.8 - 1.6         # top of the UV board area (frame inside)
     d['uv_h'] = p['uv_board'][0] + 0.8
     d['uv_cav_w'] = (p['uv_n'] - 1) * p['uv_col_gap'] + p['uv_board'][1] + 1.8
@@ -756,12 +775,12 @@ def detail_front_centre(comp, body, d):
     # camera bosses (M2 self-tapping) and the lens/tool hole
     for (x, y) in cam_points(d):
         adds.append(g.cyl((x, y, d['z_cam_front']), (x, y, zf_in + 0.5), d['cam_boss_d'] / 2))
-        cuts.append(g.cyl((x, y, d['z_cam_front'] - 0.1), (x, y, d['z_cam_front'] + 6), d['m2_pilot'] / 2))
+        cuts.append(g.cyl((x, y, d['z_cam_front'] - 0.1), (x, y, d['z_cam_front'] + d['m2_insert_l']), d['m2_insert_d'] / 2))
     cuts.append(g.cyl((0, cy, zf_in - 1), (0, cy, zf + 1), d['tool_hole_d'] / 2))
     # hood screw pilots on lugs above and below the hood
     for dy in (-d['hood_screw_dy'], d['hood_screw_dy']):
-        adds.append(g.cyl((0, cy + dy, zf_in - 4), (0, cy + dy, zf_in + 0.5), 2.6))
-        cuts.append(g.cyl((0, cy + dy, zf - 6), (0, cy + dy, zf + 1), d['m2_pilot'] / 2))
+        adds.append(g.cyl((0, cy + dy, zf_in - 4), (0, cy + dy, zf_in + 0.5), 2.9))
+        cuts.append(g.cyl((0, cy + dy, zf - d['m2_insert_l']), (0, cy + dy, zf + 1), d['m2_insert_d'] / 2))
 
     # display posts: from the front wall to the display's case-mount bracket blocks (1 mm foam pad).
     # They hold the display + Pi + HAT assembly against the BackLid lip; nothing presses on the HAT.
@@ -795,9 +814,9 @@ def detail_front_centre(comp, body, d):
 
     # power-electronics carrier bosses on the battery shelf
     ys = d['shelf_y1']
-    for (x, z) in elec_points(d):                      # M3 thread-forming screws (no inserts here)
+    for (x, z) in elec_points(d):                      # M3 x 6 into heat-set inserts (boards come out any number of times)
         adds.append(g.cyl((x, ys - 0.5, z), (x, ys + d['pcb_standoff'], z), d['m3_boss_d'] / 2))   # board sits on the boss tops
-        cuts.append(g.cyl((x, ys - 0.4, z), (x, ys + d['pcb_standoff'] + 0.1, z), d['m3_pilot'] / 2))
+        cuts.append(g.cyl((x, ys + d['pcb_standoff'] - 5.8, z), (x, ys + d['pcb_standoff'] + 0.1, z), d['m3_insert_d'] / 2))   # short M3 x 5.7 insert
 
     # 30 mm exhaust fan: 4 bosses hanging from the top wall (M3 self-tapping, 24 mm pattern)
     fs, ft = d['fan']
@@ -851,9 +870,26 @@ def detail_front_centre(comp, body, d):
         x = d['pi_cx'] - 33 + 6 * i
         cuts.append(g.box(x - 1.0, x + 1.0, d['y_top_in'] - 1, d['body_y_top'] + 1, d['fan_cz'] - 22, d['fan_cz'] + 22))
 
-    # top: main power switch (user's right = -X) and the Pi J2 power button (user's left = +X)
-    cuts.append(g.cyl((-(bx - 20), d['y_top_in'] - 1, d['bay_zc']), (-(bx - 20), d['body_y_top'] + 1, d['bay_zc']), d['sw_d'] / 2))
-    cuts.append(g.cyl((bx - 20, d['y_top_in'] - 1, d['bay_zc']), (bx - 20, d['body_y_top'] + 1, d['bay_zc']), d['j2_d'] / 2))
+    # top: power button (user's left = +X, above the POWER board) and the USB-A export port (user's right = -X)
+    px_, ux0 = d['pwr_btn_x'], d['usb_a_x']
+    cuts.append(g.cyl((px_, d['y_top_in'] - 1, d['bay_zc']), (px_, d['body_y_top'] + 1, d['bay_zc']), d['pwr_btn_d'] / 2))
+    ux, uz, us = d['usb_a']
+    cuts.append(g.box(ux0 - ux / 2, ux0 + ux / 2, d['y_top_in'] - 1, d['body_y_top'] + 1, d['bay_zc'] - uz / 2, d['bay_zc'] + uz / 2))
+    for dz in (-us, us):
+        cuts.append(g.cyl((ux0, d['y_top_in'] - 1, d['bay_zc'] + dz), (ux0, d['body_y_top'] + 1, d['bay_zc'] + dz), d['m3_clear'] / 2))
+    # charge-through port: USB-C opening + outside recess in the right side wall, a rib that carries the CHARGE
+    # board (M2 into the rib from below), and a cable hole up through the shelf to POWER J6
+    cw, ch_, ct = d['chg_pcb']
+    zc = d['chg_z0'] + 6.0                                   # receptacle centre (board u = 6)
+    yc = d['chg_y'] + ct + 1.63                              # receptacle centre height above the board top
+    sw_, sh_ = d['chg_slot']
+    rw_, rh_, rd_ = d['chg_recess']
+    cuts.append(g.box(bx - t - 1, bx + 1, yc - sh_ / 2, yc + sh_ / 2, zc - sw_ / 2, zc + sw_ / 2))
+    cuts.append(g.box(bx - rd_, bx + 1, yc - rh_ / 2, yc + rh_ / 2, zc - rw_ / 2, zc + rw_ / 2))
+    hx, hz = bx - t - 0.2 - 6.25, d['chg_z0'] + 21.5          # board hole (u 21.5, v 6.25)
+    adds.append(g.box(hx - 2.8, bx - t + 0.5, d['chg_y'] + ct, d['shelf_y1'] - 2.0, hz - 2.8, hz + 2.8))
+    cuts.append(g.cyl((hx, d['chg_y'] + ct - 0.1, hz), (hx, d['chg_y'] + ct + d['m2_insert_l'], hz), d['m2_insert_d'] / 2))
+    cuts.append(g.box(bx - t - 12.0, bx - t - 6.0, d['bay_y1'] - 1, d['shelf_y1'] + 1, d['chg_z0'] + 13.0, d['chg_z0'] + 20.0))
 
     apply_details(comp, body, adds, cuts, 'FrontCentre')
 
@@ -983,6 +1019,22 @@ def uv_led_points(d):
     return pts
 
 
+def uv_board_front(d):
+    """z' (UV sub-frame) of the socket board's front face: skin back, 0.5 mm lead gap, socket height."""
+    return -(d['uv_skin'] + 0.5 + d['uv_sock_h'])
+
+
+def uv_holes(d, s):
+    """UV board holes in the pod's UV frame. The same board serves both pods; in the mirror-image right pod it
+    is turned round, so its hole pattern is the left one with x reversed (in the mirrored frame)."""
+    return [(x if s > 0 else -x, y) for (x, y) in d['uv_pcb_holes']]
+
+
+def white_module_cy(d):
+    """Pod y of the white modules' centre (carrier: upper tab holes 15 mm below its top edge; gen_pcb WHITE_TOP)."""
+    return d['y_wtop'] - 15.0 - d['white_hole_pitch'] / 2
+
+
 def white_columns(d):
     n, w, gap = d['white_n'], d['white_w'], d['white_gap']
     lx0 = (d['pod_face_w'] - (n * w + (n - 1) * gap)) / 2
@@ -1008,21 +1060,32 @@ def build_led_pod(comp, d, s, name):
     # two tongues on the pod back drop into the top wire window, so the long pod cannot lift
     tongues = [g.box(min(s * xa, s * xb), max(s * xa, s * xb), d['ytop'] - 0.5, d['ytop'] + 3.3, zf - 2.0, zf + 0.5)
                for (xa, xb) in ((x0 + 4.5, x0 + 10.5), (x1 - 10.5, x1 - 4.5))]
-    pod = g.union([pod, wedge, frame_] + tongues)
+    bosses = [g.ocyl(uf, (x, y, -d['uv_skin'] + 0.2), (x, y, uv_board_front(d)), d['uv_boss_d'] / 2)
+              for (x, y) in uv_holes(d, s)]
+    pod = g.union([pod, wedge, frame_] + tongues + bosses)
 
     cuts = []
-    # white strips: pockets (room for an aluminium strip), wire slots at both ends, rear hollow
-    w = d['white_w'] + 2 * d['clear']
-    for cx in white_columns(d):
-        cuts.append(g.obox(fr, cx - w / 2, cx + w / 2, d['y_wb'] - 0.4, d['ytop'] + 0.4, -d['white_pocket'], 1))
-        cuts.append(g.obox(fr, cx - w / 2, cx + w / 2, d['ytop'] + 0.4, d['ytop'] + 3.4, -6, 1))
-        cuts.append(g.obox(fr, cx - w / 2, cx + w / 2, d['y_wb'] - 3.4, d['y_wb'] - 0.4, -6, 1))
-    cuts.append(g.obox(fr, 3, L - 3, d['y_wb'] - 4.0, d['ytop'] + 3.8, -200, -d['white_pocket'] - 2.0))
-    # UV LEDs: holes through the skin, flange counterbores from behind, board cavity open to the back
+    # WHITE carrier: one pocket (module tops flush with the face), a lip over the inner edge, 2 x M2 inserts at the
+    # outer edge, a hollow behind for the tab nuts and the J4 cable, and a channel down to the UV cavity (pod hub J2)
+    pw_, ph_, pt_ = d['white_pcb']
+    u0, c_ = L / 2 - pw_ / 2, d['clear']
+    zbk = -(d['white_mod_h'] + pt_)                                   # carrier back face
+    vy = lambda v: d['y_wtop'] - v                                    # carrier v -> pod y
+    cuts.append(g.obox(fr, u0 + 2.5, u0 + pw_ + c_, vy(ph_) - c_, vy(0) + c_, zbk, 1))                # open pocket
+    cuts.append(g.obox(fr, u0 - c_, u0 + 2.5 + 0.01, vy(ph_) - c_, vy(0) + c_, zbk, zbk + pt_ + 0.3))   # under the lip
+    cuts.append(g.obox(fr, u0 + 6, u0 + pw_ - 6, vy(ph_ - 1), vy(1), -200, zbk + 0.01))              # nuts + J4 hollow
+    cuts.append(g.obox(fr, L / 2 - 3, L / 2 + 3, d['y_uv'] - 2.0, vy(ph_ - 2), -200, -5.0))          # cable channel
+    for (u, v) in d['white_pcb_holes']:
+        cuts.append(g.ocyl(fr, (u0 + u, vy(v), zbk + 0.1), (u0 + u, vy(v), zbk - d['m2_insert_l']), d['m2_insert_d'] / 2))
+    # UV LEDs: holes through the skin with a FRONT flange counterbore (each LED pulls out from the front);
+    # board cavity open to the back; the socket board sits on two M2 bosses
     for (x, y) in uv_led_points(d):
         cuts.append(g.ocyl(uf, (x, y, 1), (x, y, -d['uv_skin'] - 0.5), d['uv_led_d'] / 2))
-        cuts.append(g.ocyl(uf, (x, y, -d['uv_skin'] + 0.05), (x, y, -d['uv_skin'] - 1.25), 3.15))
-    cuts.append(g.obox(uf, -hw, hw, -hh, 0, -120, -d['uv_skin'] - 1.2))
+        cuts.append(g.ocyl(uf, (x, y, 1), (x, y, -(d['uv_skin'] - 1.0)), 3.15))
+    cuts.append(g.obox(uf, -hw, hw, -hh, 0, -120, -d['uv_skin']))
+    zb = uv_board_front(d)
+    for (x, y) in uv_holes(d, s):
+        cuts.append(g.ocyl(uf, (x, y, zb + 0.1), (x, y, zb + d['m2_insert_l']), d['m2_insert_d'] / 2))
     # mounting screws (along Z, into the FrontCentre inserts), counterbored from the face
     for (x, y) in pod_screw_points(d, s):
         cuts.append(g.cyl((x, y, zf - 1), (x, y, zmax + 1), d['m3_clear'] / 2))
@@ -1162,7 +1225,7 @@ def build_inspection_hood(comp, d):
     hood = g.union([collar, g.subtract(outer, cavity), rim])
     adds = []
     for fr, w, along in ring_frames(d, hg):
-        L, W = d['white_l'] / 2 + c + 2.0, d['white_w'] / 2 + c + 2.0
+        L, W = d['white_hole_pitch'] / 2 + 3.0 + c + 2.0, d['white_w'] / 2 + c + 2.0
         adds.append(g.obox(fr, -L, L, -W, W, -(d['ring_inset'] + 14.0), 0.0))
         adds.append(g.obox(lip_frame(d, hg, w, along), -L - 1.0, L + 1.0, -d['lip_t'] / 2, d['lip_t'] / 2, -4.0, d['lip_len']))
     outer_all = g.union([frustum_region(g, hg, 0.0, zt, zb),
@@ -1170,8 +1233,10 @@ def build_inspection_hood(comp, d):
     hood = g.union([hood, g.intersect(g.union(adds), outer_all)])
     cuts = []
     for fr, w, along in ring_frames(d, hg):
-        L, W = d['white_l'] / 2 + c, d['white_w'] / 2 + c
-        cuts.append(g.obox(fr, -L, L, -W, W, -d['white_pocket'], 3.0))           # module pocket
+        L, W = d['white_hole_pitch'] / 2 + 3.0 + c, d['white_w'] / 2 + c
+        cuts.append(g.obox(fr, -L, L, -W, W, -d['white_pocket'], 3.0))           # module pocket, tabs included
+        for hx in (-d['white_hole_pitch'] / 2, d['white_hole_pitch'] / 2):        # M2 x 8 through the tabs into inserts
+            cuts.append(g.ocyl(fr, (hx, 0, -d['white_pocket'] + 0.1), (hx, 0, -d['white_pocket'] - d['m2_insert_l']), d['m2_insert_d'] / 2))
         cuts.append(g.obox(fr, L - 6.0, L + 1.5, -3.0, 3.0, -(d['ring_inset'] - 1.5), 1.0))   # wire exit; stops short of the wall (no light path)
     sw, sd = d['hood_seal']
     mid = t + rw / 2
@@ -1211,9 +1276,80 @@ def build_hood_reference(comp, d):
     hg = hood_geom(d)
     cy, zb = hg['cy'], hg['zb']
     add_temp_body(comp, g.box(-50, 50, cy - 50, cy + 50, zb, zb + 5), 'Plate100')
-    mods = [g.obox(fr, -d['white_l'] / 2, d['white_l'] / 2, -d['white_w'] / 2, d['white_w'] / 2, -d['white_pocket'] + 0.05, 4.0)
+    mods = [g.obox(fr, -d['white_l'] / 2, d['white_l'] / 2, -d['white_w'] / 2, d['white_w'] / 2, -d['white_pocket'] + 0.05,
+                   -d['white_pocket'] + d['white_mod_h'])
             for fr, _, _ in ring_frames(d, hg)]
     add_temp_body(comp, g.union(mods), 'RingLeds')
+
+
+# ---------------------------------------------------------------- board placements (KiCad STEP -> model)
+def _frame_pt(fr, x, y, z):
+    o, ex, ey, ez = fr
+    return tuple(o[i] + x * ex[i] + y * ey[i] + z * ez[i] for i in range(3))
+
+
+def _neg(v):
+    return tuple(-c for c in v)
+
+
+def assembly_frames(d):
+    """Where each KiCad board sits: {board: (origin, X, Y, Z)} in model mm. The STEP is exported with the
+    board corner (u = 0, v = 0) as origin (kicad-cli --user-origin 100x100mm): STEP X = u, Y = -v, and
+    Z = the component (F) side normal, with the board's back face at Z = 0. Mirror-image pod frames use a
+    right-handed frame with X reversed (the R carrier is the mirrored board; the UV board is turned round)."""
+    out = {}
+    yb = d['shelf_y1'] + d['pcb_standoff']
+    out['power'] = ((21.0, yb, -32.0), (1, 0, 0), (0, 0, -1), (0, 1, 0))
+    out['light'] = ((-21.0, yb, 23.0), (-1, 0, 0), (0, 0, 1), (0, 1, 0))
+    xw = d['bx'] - d['wall'] - 0.2
+    out['charge'] = ((xw, d['chg_y'], d['chg_z0']), (0, 0, 1), (1, 0, 0), (0, 1, 0))
+    pw_, ph_, pt_ = d['white_pcb']
+    L = d['pod_face_w']
+    zbk = -(d['white_mod_h'] + pt_)
+    zb = uv_board_front(d)
+    for side, s in (('l', 1), ('r', -1)):
+        fr, uf = pod_frame(d, s), uv_frame(d, s)
+        u0 = L / 2 - pw_ / 2
+        if s > 0:
+            out['white_l'] = (_frame_pt(fr, u0, d['y_wtop'], zbk), fr[1], fr[2], fr[3])
+            out['uv_l'] = (_frame_pt(uf, -21.5, -0.4, zb - d['uv_pcb'][2]), uf[1], uf[2], uf[3])
+        else:
+            out['white_r'] = (_frame_pt(fr, u0 + pw_, d['y_wtop'], zbk), _neg(fr[1]), fr[2], fr[3])
+            out['uv_r'] = (_frame_pt(uf, 21.5, -0.4, zb - d['uv_pcb'][2]), _neg(uf[1]), uf[2], uf[3])
+        # pod dock: behind the UV window in the front wall, ZIF facing the window (and the pod's flex)
+        xa, xb = d['pod_x0'] + 4, d['pod_x1'] - 4
+        xc, yc = s * (xa + xb) / 2, (d['pod_y0'] + 2 + d['y_uv'] + 0.5) / 2
+        out['pod_dock_' + side] = ((xc - 14.0, yc + 7.0, d['zf_in'] - 1.8), (1, 0, 0), (0, 1, 0), (0, 0, 1))
+    # hood dock under the top wall near the front, spring pins up; hood pad face down on them
+    zc = d['body_z_front'] - 7.0
+    out['hood_dock'] = ((-17.0, d['y_top_in'] - 1.8, zc - 6.5), (1, 0, 0), (0, 0, -1), (0, 1, 0))
+    out['hood_pad'] = ((-20.0, d['body_y_top'] + 1.9, zc + 0.3), (1, 0, 0), (0, 0, 1), (0, -1, 0))
+    # button boards inside each wing's arm, parallel to the slab, between the thumb buttons and the trigger
+    F = slab_frame(d)
+    for side, s in (('l', 1), ('r', -1)):
+        xc = s * d['btn_pcb_x']
+        out['btn_' + side] = (_frame_pt(F, xc - 18.0, sy(d, d['btn_pcb_y']) + 10.0, d['btn_pcb_z']), F[1], F[2], F[3])
+    return out
+
+
+def button_dummies(d, g):
+    """Panel buttons: index triggers (12 mm) on the grip fronts, thumbs (7 mm) on the arm-root backs."""
+    F = slab_frame(d)
+    sf, t = d['sf'], d['wall']
+    out = {}
+    for side, s in (('L', 1), ('R', -1)):
+        tx, ty = grip_xy(d, s, 0.0, d['trigger_y'])
+        tyl = sy(d, ty)
+        out['Trigger_' + side] = g.union([g.ocyl(F, (tx, tyl, sf + 1.2), (tx, tyl, sf + 4.0), 5.5),        # cap
+                                          g.ocyl(F, (tx, tyl, sf - t - 16.0), (tx, tyl, sf + 1.2), 5.9)])  # body
+        thumbs = []
+        for (x, y) in thumb_button_points(d):
+            yl = sy(d, y)
+            thumbs.append(g.ocyl(F, (s * x, yl, -sf - 2.0), (s * x, yl, -sf), 3.2))
+            thumbs.append(g.ocyl(F, (s * x, yl, -sf), (s * x, yl, -sf + t + 9.0), 3.4))
+        out['Thumbs_' + side] = g.union(thumbs)
+    out['PwrCap'] = g.cyl((d['pwr_btn_x'], d['y_top_in'], d['bay_zc']), (d['pwr_btn_x'], d['body_y_top'] + 1.5, d['bay_zc']), 6.0)
+    return out
 
 
 # ---------------------------------------------------------------- reference dummies
@@ -1273,6 +1409,16 @@ def build_reference(comp, d):
     items['PowerBank'] = g.box(d['bay_x0'] + 1, d['bay_x0'] + 1 + bl, d['bay_y0'] + 0.3, d['bay_y0'] + 0.3 + bt,
                                d['bay_zc'] - bw / 2, d['bay_zc'] + bw / 2)
     fs, ft = d['fan']
+    cw, ch_, ct = d['chg_pcb']                                    # CHARGE board + receptacle + JST
+    xw = d['bx'] - d['wall'] - 0.2
+    items['ChargeBoard'] = g.union([
+        g.box(xw - ch_, xw, d['chg_y'], d['chg_y'] + ct, d['chg_z0'], d['chg_z0'] + cw),
+        g.box(xw - 7.6, xw + 0.2, d['chg_y'] + ct, d['chg_y'] + ct + 3.3, d['chg_z0'] + 1.5, d['chg_z0'] + 10.5),
+        g.box(xw - 11.0, xw - 1.0, d['chg_y'] + ct, d['chg_y'] + ct + 6.0, d['chg_z0'] + 13.5, d['chg_z0'] + 18.5)])
+    items['PwrButton'] = g.cyl((d['pwr_btn_x'], d['y_top_in'] - 22.0, d['bay_zc']), (d['pwr_btn_x'], d['y_top_in'], d['bay_zc']), 7.5)
+    items['UsbExport'] = g.box(d['usb_a_x'] - 7.0, d['usb_a_x'] + 7.0, d['y_top_in'] - 12.0, d['y_top_in'],
+                               d['bay_zc'] - 10.0, d['bay_zc'] + 10.0)
+    items.update(button_dummies(d, g))
     items['Fan30'] = g.box(d['fan_cx'] - fs / 2, d['fan_cx'] + fs / 2, d['y_top_in'] - 6 - ft, d['y_top_in'] - 6,
                            d['fan_cz'] - fs / 2, d['fan_cz'] + fs / 2)
     yb = d['shelf_y1'] + d['pcb_standoff']              # board underside
@@ -1288,14 +1434,23 @@ def build_reference(comp, d):
                                g.box(x0 + 7, x1 - 7, yb - d['pcb_bot'], yb, z0 + 7, z1 - 7)])   # underside parts, clear of the bosses
     for side, s in (('L', 1), ('R', -1)):
         fr, uf = pod_frame(d, s), uv_frame(d, s)
-        leds = [g.obox(fr, cx - d['white_w'] / 2, cx + d['white_w'] / 2, d['y_wb'], d['ytop'], -0.8, 5.2)
-                for cx in white_columns(d)]
+        pw_, ph_, pt_ = d['white_pcb']
+        L = d['pod_face_w']
+        zbk = -(d['white_mod_h'] + pt_)
+        vc = white_module_cy(d)                                              # module centre
+        leds = [g.obox(fr, L / 2 - pw_ / 2, L / 2 + pw_ / 2, d['y_wb'], d['y_wtop'], zbk, zbk + pt_)]   # WHITE carrier
+        leds += [g.obox(fr, cx - d['white_w'] / 2, cx + d['white_w'] / 2, vc - d['white_l'] / 2, vc + d['white_l'] / 2,
+                        zbk + pt_, zbk + pt_ + d['white_mod_h'] - 0.05) for cx in white_columns(d)]          # modules
+        leds += [g.obox(fr, cx - 3.6, cx + 3.6, d['y_wtop'] - 11.2, d['y_wtop'] - 1.2, zbk + pt_, zbk + pt_ + 5.0)
+                 for cx in white_columns(d)]                                                                # push-in terminals
+        leds.append(g.obox(fr, L / 2 + 4, L / 2 + 10, vc - 9, vc + 8.5, zbk - 5.0, zbk))                    # J4 side-entry + plug, back
+        zb = uv_board_front(d)
+        pw, ph, pt = d['uv_pcb']
         for (x, y) in uv_led_points(d):
-            leds.append(g.ocyl(uf, (x, y, -d['uv_skin'] - 1.0), (x, y, 8.7 - d['uv_skin'] - 1.0), 2.5))
-        bw_, bh_ = d['uv_board'][1], d['uv_board'][0]
-        for i in range(d['uv_n']):
-            x = (i - (d['uv_n'] - 1) / 2) * d['uv_col_gap']
-            leds.append(g.obox(uf, x - bw_ / 2, x + bw_ / 2, -0.4 - bh_, -0.4, -d['uv_skin'] - 6.0, -d['uv_skin'] - 4.4))
+            leds.append(g.ocyl(uf, (x, y, -(d['uv_skin'] - 1.0)), (x, y, 8.7 - (d['uv_skin'] - 1.0)), 2.5))   # LED, flange in front
+            leds.append(g.obox(uf, x - 2.54, x + 2.54, y - 1.27, y + 1.27, zb, zb + d['uv_sock_h']))          # its socket
+        leds.append(g.obox(uf, -pw / 2, pw / 2, -0.4 - ph, -0.4, zb - pt, zb))                                 # socket board
+        leds.append(g.obox(uf, s * 8.0 - 2.4, s * 8.0 + 2.4, -0.4 - 9.5 - 7.3, -0.4 - 9.5 + 7.3, zb - pt - 2.1, zb - pt))   # ZIF on the back
         items['Leds_' + side] = g.union(leds)
     for k, tb in items.items():
         add_temp_body(comp, tb, k)

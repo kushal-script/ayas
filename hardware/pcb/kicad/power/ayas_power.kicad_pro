@@ -6,7 +6,7 @@
         "min_copper_edge_clearance": 0.3,
         "min_hole_clearance": 0.18,
         "min_hole_to_hole": 0.25,
-        "min_track_width": 0.15,
+        "min_track_width": 0.125,
         "min_via_diameter": 0.45,
         "min_via_annular_width": 0.1,
         "min_through_hole_diameter": 0.25,
@@ -41,7 +41,7 @@
       {
         "name": "Power",
         "clearance": 0.15,
-        "track_width": 0.8,
+        "track_width": 0.5,
         "via_diameter": 0.8,
         "via_drill": 0.4,
         "diff_pair_width": 0.2,
@@ -125,6 +125,14 @@
       {
         "netclass": "Power",
         "pattern": "K_RING6"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "K_WHITE"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "K_UV"
       },
       {
         "netclass": "Power",

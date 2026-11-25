@@ -44,6 +44,33 @@ pods:                                     # white LED pods, one logic-level MOSF
   R: 27
   active_high: true
 
+# Phase 2 handheld controls (docs/hardware/controls.md). The LIGHT/IO board's RP2040 reports button events
+# over USB serial as `BTN <name> <press|hold>`; the app maps them here. Review tasks (Why?, How to fix?, 3D,
+# Acknowledge, Shift summary) stay on the touchscreen; the buttons do what needs both hands on the grips.
+controls:
+  serial: /dev/serial/by-id/usb-Ayas_LIGHT-IO*   # RP2040 USB CDC port
+  hold_ms: 1000                           # press longer than this = hold
+  both_triggers: true                     # Inspect needs both triggers within trigger_window_ms (steady capture)
+  trigger_window_ms: 300
+  map:                                    # button -> {press: action, hold: action}
+    trigger:  {press: inspect}
+    thumb_lu: {press: scan_part_id, hold: clear_part_id}            # left, upper
+    thumb_ll: {press: light_mode_next, hold: aim_light_toggle}      # left, lower
+    thumb_ru: {press: region_next, hold: region_back}               # right, upper
+    thumb_rl: {press: mark_for_qa, hold: retake}                    # right, lower
+  light_modes: [standard, hood_3d, uv_check]   # uv_check only with the hood on (hardware interlock as well)
+  beep: {press: 1, hold: 2}               # buzzer feedback: short beeps per event
+
+power:                                    # power button on the top of the body (POWER board, RP2040 HOLD)
+  off_hold_ms: 2000                       # hold to save and shut down
+  forced_off_hold_ms: 10000               # hold to cut power at once (RP2040 releases HOLD)
+  pi_off_timeout_s: 30                    # cut power anyway if the Pi has not halted by then
+
+export:                                   # USB pen drive in the port on the top of the body
+  mount: /media/ayas-export
+  formats: [csv, pdf, images]
+  scopes: [today, shift, all]
+
 alert:
   buzzer_pin: null                        # BCM pin of an optional buzzer; null = screen only
   beep_ms: 120

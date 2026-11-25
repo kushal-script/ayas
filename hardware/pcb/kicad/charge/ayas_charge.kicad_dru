@@ -1,0 +1,4 @@
+(version 1)
+(rule "smd nut ring"
+  (condition "A.memberOfFootprint('N*') && B.memberOfFootprint('N*')")
+  (constraint hole_clearance (min 0mm)))

@@ -9,12 +9,11 @@ artifacts/
 # local snapshots and training run folders
 backups/
 runs/
-# model weights are not committed (Phase 1 plan M9); see DATASETS.md / the report for how to get them
+# the Llama .pte (1.08 GB, over GitHub's file limit), tokenizer and training checkpoints are not committed;
+# the detector ONNX/HEF and the depth-network ONNX are (models/README.md)
 models/*.pte
 models/*.joblib
-models/*.onnx
 models/*.pt
-models/*.hef
 models/tokenizer.model
 .DS_Store
 # internal process notes and stale local runs (kept locally, not part of the published project)
@@ -32,3 +31,5 @@ hardware/pcb/kicad/*/*.step
 hardware/pcb/kicad/*/*-backups/
 hardware/pcb/kicad/*/*.kicad_prl
 hardware/pcb/kicad/*/fp-info-cache
+hardware/pcb/kicad/*/route.dsn
+hardware/pcb/kicad/*/route.ses

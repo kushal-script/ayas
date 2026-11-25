@@ -19,7 +19,7 @@ from kisexp import Sym, dump, find, find_all, parse  # noqa: E402
 
 KICAD_SYM = os.environ.get('KICAD_SYMBOL_DIR', '/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols')
 GRID = 2.54
-POWER_NETS = ('GND', 'VBUS', 'V12', 'V12_LED', 'V5', '3V3', '1V1')
+POWER_NETS = ('GND', 'VBUS', 'V12', 'V12_LED', 'V5', '3V3', '1V1', 'VPLUS', 'CHG_VBUS')
 _LIBS = {}
 
 
