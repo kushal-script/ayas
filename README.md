@@ -264,6 +264,161 @@ Authors: Binay Verma, Dhanush D, Kushal S. Faculty mentor: Dr. Subir Roy.
 - **Controls, power and export:** `docs/hardware/controls.md`. **Board specification:** `docs/hardware/pcb_phase2.md`. **Service manual** (fasteners, cable table, assembly order, repairs): `docs/hardware/service.md`.
 - **Checked by** `tests/test_hardware_design.py`: both ends of every cable carry the same pinout, flex pinouts are palindromes, and no two different connectors on one board take the same plug.
 
+## Gallery
+
+Every image of the project: the product, how it works, the architecture, the results, and every PCB with its schematic. Click an image for full size.
+
+### The product
+
+<img src="docs/hardware/renders/1_front.jpg" width="860" alt="Front">
+
+<table><tr><td><img src="docs/hardware/renders/2_back.jpg" width="420" alt=""><br><sub>Back: display, thumb buttons, USB-A export</sub></td><td><img src="docs/hardware/renders/3_hood.jpg" width="420" alt=""><br><sub>With the inspection hood fitted</sub></td></tr>
+<tr><td><img src="docs/hardware/renders/4_xray_front.jpg" width="420" alt=""><br><sub>X-ray, front: boards, LED modules and harness</sub></td><td><img src="docs/hardware/renders/5_xray_back.jpg" width="420" alt=""><br><sub>X-ray, back: POWER, LIGHT/IO, Pi stack, bank, fan</sub></td></tr>
+<tr><td><img src="docs/hardware/renders/6_xray_top.jpg" width="420" alt=""><br><sub>X-ray, top: harness routes</sub></td><td><img src="docs/hardware/renders/7_cutaway.jpg" width="420" alt=""><br><sub>Cutaway from the back, shell at 25 %</sub></td></tr>
+<tr><td><img src="docs/report/figures/v_product.jpg" width="420" alt=""><br><sub>Product render (demo video)</sub></td><td><img src="docs/report/figures/v_exploded.jpg" width="420" alt=""><br><sub>Exploded view (demo video)</sub></td></tr></table>
+
+### How it works
+
+<table>
+<tr><td><img src="docs/report/figures/v_burst.jpg" width="420" alt=""><br><sub>5-frame light burst and the quality gate</sub></td><td><img src="docs/report/figures/v_flow.jpg" width="420" alt=""><br><sub>End to end: scan → gate → tile → detect → 3D → rules → explanation</sub></td></tr>
+<tr><td><img src="docs/report/figures/v_yolo.jpg" width="420" alt=""><br><sub>YOLOv8n on the Hailo-10H</sub></td><td><img src="docs/report/figures/v_rules.jpg" width="420" alt=""><br><sub>The rules engine decides the verdict</sub></td></tr>
+<tr><td><img src="docs/report/figures/v_pinn.jpg" width="420" alt=""><br><sub>PINN: a light model fits the height map</sub></td><td><img src="docs/report/figures/v_surface.jpg" width="420" alt=""><br><sub>3D surface of a 0.32 mm dent</sub></td></tr>
+<tr><td><img src="docs/report/figures/v_llama.jpg" width="420" alt=""><br><sub>Llama 3.2 1B via ExecuTorch explains the verdict</sub></td><td><img src="docs/report/figures/v_qa.jpg" width="420" alt=""><br><sub>Station functions and who answers each question</sub></td></tr>
+</table>
+
+### Architecture
+
+<table><tr><td><img src="docs/report/figures/d_system.png" width="420" alt=""><br><sub>Software: the two pipelines</sub></td><td><img src="docs/report/figures/d_electronics.png" width="420" alt=""><br><sub>Electronics</sub></td></tr></table>
+
+### Results
+
+<table>
+<tr><td><img src="docs/report/figures/c_lighting.png" width="420" alt=""><br><sub>Wrong verdicts with no warning, by method and device</sub></td><td><img src="docs/report/figures/c_recall.png" width="420" alt=""><br><sub>Detector recall per class</sub></td></tr>
+<tr><td><img src="docs/report/figures/c_latency.png" width="420" alt=""><br><sub>Camera to verdict on the Pi 5: CPU against Hailo-10H</sub></td><td><img src="docs/report/figures/c_llama.png" width="420" alt=""><br><sub>Llama on the Pi: first design against final</sub></td></tr>
+<tr><td><img src="docs/report/figures/c_pinn.png" width="420" alt=""><br><sub>Dent depth error: PINN against classical</sub></td><td><img src="docs/report/figures/c_speedups.png" width="420" alt=""><br><sub>Measured speed-ups</sub></td></tr>
+</table>
+
+**Digital twin and experiments**
+
+<table>
+<tr><td><img src="reports/figures/lighting/lighting_s900100.png" width="420" alt=""><br><sub>Test plate s900100 in all 7 lighting conditions</sub></td><td><img src="reports/figures/scenes/lighting_grid_s900100.jpg" width="420" alt=""><br><sub>Lighting grid, plate s900100</sub></td></tr>
+<tr><td><img src="reports/figures/pilot_naive_vs_burst_s900011.png" width="420" alt=""><br><sub>Old single frame against the new burst</sub></td><td><img src="reports/figures/pilot_gate_fixes.png" width="420" alt=""><br><sub>Quality-gate decisions</sub></td></tr>
+<tr><td><img src="reports/figures/scenes/burst_s900100_C3h_v0.jpg" width="420" alt=""><br><sub>Burst-processed plate, window daylight, hood</sub></td><td><img src="reports/figures/scenes/ground_truth_s900100_C0h_v0.jpg" width="420" alt=""><br><sub>Its ground truth</sub></td></tr>
+<tr><td><img src="reports/figures/physics_validation_open_aluminium.png" width="420" alt=""><br><sub>Light model against Blender, open pods</sub></td><td><img src="reports/figures/physics_hood_bounce_D3.png" width="420" alt=""><br><sub>Hood inter-reflection model at a dent</sub></td></tr>
+<tr><td><img src="reports/figures/physics_pilot_invariance.png" width="420" alt=""><br><sub>PINN depth across lighting conditions</sub></td><td><img src="reports/figures/physics_coupons_scatter.png" width="420" alt=""><br><sub>PINN depth against the truth on the coupons</sub></td></tr>
+<tr><td><img src="reports/figures/jepa/s900100_C3h_v0_burst.jpg" width="420" alt=""><br><sub>JEPA anomaly maps (not adopted)</sub></td><td><img src="reports/figures/pilot_montage_s900011.png" width="420" alt=""><br><sub>Pilot plate montage</sub></td></tr>
+</table>
+
+### PCBs and schematics
+
+All 13 boards, generated from `hardware/pcb/design.py` and routed with 0 DRC errors. For each board: 3D render of the top and bottom, the copper layout, and the schematic (click it for the vector PDF). KiCad sources: `hardware/pcb/kicad/<board>/`.
+
+<img src="docs/report/figures/pcb_montage.jpg" width="860" alt="All boards">
+
+#### POWER
+
+2-layer, 46 × 55 mm. USB-C PD sink to 12 V (STUSB4500), 5 V / 5 A buck for the Pi (TPS565201), LED-rail monitor (INA226), power-hold with no standby drain, charge-through.
+
+<table><tr><td><img src="docs/hardware/pcb/power_top.png" width="280" alt=""><br><sub>top</sub></td><td><img src="docs/hardware/pcb/power_bottom.png" width="280" alt=""><br><sub>bottom</sub></td><td><img src="docs/hardware/pcb/power_layout.png" width="280" alt=""><br><sub>copper layout</sub></td></tr></table>
+
+<a href="docs/hardware/schematics/ayas_power.pdf"><img src="docs/hardware/schematics/ayas_power.png" width="860" alt=""></a><br><sub>Schematic (click for the PDF)</sub>
+
+#### LIGHT/IO
+
+6-layer, 46 × 55 mm. RP2040 on USB to the Pi, 10 constant-current LED sinks, UV interlock, buttons, fan, buzzer, NTCs. The layout view shows F, In2–In4 and B copper.
+
+<table><tr><td><img src="docs/hardware/pcb/light_top.png" width="280" alt=""><br><sub>top</sub></td><td><img src="docs/hardware/pcb/light_bottom.png" width="280" alt=""><br><sub>bottom</sub></td><td><img src="docs/hardware/pcb/light_layout.png" width="280" alt=""><br><sub>copper layout</sub></td></tr></table>
+
+<a href="docs/hardware/schematics/ayas_light.pdf"><img src="docs/hardware/schematics/ayas_light.png" width="860" alt=""></a><br><sub>Schematic (click for the PDF)</sub>
+
+#### UV pod hub (×2)
+
+2-layer, 43 × 30.5 mm. 9 plug-in 5 mm 395 nm UV LEDs on sockets marked + / −, ZIF for the pod flex, cable to the white carrier.
+
+<table><tr><td><img src="docs/hardware/pcb/uv_top.png" width="280" alt=""><br><sub>top</sub></td><td><img src="docs/hardware/pcb/uv_bottom.png" width="280" alt=""><br><sub>bottom</sub></td><td><img src="docs/hardware/pcb/uv_layout.png" width="280" alt=""><br><sub>copper layout</sub></td></tr></table>
+
+<a href="docs/hardware/schematics/ayas_uv.pdf"><img src="docs/hardware/schematics/ayas_uv.png" width="860" alt=""></a><br><sub>Schematic (click for the PDF)</sub>
+
+#### WHITE-L carrier
+
+2-layer, 50 × 66 mm. Three 12 V white LED modules; tabs on M2 screws into SMD nuts, leads in push-in terminals.
+
+<table><tr><td><img src="docs/hardware/pcb/white_l_top.png" width="280" alt=""><br><sub>top</sub></td><td><img src="docs/hardware/pcb/white_l_bottom.png" width="280" alt=""><br><sub>bottom</sub></td><td><img src="docs/hardware/pcb/white_l_layout.png" width="280" alt=""><br><sub>copper layout</sub></td></tr></table>
+
+<a href="docs/hardware/schematics/ayas_white_l.pdf"><img src="docs/hardware/schematics/ayas_white_l.png" width="860" alt=""></a><br><sub>Schematic (click for the PDF)</sub>
+
+#### WHITE-R carrier
+
+The mirror image of WHITE-L for the right pod.
+
+<table><tr><td><img src="docs/hardware/pcb/white_r_top.png" width="280" alt=""><br><sub>top</sub></td><td><img src="docs/hardware/pcb/white_r_bottom.png" width="280" alt=""><br><sub>bottom</sub></td><td><img src="docs/hardware/pcb/white_r_layout.png" width="280" alt=""><br><sub>copper layout</sub></td></tr></table>
+
+<a href="docs/hardware/schematics/ayas_white_r.pdf"><img src="docs/hardware/schematics/ayas_white_r.png" width="860" alt=""></a><br><sub>Schematic (click for the PDF)</sub>
+
+#### Pod flex (×2)
+
+Flex, 11 × 60 mm. 10 straight conductors with a palindrome pinout: correct either way round.
+
+<table><tr><td><img src="docs/hardware/pcb/podflex_top.png" width="280" alt=""><br><sub>top</sub></td><td><img src="docs/hardware/pcb/podflex_bottom.png" width="280" alt=""><br><sub>bottom</sub></td><td><img src="docs/hardware/pcb/podflex_layout.png" width="280" alt=""><br><sub>copper layout</sub></td></tr></table>
+
+<a href="docs/hardware/schematics/ayas_podflex.pdf"><img src="docs/hardware/schematics/ayas_podflex.png" width="860" alt=""></a><br><sub>Schematic (click for the PDF)</sub>
+
+#### POD DOCK L
+
+2-layer, 28 × 14 mm. ZIF for the pod flex behind the body front face; JST-SH 6 to LIGHT/IO.
+
+<table><tr><td><img src="docs/hardware/pcb/pod_dock_l_top.png" width="280" alt=""><br><sub>top</sub></td><td><img src="docs/hardware/pcb/pod_dock_l_bottom.png" width="280" alt=""><br><sub>bottom</sub></td><td><img src="docs/hardware/pcb/pod_dock_l_layout.png" width="280" alt=""><br><sub>copper layout</sub></td></tr></table>
+
+<a href="docs/hardware/schematics/ayas_pod_dock_l.pdf"><img src="docs/hardware/schematics/ayas_pod_dock_l.png" width="860" alt=""></a><br><sub>Schematic (click for the PDF)</sub>
+
+#### POD DOCK R
+
+The same with JST-SH 7, so the two pod cables cannot be swapped.
+
+<table><tr><td><img src="docs/hardware/pcb/pod_dock_r_top.png" width="280" alt=""><br><sub>top</sub></td><td><img src="docs/hardware/pcb/pod_dock_r_bottom.png" width="280" alt=""><br><sub>bottom</sub></td><td><img src="docs/hardware/pcb/pod_dock_r_layout.png" width="280" alt=""><br><sub>copper layout</sub></td></tr></table>
+
+<a href="docs/hardware/schematics/ayas_pod_dock_r.pdf"><img src="docs/hardware/schematics/ayas_pod_dock_r.png" width="860" alt=""></a><br><sub>Schematic (click for the PDF)</sub>
+
+#### HOOD DOCK
+
+2-layer, 34 × 13 mm. 9 spring pins up through the top wall; JST-SH 9 to LIGHT/IO.
+
+<table><tr><td><img src="docs/hardware/pcb/hood_dock_top.png" width="280" alt=""><br><sub>top</sub></td><td><img src="docs/hardware/pcb/hood_dock_bottom.png" width="280" alt=""><br><sub>bottom</sub></td><td><img src="docs/hardware/pcb/hood_dock_layout.png" width="280" alt=""><br><sub>copper layout</sub></td></tr></table>
+
+<a href="docs/hardware/schematics/ayas_hood_dock.pdf"><img src="docs/hardware/schematics/ayas_hood_dock.png" width="860" alt=""></a><br><sub>Schematic (click for the PDF)</sub>
+
+#### HOOD PAD
+
+2-layer, 40 × 32 mm. Gold pads onto the dock, 6 push-in terminals for the ring modules, the interlock loop.
+
+<table><tr><td><img src="docs/hardware/pcb/hood_pad_top.png" width="280" alt=""><br><sub>top</sub></td><td><img src="docs/hardware/pcb/hood_pad_bottom.png" width="280" alt=""><br><sub>bottom</sub></td><td><img src="docs/hardware/pcb/hood_pad_layout.png" width="280" alt=""><br><sub>copper layout</sub></td></tr></table>
+
+<a href="docs/hardware/schematics/ayas_hood_pad.pdf"><img src="docs/hardware/schematics/ayas_hood_pad.png" width="860" alt=""></a><br><sub>Schematic (click for the PDF)</sub>
+
+#### SIDE-L buttons
+
+2-layer, 36 × 20 mm. Push-in terminals TRIG, UPPER, LOWER; JST-SH 4 to LIGHT/IO.
+
+<table><tr><td><img src="docs/hardware/pcb/btn_l_top.png" width="280" alt=""><br><sub>top</sub></td><td><img src="docs/hardware/pcb/btn_l_bottom.png" width="280" alt=""><br><sub>bottom</sub></td><td><img src="docs/hardware/pcb/btn_l_layout.png" width="280" alt=""><br><sub>copper layout</sub></td></tr></table>
+
+<a href="docs/hardware/schematics/ayas_btn_l.pdf"><img src="docs/hardware/schematics/ayas_btn_l.png" width="860" alt=""></a><br><sub>Schematic (click for the PDF)</sub>
+
+#### SIDE-R buttons
+
+The same with JST-SH 5.
+
+<table><tr><td><img src="docs/hardware/pcb/btn_r_top.png" width="280" alt=""><br><sub>top</sub></td><td><img src="docs/hardware/pcb/btn_r_bottom.png" width="280" alt=""><br><sub>bottom</sub></td><td><img src="docs/hardware/pcb/btn_r_layout.png" width="280" alt=""><br><sub>copper layout</sub></td></tr></table>
+
+<a href="docs/hardware/schematics/ayas_btn_r.pdf"><img src="docs/hardware/schematics/ayas_btn_r.png" width="860" alt=""></a><br><sub>Schematic (click for the PDF)</sub>
+
+#### CHARGE
+
+2-layer, 24 × 12.5 mm. Power-only USB-C through the side wall; JST-PH 5 to POWER.
+
+<table><tr><td><img src="docs/hardware/pcb/charge_top.png" width="280" alt=""><br><sub>top</sub></td><td><img src="docs/hardware/pcb/charge_bottom.png" width="280" alt=""><br><sub>bottom</sub></td><td><img src="docs/hardware/pcb/charge_layout.png" width="280" alt=""><br><sub>copper layout</sub></td></tr></table>
+
+<a href="docs/hardware/schematics/ayas_charge.pdf"><img src="docs/hardware/schematics/ayas_charge.png" width="860" alt=""></a><br><sub>Schematic (click for the PDF)</sub>
+
 ## Quick start on a laptop (no hardware)
 
 ```bash
