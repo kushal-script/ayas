@@ -1,6 +1,7 @@
-# Models (not committed)
+# Models
 
-Weights are not in git (see `.gitignore` and NOTICE). Put them in this folder.
+The detector models (ONNX, Hailo HEF) and the depth-network ONNX are in git. The Llama `.pte` (1.08 GB, over GitHub's
+100 MB file limit), its tokenizer and the PyTorch training checkpoints are not: make or download them as described below.
 
 | File | What | How it was made | SHA-256 |
 |---|---|---|---|
@@ -8,6 +9,7 @@ Weights are not in git (see `.gitignore` and NOTICE). Put them in this folder.
 | `v8n_naive.onnx` (+ `.json`) | Same, trained on the old single-frame capture. Baseline arm of the lighting experiment only | same run | `43db93e43e8742c9332edab6511d6f0ff58f30c011cf27e444fbc6f6ee1e0756` |
 | `llama3_2_1b_instruct.pte` + `tokenizer.model` | Llama 3.2 1B Instruct for ExecuTorch (advisor) | Meta `meta-llama/Llama-3.2-1B-Instruct-SpinQuant_INT4_EO8` (4-bit weights, group 32, 8-bit embeddings), exported on the Pi 5 on 1 Nov 2026 with ExecuTorch v1.6.0-rc1 (`80264e11d`), XNNPACK; on the Pi it is `~/executorch/llama32_1b_spinquant.pte` (1.08 GB), runner `~/executorch/cmake-out/examples/models/llama/llama_main` | `85f3af53e1cf4ec6d418b8402e9120ca59e13d538602c6facea7269d4710c6ec` |
 | `v8n_burst.hef` | `v8n_burst.onnx` compiled for the **Hailo-10H** (AI HAT+ 2), `--detector hailo:models/v8n_burst.hef`; class names from `v8n_burst.json` | 22 Nov 2026 on JarvisLabs (A30) with `hailo/compile_hef_jl.sh`: DFC 5.1.0 + Model Zoo v5.1.0 (`c13e20e`), Python 3.10, 1,024 twin TRAIN burst tiles for INT8 calibration (`training/calib_set.py --allow-twin`), cut at the six head convs, on-chip NMS (6 classes, score 0.2). Outputs, logs and HAR in `artifacts/jarvislabs/ayas-hailo_583671/` | `4b3ae346ebe5a51510cbd6d5a6041db9819c5449d02b874e00efd48a62ea9840` |
+| `depthnet_blender.onnx` (+ `.json`) | U-Net depth network (width 24) fine-tuned on Blender crops; **not adopted** (dent MAE 0.149 mm against 0.022 mm for the PINN fit) | `training/depthnet/` on JarvisLabs (22 Nov 2026), run 2 | `edab4eb6b63d195863ac49e34d5470d77499976f3e451b2280f315217074b15c` |
 
 Each `.json` next to an ONNX records the export:
 - the classes;

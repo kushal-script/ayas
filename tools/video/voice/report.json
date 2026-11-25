@@ -1,0 +1,196 @@
+{
+ "speakers": {
+  "Thoma": {
+   "f0_hz": 167.3,
+   "wer": 0.0,
+   "dur_s": 2.09
+  },
+  "Dinesh": {
+   "f0_hz": 225.2,
+   "wer": 0.25,
+   "dur_s": 2.11
+  },
+  "Aakash": {
+   "f0_hz": 127.9,
+   "wer": 0.0,
+   "dur_s": 2.6
+  },
+  "Raghav": {
+   "f0_hz": 133.1,
+   "wer": 0.25,
+   "dur_s": 2.08
+  },
+  "Jatin": {
+   "f0_hz": 146.0,
+   "wer": 0.25,
+   "dur_s": 2.01
+  },
+  "Kabir": {
+   "f0_hz": 129.0,
+   "wer": 0.25,
+   "dur_s": 2.51
+  },
+  "Pranav": {
+   "f0_hz": 163.0,
+   "wer": 0.25,
+   "dur_s": 1.54
+  },
+  "Rahul": {
+   "f0_hz": 122.8,
+   "wer": 0.0,
+   "dur_s": 2.07
+  }
+ },
+ "lines": {
+  "s01_title": [
+   {
+    "sentence": "Aayas.",
+    "wer": 1.0,
+    "take": 0
+   },
+   {
+    "sentence": "Every surface, seen true.",
+    "wer": 0.0,
+    "take": 0
+   },
+   {
+    "sentence": "On-device quality control for steel and metal surfaces, on a Raspberry Pi five with a Hailo accelerator and Llama.",
+    "wer": 0.1,
+    "take": 2
+   }
+  ],
+  "s02_problem": [
+   {
+    "sentence": "Plates leave the line with scratches, dents, pits, corrosion, cracks and stains.",
+    "wer": 0.083,
+    "take": 2
+   },
+   {
+    "sentence": "Manual checks are slow and inconsistent, and cameras are fooled by glare.",
+    "wer": 0.0,
+    "take": 0
+   }
+  ],
+  "s03_product": [
+   {
+    "sentence": "This is the handheld Aayas: a five-inch touch screen, a Raspberry Pi five with the AI HAT plus two and its Hailo ten-H, and the Raspberry Pi AI Camera between two pods of white and ultraviolet LEDs.",
+    "wer": 0.333,
+    "take": 2
+   },
+   {
+    "sentence": "A clip-on hood with an LED ring shuts out daylight.",
+    "wer": 0.0,
+    "take": 2
+   }
+  ],
+  "s04_burst": [
+   {
+    "sentence": "Each scan is a five frame burst: both LEDs, left, off, right, and both again.",
+    "wer": 0.067,
+    "take": 0
+   },
+   {
+    "sentence": "The dark frame removes room light, left and right remove glare, and a quality gate refuses any capture it cannot trust.",
+    "wer": 0.0,
+    "take": 0
+   }
+  ],
+  "s05_uv": [
+   {
+    "sentence": "An ultraviolet burst over a fluorescent penetrant will make cracks glow.",
+    "wer": 0.0,
+    "take": 0
+   },
+   {
+    "sentence": "That is next on our roadmap.",
+    "wer": 0.0,
+    "take": 0
+   }
+  ],
+  "s05b_flow": [
+   {
+    "sentence": "From scan to verdict: the burst is cleaned, rectified and tiled, the Hailo finds the defects, each one is measured and judged by the rules, dents get a three D depth, and Llama writes the note on screen, in about two seconds.",
+    "wer": 0.095,
+    "take": 1
+   }
+  ],
+  "s06_detect": [
+   {
+    "sentence": "YOLO vee eight nano, with its backbone, feature pyramid and three detection heads, runs on the Hailo ten-H in forty seven milliseconds.",
+    "wer": 0.304,
+    "take": 0
+   }
+  ],
+  "s07_rules": [
+   {
+    "sentence": "Each defect is matched to a rule from the steel standards, which sets its severity.",
+    "wer": 0.0,
+    "take": 0
+   },
+   {
+    "sentence": "The worst one decides the verdict: pass, clean, rework, hold for Q A, or reject.",
+    "wer": 0.133,
+    "take": 0
+   }
+  ],
+  "s08_3d": [
+   {
+    "sentence": "For dents and pits, a physics informed network proposes a height map, a light model renders what each LED would see, and the error against the camera corrects it until they match.",
+    "wer": 0.031,
+    "take": 2
+   },
+   {
+    "sentence": "This dent is about a third of a millimetre deep.",
+    "wer": 0.1,
+    "take": 0
+   }
+  ],
+  "s09_llama": [
+   {
+    "sentence": "Llama three point two, one B, quantised with SpinQuant, runs on the Pi with ExecuTorch and explains the likely cause and how to prevent it.",
+    "wer": 0.44,
+    "take": 0
+   }
+  ],
+  "s09b_qa": [
+   {
+    "sentence": "The operator can ask more.",
+    "wer": 0.0,
+    "take": 0
+   },
+   {
+    "sentence": "Why goes to Llama, behind a guardrail that checks every number.",
+    "wer": 0.091,
+    "take": 1
+   },
+   {
+    "sentence": "How to fix comes straight from the rules engine.",
+    "wer": 0.0,
+    "take": 1
+   },
+   {
+    "sentence": "Shift summary covers the last fifty parts, and three D, acknowledge and a saved record complete the station.",
+    "wer": 0.167,
+    "take": 0
+   }
+  ],
+  "s10_close": [
+   {
+    "sentence": "Fully offline, on a Raspberry Pi five.",
+    "wer": 0.143,
+    "take": 0
+   },
+   {
+    "sentence": "Aayas.",
+    "wer": 1.0,
+    "take": 0
+   },
+   {
+    "sentence": "Built with Llama.",
+    "wer": 0.0,
+    "take": 0
+   }
+  ]
+ },
+ "chosen": "Aakash"
+}

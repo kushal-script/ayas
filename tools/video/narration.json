@@ -1,0 +1,50 @@
+[
+ [
+  "s01_title",
+  "Ayas. Every surface, seen true. On-device quality control for steel and metal surfaces, on a Raspberry Pi 5 with a Hailo accelerator and Llama."
+ ],
+ [
+  "s02_problem",
+  "Plates leave the line with scratches, dents, pits, corrosion, cracks and stains. Manual checks are slow and inconsistent, and cameras are fooled by glare."
+ ],
+ [
+  "s03_product",
+  "This is the handheld Ayas: a five inch touch screen, a Raspberry Pi 5 with the AI HAT plus two and its Hailo ten H, and the Raspberry Pi AI Camera between two pods of white and ultraviolet LEDs. A clip-on hood with an LED ring shuts out daylight."
+ ],
+ [
+  "s04_burst",
+  "Each scan is a five frame burst: both LEDs, left, off, right, and both again. The dark frame removes room light, left and right remove glare, and a quality gate refuses any capture it cannot trust."
+ ],
+ [
+  "s05_uv",
+  "An ultraviolet burst over a fluorescent penetrant will make cracks glow. That is next on our roadmap."
+ ],
+ [
+  "s05b_flow",
+  "From scan to verdict: the burst is cleaned, rectified and tiled, the Hailo finds the defects, each one is measured and judged by the rules, dents get a 3D depth, and Llama writes the note on screen, in about two seconds."
+ ],
+ [
+  "s06_detect",
+  "YOLO v8 nano, with its backbone, feature pyramid and three detection heads, runs on the Hailo ten H in forty seven milliseconds."
+ ],
+ [
+  "s07_rules",
+  "Each defect is matched to a rule from the steel standards, which sets its severity. The worst one decides the verdict: pass, clean, rework, hold for QA, or reject."
+ ],
+ [
+  "s08_3d",
+  "For dents and pits, a physics informed network proposes a height map, a light model renders what each LED would see, and the error against the camera corrects it until they match. This dent is about a third of a millimetre deep."
+ ],
+ [
+  "s09_llama",
+  "Llama 3.2 one B, quantised with SpinQuant, runs on the Pi with ExecuTorch and explains the likely cause and how to prevent it."
+ ],
+ [
+  "s09b_qa",
+  "The operator can ask more. Why goes to Llama, behind a guardrail that checks every number. How to fix comes straight from the rules engine. Shift summary covers the last fifty parts, and 3D, acknowledge and a saved record complete the station."
+ ],
+ [
+  "s10_close",
+  "Fully offline, on a Raspberry Pi 5. Ayas. Built with Llama."
+ ]
+]
